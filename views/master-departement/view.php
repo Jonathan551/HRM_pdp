@@ -24,8 +24,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'method' => 'post',
             ],
         ]) ?>
-        <?= Html::a('Kembali', Yii::$app->request->referrer ?: ['index'], [
-                'class' => 'btn btn-info']) ?>
+        <?= Html::a('Kembali', ['index'], ['class' => 'btn btn-info']) ?>
     </p>
 
     <?= DetailView::widget([

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ee93adef4d269da61f84c77e5533bf72",
+    "content-hash": "a352430fe8767bf019f6f7e1984ea52c",
     "packages": [
         {
             "name": "bower-asset/bootstrap",
@@ -534,6 +534,73 @@
             "time": "2021-10-28T03:58:09+00:00"
         },
         {
+            "name": "masterminds/html5",
+            "version": "2.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Masterminds/html5-php.git",
+                "reference": "fcf91eb64359852f00d921887b219479b4f21251"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/fcf91eb64359852f00d921887b219479b4f21251",
+                "reference": "fcf91eb64359852f00d921887b219479b4f21251",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35 || ^5.7.21 || ^6 || ^7 || ^8 || ^9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.7-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Masterminds\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matt Butcher",
+                    "email": "technosophos@gmail.com"
+                },
+                {
+                    "name": "Matt Farina",
+                    "email": "matt@mattfarina.com"
+                },
+                {
+                    "name": "Asmir Mustafic",
+                    "email": "goetas@gmail.com"
+                }
+            ],
+            "description": "An HTML5 parser and serializer.",
+            "homepage": "http://masterminds.github.io/html5-php",
+            "keywords": [
+                "HTML5",
+                "dom",
+                "html",
+                "parser",
+                "querypath",
+                "serializer",
+                "xml"
+            ],
+            "support": {
+                "issues": "https://github.com/Masterminds/html5-php/issues",
+                "source": "https://github.com/Masterminds/html5-php/tree/2.10.0"
+            },
+            "time": "2025-07-25T09:04:22+00:00"
+        },
+        {
             "name": "mervick/material-design-icons",
             "version": "1.1.0",
             "source": {
@@ -786,6 +853,71 @@
             "time": "2024-09-11T13:17:53+00:00"
         },
         {
+            "name": "symfony/css-selector",
+            "version": "v7.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/css-selector.git",
+                "reference": "601a5ce9aaad7bf10797e3663faefce9e26c24e2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/css-selector/zipball/601a5ce9aaad7bf10797e3663faefce9e26c24e2",
+                "reference": "601a5ce9aaad7bf10797e3663faefce9e26c24e2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\CssSelector\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Jean-François Simon",
+                    "email": "jeanfrancois.simon@sensiolabs.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Converts CSS selectors to XPath expressions",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/css-selector/tree/v7.3.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-09-25T14:21:43+00:00"
+        },
+        {
             "name": "symfony/deprecation-contracts",
             "version": "v3.6.0",
             "source": {
@@ -851,6 +983,73 @@
                 }
             ],
             "time": "2024-09-25T14:21:43+00:00"
+        },
+        {
+            "name": "symfony/dom-crawler",
+            "version": "v7.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/dom-crawler.git",
+                "reference": "8b2ee2e06ab99fa5f067b6699296d4e35c156bb9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/8b2ee2e06ab99fa5f067b6699296d4e35c156bb9",
+                "reference": "8b2ee2e06ab99fa5f067b6699296d4e35c156bb9",
+                "shasum": ""
+            },
+            "require": {
+                "masterminds/html5": "^2.6",
+                "php": ">=8.2",
+                "symfony/polyfill-ctype": "~1.8",
+                "symfony/polyfill-mbstring": "~1.0"
+            },
+            "require-dev": {
+                "symfony/css-selector": "^6.4|^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\DomCrawler\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Eases DOM navigation for HTML and XML documents",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/dom-crawler/tree/v7.3.1"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2025-06-15T10:07:06+00:00"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -1181,6 +1380,85 @@
             "time": "2025-07-15T13:41:35+00:00"
         },
         {
+            "name": "symfony/polyfill-ctype",
+            "version": "v1.32.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-ctype.git",
+                "reference": "a3cc8b044a6ea513310cbd48ef7333b384945638"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/a3cc8b044a6ea513310cbd48ef7333b384945638",
+                "reference": "a3cc8b044a6ea513310cbd48ef7333b384945638",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "provide": {
+                "ext-ctype": "*"
+            },
+            "suggest": {
+                "ext-ctype": "For best performance"
+            },
+            "type": "library",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\Ctype\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Gert de Pagter",
+                    "email": "BackEndTea@gmail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill for ctype functions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "ctype",
+                "polyfill",
+                "portable"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.32.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-09-09T11:45:10+00:00"
+        },
+        {
             "name": "symfony/polyfill-intl-idn",
             "version": "v1.32.0",
             "source": {
@@ -1507,6 +1785,57 @@
                 }
             ],
             "time": "2025-04-25T09:37:31+00:00"
+        },
+        {
+            "name": "wbraganca/yii2-dynamicform",
+            "version": "v2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wbraganca/yii2-dynamicform.git",
+                "reference": "9b761d708aa6c06c1219e1c2ed321f7cb205b09f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wbraganca/yii2-dynamicform/zipball/9b761d708aa6c06c1219e1c2ed321f7cb205b09f",
+                "reference": "9b761d708aa6c06c1219e1c2ed321f7cb205b09f",
+                "shasum": ""
+            },
+            "require": {
+                "symfony/css-selector": "*",
+                "symfony/dom-crawler": "*",
+                "yiisoft/yii2": "*"
+            },
+            "type": "yii2-extension",
+            "autoload": {
+                "psr-4": {
+                    "wbraganca\\dynamicform\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Wanderson Bragança",
+                    "email": "wanderson.wbc@gmail.com"
+                }
+            ],
+            "description": "It is widget to yii2 framework to clone form elements in a nested manner, maintaining accessibility.",
+            "keywords": [
+                "copy DOM element",
+                "extension",
+                "widget",
+                "yii2",
+                "yii2 dynamic form",
+                "yii2-dynamicform"
+            ],
+            "support": {
+                "issues": "https://github.com/wbraganca/yii2-dynamicform/issues",
+                "source": "https://github.com/wbraganca/yii2-dynamicform",
+                "wiki": "https://github.com/wbraganca/yii2-dynamicform/wiki/"
+            },
+            "time": "2015-02-25T15:31:24+00:00"
         },
         {
             "name": "yiisoft/yii2",
@@ -2663,73 +2992,6 @@
                 }
             ],
             "time": "2025-03-27T12:30:47+00:00"
-        },
-        {
-            "name": "masterminds/html5",
-            "version": "2.10.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Masterminds/html5-php.git",
-                "reference": "fcf91eb64359852f00d921887b219479b4f21251"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/fcf91eb64359852f00d921887b219479b4f21251",
-                "reference": "fcf91eb64359852f00d921887b219479b4f21251",
-                "shasum": ""
-            },
-            "require": {
-                "ext-dom": "*",
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8.35 || ^5.7.21 || ^6 || ^7 || ^8 || ^9"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.7-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Masterminds\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Matt Butcher",
-                    "email": "technosophos@gmail.com"
-                },
-                {
-                    "name": "Matt Farina",
-                    "email": "matt@mattfarina.com"
-                },
-                {
-                    "name": "Asmir Mustafic",
-                    "email": "goetas@gmail.com"
-                }
-            ],
-            "description": "An HTML5 parser and serializer.",
-            "homepage": "http://masterminds.github.io/html5-php",
-            "keywords": [
-                "HTML5",
-                "dom",
-                "html",
-                "parser",
-                "querypath",
-                "serializer",
-                "xml"
-            ],
-            "support": {
-                "issues": "https://github.com/Masterminds/html5-php/issues",
-                "source": "https://github.com/Masterminds/html5-php/tree/2.10.0"
-            },
-            "time": "2025-07-25T09:04:22+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -4867,138 +5129,6 @@
             "time": "2025-07-30T17:13:41+00:00"
         },
         {
-            "name": "symfony/css-selector",
-            "version": "v7.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/css-selector.git",
-                "reference": "601a5ce9aaad7bf10797e3663faefce9e26c24e2"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/css-selector/zipball/601a5ce9aaad7bf10797e3663faefce9e26c24e2",
-                "reference": "601a5ce9aaad7bf10797e3663faefce9e26c24e2",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=8.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\CssSelector\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Jean-François Simon",
-                    "email": "jeanfrancois.simon@sensiolabs.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Converts CSS selectors to XPath expressions",
-            "homepage": "https://symfony.com",
-            "support": {
-                "source": "https://github.com/symfony/css-selector/tree/v7.3.0"
-            },
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2024-09-25T14:21:43+00:00"
-        },
-        {
-            "name": "symfony/dom-crawler",
-            "version": "v7.3.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/dom-crawler.git",
-                "reference": "8b2ee2e06ab99fa5f067b6699296d4e35c156bb9"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/8b2ee2e06ab99fa5f067b6699296d4e35c156bb9",
-                "reference": "8b2ee2e06ab99fa5f067b6699296d4e35c156bb9",
-                "shasum": ""
-            },
-            "require": {
-                "masterminds/html5": "^2.6",
-                "php": ">=8.2",
-                "symfony/polyfill-ctype": "~1.8",
-                "symfony/polyfill-mbstring": "~1.0"
-            },
-            "require-dev": {
-                "symfony/css-selector": "^6.4|^7.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\DomCrawler\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Eases DOM navigation for HTML and XML documents",
-            "homepage": "https://symfony.com",
-            "support": {
-                "source": "https://github.com/symfony/dom-crawler/tree/v7.3.1"
-            },
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2025-06-15T10:07:06+00:00"
-        },
-        {
             "name": "symfony/finder",
             "version": "v7.3.2",
             "source": {
@@ -5065,85 +5195,6 @@
                 }
             ],
             "time": "2025-07-15T13:41:35+00:00"
-        },
-        {
-            "name": "symfony/polyfill-ctype",
-            "version": "v1.32.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "a3cc8b044a6ea513310cbd48ef7333b384945638"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/a3cc8b044a6ea513310cbd48ef7333b384945638",
-                "reference": "a3cc8b044a6ea513310cbd48ef7333b384945638",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.2"
-            },
-            "provide": {
-                "ext-ctype": "*"
-            },
-            "suggest": {
-                "ext-ctype": "For best performance"
-            },
-            "type": "library",
-            "extra": {
-                "thanks": {
-                    "url": "https://github.com/symfony/polyfill",
-                    "name": "symfony/polyfill"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "bootstrap.php"
-                ],
-                "psr-4": {
-                    "Symfony\\Polyfill\\Ctype\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Gert de Pagter",
-                    "email": "BackEndTea@gmail.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony polyfill for ctype functions",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "compatibility",
-                "ctype",
-                "polyfill",
-                "portable"
-            ],
-            "support": {
-                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.32.0"
-            },
-            "funding": [
-                {
-                    "url": "https://symfony.com/sponsor",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/fabpot",
-                    "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2024-09-09T11:45:10+00:00"
         },
         {
             "name": "symfony/polyfill-intl-grapheme",

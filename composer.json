@@ -19,7 +19,8 @@
         "yiisoft/yii2-bootstrap5": "^2.0",
         "yiisoft/yii2-symfonymailer": "~2.0.3",
         "deyraka/yii2-material-dashboard": "v1.0.0-beta",
-        "kartik-v/yii2-widget-datepicker": "^1.4"
+        "kartik-v/yii2-widget-datepicker": "^1.4",
+        "wbraganca/yii2-dynamicform": "^2.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",

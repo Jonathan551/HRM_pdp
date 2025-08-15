@@ -10,7 +10,7 @@ use yii\grid\GridView;
 /** @var app\models\Usersearch $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title = 'Users';
+$this->title = 'User';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="user-index">
@@ -34,12 +34,14 @@ $this->params['breadcrumbs'][] = $this->title;
             // 'password_hash',
             [
                 'attribute' => 'id_jabatan',
+                'label' => 'Jabatan',
                 'value' => function ($model) {
                     return $model->jabatan ? $model->jabatan->nama_jabatan : '-';
                 },
             ],
             [
                 'attribute' => 'id_departement',
+                'label' => 'Departemen',
                 'value' => function ($model) {
                     return $model->departement ? $model->departement->nama_departement : '-';
                 },

@@ -18,10 +18,16 @@ $this->registerJsFile('@web/js/sidebar.js', [
         <?= Menu::widget([
             'items' => [
                 ['label' => 'Dashboard', 'icon' => 'dashboard', 'url' => ['/']],
-                 ['label' => 'Master Data', 'icon' => 'folder', 'items' => [
+                ['label' => 'Master Data', 'icon' => 'folder', 'items' => [
                     ['label' => 'Master Data User', 'icon' => 'account_circle', 'url' => ['/user/index']],
                     ['label' => 'Master Data Jabatan', 'icon' => 'badge', 'url' => ['/master-jabatan/index']],
                     ['label' => 'Master Data Depatement', 'icon' => 'business', 'url' => ['/master-departement/index']],
+                    ['label' => 'Master Data Kriteria', 'icon' => 'content_paste', 'url' => ['/master-kriteria/index']],
+                    ['label' => 'Master Data Anchor', 'icon' => 'anchor', 'url' => ['/master-anchor/index']],
+                    ['label' => 'Master Data Status', 'icon' => 'fact_check', 'url' => ['/status/index']],
+            ]],
+            ['label' => 'Master Penilaian', 'icon' => 'assignment', 'items' => [
+                    ['label' => 'Penilaian Karyawan', 'icon' => 'assignment_ind', 'url' => ['/master-penilaian/index']],
             ]]
         ]]); ?>    
     </div>

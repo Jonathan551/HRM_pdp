@@ -24,8 +24,7 @@ use yii\bootstrap5\ActiveForm;
         ArrayHelper::map(MasterJabatan::find()->all(), 'id_jabatan', 'nama_jabatan'),
         ['prompt' => 'Pilih Jabatan']
     ) ?>
-
-    <!-- Dropdown ID Departement -->
+    
     <?= $form->field($model, 'id_departement')->dropDownList(
         ArrayHelper::map(MasterDepartement::find()->all(), 'id_departement', 'nama_departement'),
         ['prompt' => 'Pilih Departement']
@@ -51,9 +50,18 @@ use yii\bootstrap5\ActiveForm;
 
     <?= $form->field($model, 'atasan_langsung')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'nomor_hp')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'nomor_hp')->textInput([
+        'maxlength' => true,
+        'type' => 'number',
+        'min' => '0',
+        'oninput' => 'this.value = this.value.replace(/[^0-9]/g, "")'
+    ]) ?>
 
-    <?= $form->field($model, 'email')->textInput(['maxlength' => true]) ?>
+    
+    <?= $form->field($model, 'email')->textInput([
+        'maxlength' => true,
+        'type' => 'email'
+    ]) ?>
 
     <?= $form->field($model, 'tanggal_lahir')->textInput([
         'class' => 'form-control datepicker',
@@ -69,12 +77,14 @@ use yii\bootstrap5\ActiveForm;
         'placeholder' => 'Pilih tanggal...'
     ]) ?>
 
-    <?= $form->field($model, 'catatan_khusus')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'catatan_khusus')->textInput([
+        'maxlength' => true,
+        'placeholder' => 'Isi catatan, atau biarkan kosong untuk default'
+    ]) ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
-        <?= Html::a('Kembali', Yii::$app->request->referrer ?: ['index'], [
-                'class' => 'btn btn-info']) ?>
+        <?= Html::a('Kembali', ['index'], ['class' => 'btn btn-info']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

@@ -58,11 +58,12 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [[ 'id_jabatan', 'id_departement', 'level_jabatan', 'tanggal_masuk', 'pendidikan_terakhir', 'status_karyawan', 'lokasi_kerja', 'atasan_langsung', 'nomor_hp', 'email', 'tanggal_lahir', 'jenis_kelamin', 'golongan', 'penilaian_terakhir', 'catatan_khusus'], 'default', 'value' => null],
-            [['username', 'password', 'nama'], 'required'],
+            [['username', 'password', 'id_jabatan', 'id_departement', 'level_jabatan', 'nama', 'tanggal_masuk', 'pendidikan_terakhir', 'status_karyawan', 'lokasi_kerja', 'atasan_langsung', 'nomor_hp', 'email', 'tanggal_lahir', 'jenis_kelamin', 'golongan', 'penilaian_terakhir'], 'required', 'message' => 'Tidak boleh kosong'],
             [['id_jabatan', 'id_departement', 'level_jabatan', 'golongan'], 'integer'],
             [['tanggal_masuk', 'tanggal_lahir', 'penilaian_terakhir'], 'safe'],
             [['password'], $this->isNewRecord ? 'required' : 'safe'],
+            ['email', 'email', 'message' => 'Format email tidak valid'],
+            ['nomor_hp', 'match', 'pattern' => '/^[0-9]+$/', 'message' => 'Hanya boleh angka'],
             [['jenis_kelamin'], 'string'],
             [['username', 'status_karyawan'], 'string', 'max' => 50],
             [['nama', 'pendidikan_terakhir', 'lokasi_kerja', 'atasan_langsung', 'email'], 'string', 'max' => 100],
@@ -235,19 +236,20 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-
             if (!empty($this->password)) {
                 $this->password_hash = Yii::$app->security->generatePasswordHash($this->password);
             }
             foreach (['tanggal_masuk', 'tanggal_lahir', 'penilaian_terakhir'] as $attr) {
                 if (!empty($this->$attr) && preg_match('/\d{2}-\d{2}-\d{4}/', $this->$attr)) {
-                    // Jika field datetime, tambahkan jam
                     if (strpos($this->$attr, ':') !== false) {
                         $this->$attr = Yii::$app->formatter->asDatetime($this->$attr, 'php:Y-m-d H:i:s');
                     } else {
                         $this->$attr = Yii::$app->formatter->asDate($this->$attr, 'php:Y-m-d');
                     }
                 }
+            }
+            if (empty($this->catatan_khusus)) {
+                $this->catatan_khusus = 'Tidak ada';
             }
 
             return true;
