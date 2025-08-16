@@ -4,12 +4,12 @@ namespace app\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\MasterPenilaian;
+use app\models\MasterKategori;
 
 /**
- * MasterPenilaiansearch represents the model behind the search form of `app\models\MasterPenilaian`.
+ * MasterKategorisearch represents the model behind the search form of `app\models\MasterKategori`.
  */
-class MasterPenilaiansearch extends MasterPenilaian
+class MasterKategorisearch extends MasterKategori
 {
     /**
      * {@inheritdoc}
@@ -17,9 +17,9 @@ class MasterPenilaiansearch extends MasterPenilaian
     public function rules()
     {
         return [
-            [['id_penilaian', 'id_users'], 'integer'],
-            [['nilai_akhir'], 'number'],
-            [['periode_awal', 'periode_akhir', 'id_kategori', 'presentase_absensi'], 'safe'],
+            [['id_kategori'], 'integer'],
+            [['nama_kategori'], 'safe'],
+            [['nilai_min', 'nilai_max'], 'number'],
         ];
     }
 
@@ -42,7 +42,7 @@ class MasterPenilaiansearch extends MasterPenilaian
      */
     public function search($params, $formName = null)
     {
-        $query = MasterPenilaian::find();
+        $query = MasterKategori::find();
 
         // add conditions that should always apply here
 
@@ -60,15 +60,12 @@ class MasterPenilaiansearch extends MasterPenilaian
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'id_penilaian' => $this->id_penilaian,
-            'id_users' => $this->id_users,
-            'nilai_akhir' => $this->nilai_akhir,
-            'periode_awal' => $this->periode_awal,
-            'periode_akhir' => $this->periode_akhir,
+            'id_kategori' => $this->id_kategori,
+            'nilai_min' => $this->nilai_min,
+            'nilai_max' => $this->nilai_max,
         ]);
 
-        $query->andFilterWhere(['like', 'id_kategori', $this->id_kategori])
-            ->andFilterWhere(['like', 'presentase_absensi', $this->presentase_absensi]);
+        $query->andFilterWhere(['like', 'nama_kategori', $this->nama_kategori]);
 
         return $dataProvider;
     }

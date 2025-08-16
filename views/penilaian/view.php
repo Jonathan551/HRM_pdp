@@ -7,7 +7,7 @@ use yii\widgets\DetailView;
 /** @var app\models\MasterPenilaian $model */
 
 $this->title = $model->id_penilaian;
-$this->params['breadcrumbs'][] = ['label' => 'Master Penilaians', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Penilaian', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
@@ -16,19 +16,15 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Update', ['update', 'id_penilaian' => $model->id_penilaian], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id_penilaian' => $model->id_penilaian], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
         <?= Html::a('Kembali', ['index'], ['class' => 'btn btn-info']) ?>
         <?= Html::button('Detail Penilaian', [
             'class' => 'btn btn-success',
             'data-bs-toggle' => 'modal',
             'data-bs-target' => '#detailPenilaianModal'
+        ]) ?>
+        <?= Html::a('Print Laporan', ['report/cetak', 'id' => $model->id_penilaian], [
+            'class' => 'btn btn-primary',
+            'target' => '_blank' 
         ]) ?>
     </p>
 
@@ -73,7 +69,6 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= DetailView::widget([
         'model' => $model,
         'attributes' => [
-            // 'id_penilaian',
             [
                 'attribute' => 'id_users',
                 'label' => 'User',

@@ -2,7 +2,6 @@
 namespace app\components;
 
 use yii\base\Model as BaseModel;
-use yii\helpers\ArrayHelper;
 
 class Model extends BaseModel
 {

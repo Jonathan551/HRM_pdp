@@ -25,6 +25,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
         ]) ?>
         <?= Html::a('Kembali', ['index'], ['class' => 'btn btn-info']) ?>
+        <?= Html::a('Input', ['create'], ['class' => 'btn btn-info']) ?>
     </p>
 
     <?= DetailView::widget([

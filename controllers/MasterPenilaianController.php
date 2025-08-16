@@ -91,11 +91,15 @@ class MasterPenilaianController extends Controller
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    
     public function actionUpdate($id_penilaian)
     {
-        $model = MasterPenilaian::findOne($id_penilaian);
+        $model = $this->findModel($id_penilaian);
+        
         $details = $model->detailPenilaian;
+
+        if (empty($details)) {
+            $details = [new DetailPenilaian()];
+        }
 
         if ($this->processForm($model, $details)) {
             return $this->redirect(['view', 'id_penilaian' => $model->id_penilaian]);
@@ -137,43 +141,60 @@ class MasterPenilaianController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
-   private function processForm($model, &$details)
+    private function processForm($model, &$details)
     {
         if ($model->load(Yii::$app->request->post())) {
+            
+            $oldIDs = [];
+            if (!$model->isNewRecord) {
+                $oldIDs = ArrayHelper::map($details, 'id_detailpenilaian', 'id_detailpenilaian');
+            }
 
-            $oldIDs = ArrayHelper::map($details, 'id_detailpenilaian', 'id_detailpenilaian');
             $details = Model::createMultiple(DetailPenilaian::class, $details);
             Model::loadMultiple($details, Yii::$app->request->post());
-            $deletedIDs = array_diff($oldIDs, array_filter(ArrayHelper::map($details, 'id_detailpenilaian', 'id_detailpenilaian')));
+        
+            $deletedIDs = [];
+            if (!$model->isNewRecord) {
+                $currentIDs = array_filter(ArrayHelper::map($details, 'id_detailpenilaian', 'id_detailpenilaian'));
+                $deletedIDs = array_diff($oldIDs, $currentIDs);
+            }
 
             $valid = $model->validate();
+            
             $valid = Model::validateMultiple($details) && $valid;
-
+            
             if ($valid) {
                 $transaction = Yii::$app->db->beginTransaction();
                 try {
                     if ($model->save(false)) {
-
+                        
                         if (!empty($deletedIDs)) {
                             DetailPenilaian::deleteAll(['id_detailpenilaian' => $deletedIDs]);
                         }
 
                         foreach ($details as $detail) {
                             $detail->id_penilaian = $model->id_penilaian;
-                            if (! $detail->save(false)) {
+                            if (!$detail->save(false)) {
                                 $transaction->rollBack();
                                 return false;
                             }
                         }
 
+                        $model->NilaiAkhir();
+
                         $transaction->commit();
+                        
                         return true;
+                        
+                    } else {
+                        $transaction->rollBack();
                     }
+                    
                 } catch (\Exception $e) {
                     $transaction->rollBack();
                     throw $e;
                 }
-            }
+            } 
         }
         return false;
     }

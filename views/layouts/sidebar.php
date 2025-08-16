@@ -24,10 +24,12 @@ $this->registerJsFile('@web/js/sidebar.js', [
                     ['label' => 'Master Data Depatement', 'icon' => 'business', 'url' => ['/master-departement/index']],
                     ['label' => 'Master Data Kriteria', 'icon' => 'content_paste', 'url' => ['/master-kriteria/index']],
                     ['label' => 'Master Data Anchor', 'icon' => 'anchor', 'url' => ['/master-anchor/index']],
+                    ['label' => 'Master Data Kategori', 'icon' => 'category', 'url' => ['/master-kategori/index']],
                     ['label' => 'Master Data Status', 'icon' => 'fact_check', 'url' => ['/status/index']],
             ]],
             ['label' => 'Master Penilaian', 'icon' => 'assignment', 'items' => [
                     ['label' => 'Penilaian Karyawan', 'icon' => 'assignment_ind', 'url' => ['/master-penilaian/index']],
+                    ['label' => 'Laporan Penilaian', 'icon' => 'analytics', 'url' => ['/penilaian/index']],
             ]]
         ]]); ?>    
     </div>
