@@ -20,7 +20,6 @@ use app\models\MasterAnchor;
         'method' => 'post',
     ]); ?>
 
-    <!-- Pilih Karyawan -->
     <?= $form->field($model, 'id_users')->dropDownList(
         ArrayHelper::map(User::find()->all(), 'id_users', 'nama'),
         ['prompt' => 'Pilih Karyawan']
@@ -38,8 +37,10 @@ use app\models\MasterAnchor;
         'placeholder' => 'Pilih tanggal...'
     ]) ?>
 
-    <!-- Presentase Absensi -->
+
     <?= $form->field($model, 'presentase_absensi')->textInput(['maxlength' => true]) ?>
+    
+    <?= $form->field($model, 'catatan')->textInput(['maxlength' => true]) ?>
 
     <hr>
     <h4>Detail Penilaian</h4>
@@ -152,7 +153,7 @@ use app\models\MasterAnchor;
     var rowIndex = $rowIndex;
     var kriteriaOptions = $kriteriaOptionsJs;
 
-    // Tambah baris baru
+  
     $('#add-row').on('click', function(){
         var newRow = `<tr>
             <td>

@@ -58,10 +58,11 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username', 'password', 'id_jabatan', 'id_departement', 'level_jabatan', 'nama', 'tanggal_masuk', 'pendidikan_terakhir', 'status_karyawan', 'lokasi_kerja', 'atasan_langsung', 'nomor_hp', 'email', 'tanggal_lahir', 'jenis_kelamin', 'golongan', 'penilaian_terakhir'], 'required', 'message' => 'Tidak boleh kosong'],
+            [['username', 'id_jabatan', 'id_departement', 'level_jabatan', 'nama', 'tanggal_masuk', 'pendidikan_terakhir', 'status_karyawan', 'lokasi_kerja', 'atasan_langsung', 'nomor_hp', 'email', 'tanggal_lahir', 'jenis_kelamin', 'golongan', 'penilaian_terakhir'], 'required', 'message' => 'Tidak boleh kosong'],
             [['id_jabatan', 'id_departement', 'level_jabatan', 'golongan'], 'integer'],
             [['tanggal_masuk', 'tanggal_lahir', 'penilaian_terakhir'], 'safe'],
-            [['password'], $this->isNewRecord ? 'required' : 'safe'],
+            [['password'], 'required', 'on' => 'create', 'message' => 'Tidak boleh kosong'],
+            [['password'], 'safe', 'on' => 'update'],
             ['email', 'email', 'message' => 'Format email tidak valid'],
             ['nomor_hp', 'match', 'pattern' => '/^[0-9]+$/', 'message' => 'Hanya boleh angka'],
             [['jenis_kelamin'], 'string'],
@@ -73,6 +74,16 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
             [['id_jabatan'], 'exist', 'skipOnError' => true, 'targetClass' => MasterJabatan::class, 'targetAttribute' => ['id_jabatan' => 'id_jabatan']],
             [['id_departement'], 'exist', 'skipOnError' => true, 'targetClass' => MasterDepartement::class, 'targetAttribute' => ['id_departement' => 'id_departement']],
         ];
+    }
+
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+
+        $scenarios['create'] = $scenarios[self::SCENARIO_DEFAULT];
+        $scenarios['update'] = $scenarios[self::SCENARIO_DEFAULT];
+
+        return $scenarios;
     }
 
     /**
@@ -236,25 +247,28 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
-            if (!empty($this->password)) {
-                $this->password_hash = Yii::$app->security->generatePasswordHash($this->password);
-            }
-            foreach (['tanggal_masuk', 'tanggal_lahir', 'penilaian_terakhir'] as $attr) {
-                if (!empty($this->$attr) && preg_match('/\d{2}-\d{2}-\d{4}/', $this->$attr)) {
-                    if (strpos($this->$attr, ':') !== false) {
-                        $this->$attr = Yii::$app->formatter->asDatetime($this->$attr, 'php:Y-m-d H:i:s');
-                    } else {
-                        $this->$attr = Yii::$app->formatter->asDate($this->$attr, 'php:Y-m-d');
+                if (!empty($this->password)) {
+                    $this->password = Yii::$app->security->generatePasswordHash($this->password);
+                } else {
+                    if (!$this->isNewRecord) {
+                        $this->password = $this->getOldAttribute('password');
+                    }
+                foreach (['tanggal_masuk', 'tanggal_lahir', 'penilaian_terakhir'] as $attr) {
+                    if (!empty($this->$attr) && preg_match('/\d{2}-\d{2}-\d{4}/', $this->$attr)) {
+                        if (strpos($this->$attr, ':') !== false) {
+                            $this->$attr = Yii::$app->formatter->asDatetime($this->$attr, 'php:Y-m-d H:i:s');
+                        } else {
+                            $this->$attr = Yii::$app->formatter->asDate($this->$attr, 'php:Y-m-d');
+                        }
                     }
                 }
+                if (empty($this->catatan_khusus)) {
+                    $this->catatan_khusus = 'Tidak ada';
             }
-            if (empty($this->catatan_khusus)) {
-                $this->catatan_khusus = 'Tidak ada';
+                 return true;
             }
-
-            return true;
+            return false;
         }
-        return false;
     }
 
     public function afterFind()

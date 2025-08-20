@@ -8,7 +8,7 @@ use yii\data\ActiveDataProvider;
 use app\models\MasterPenilaian;
 use app\models\MasterPenilaianSearch;
 
-class PenilaianController extends Controller
+class PengajuanBandingController extends Controller
 {
     public function actionIndex()
     {

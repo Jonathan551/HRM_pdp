@@ -68,6 +68,7 @@ class UserController extends Controller
     public function actionCreate()
     {
         $model = new User();
+        $model->scenario = 'create'; 
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
@@ -92,6 +93,7 @@ class UserController extends Controller
     public function actionUpdate($id_users)
     {
         $model = $this->findModel($id_users);
+        $model->scenario = 'update'; 
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id_users' => $model->id_users]);

@@ -4,12 +4,12 @@ namespace app\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Status;
+use app\models\MasterEvent;
 
 /**
- * Statussearch represents the model behind the search form of `app\models\Status`.
+ * MasterEventsearch represents the model behind the search form of `app\models\MasterEvent`.
  */
-class Statussearch extends Status
+class MasterEventsearch extends MasterEvent
 {
     /**
      * {@inheritdoc}
@@ -17,8 +17,8 @@ class Statussearch extends Status
     public function rules()
     {
         return [
-            [['id_status'], 'integer'],
-            [['nama', 'deskripsi'], 'safe'],
+            [['id_event', 'id_users', 'id_departement', 'created_by'], 'integer'],
+            [['judul', 'deskripsi', 'gambar', 'tanggal', 'jenis_event', 'severity', 'lokasi', 'status', 'updated_at'], 'safe'],
         ];
     }
 
@@ -41,7 +41,7 @@ class Statussearch extends Status
      */
     public function search($params, $formName = null)
     {
-        $query = Status::find();
+        $query = MasterEvent::find();
 
         // add conditions that should always apply here
 
@@ -59,11 +59,21 @@ class Statussearch extends Status
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'id_status' => $this->id_status,
+            'id_event' => $this->id_event,
+            'id_users' => $this->id_users,
+            'tanggal' => $this->tanggal,
+            'id_departement' => $this->id_departement,
+            'created_by' => $this->created_by,
+            'updated_at' => $this->updated_at,
         ]);
 
-        $query->andFilterWhere(['like', 'nama', $this->nama])
-            ->andFilterWhere(['like', 'deskripsi', $this->deskripsi]);
+        $query->andFilterWhere(['like', 'judul', $this->judul])
+            ->andFilterWhere(['like', 'deskripsi', $this->deskripsi])
+            ->andFilterWhere(['like', 'gambar', $this->gambar])
+            ->andFilterWhere(['like', 'jenis_event', $this->jenis_event])
+            ->andFilterWhere(['like', 'severity', $this->severity])
+            ->andFilterWhere(['like', 'lokasi', $this->lokasi])
+            ->andFilterWhere(['like', 'status', $this->status]);
 
         return $dataProvider;
     }

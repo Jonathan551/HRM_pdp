@@ -12,10 +12,15 @@ $config = [
         '@npm'   => '@vendor/npm-asset',
     ],
     'components' => [
+        'formatter' => [
+            'class' => 'yii\i18n\Formatter',
+            'nullDisplay' => 'Tidak ada',
+        ],
         'assetManager' => [ //SETTING FOR MATERIAL DASHBOARD THEME
             'bundles' => [
                 'deyraka\materialdashboard\web\MaterialDashboardAsset',
             ],
+            
         ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
@@ -42,7 +47,7 @@ $config = [
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
+                    'levels' => ['error', 'warning', 'info', 'trace'],
                 ],
             ],
         ],
@@ -59,7 +64,7 @@ $config = [
     'params' => [
             $params,
             'bsVersion' => '5.x',
-        ],
+    ],
 ];
 
 if (YII_ENV_DEV) {

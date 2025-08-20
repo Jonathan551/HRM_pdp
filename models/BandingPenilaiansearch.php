@@ -4,12 +4,12 @@ namespace app\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\MasterPenilaian;
+use app\models\BandingPenilaian;
 
 /**
- * MasterPenilaiansearch represents the model behind the search form of `app\models\MasterPenilaian`.
+ * BandingPenilaiansearch represents the model behind the search form of `app\models\BandingPenilaian`.
  */
-class MasterPenilaiansearch extends MasterPenilaian
+class BandingPenilaiansearch extends BandingPenilaian
 {
     /**
      * {@inheritdoc}
@@ -17,9 +17,8 @@ class MasterPenilaiansearch extends MasterPenilaian
     public function rules()
     {
         return [
-            [['id_penilaian', 'id_users'], 'integer'],
-            [['nilai_akhir'], 'number'],
-            [['periode_awal', 'periode_akhir', 'id_kategori', 'presentase_absensi','catatan'], 'safe'],
+            [['id_banding', 'id_penilaian', 'id_users'], 'integer'],
+            [['status', 'tanggal_banding', 'alasan', 'review', 'tanggal_review'], 'safe'],
         ];
     }
 
@@ -42,7 +41,7 @@ class MasterPenilaiansearch extends MasterPenilaian
      */
     public function search($params, $formName = null)
     {
-        $query = MasterPenilaian::find();
+        $query = BandingPenilaian::find();
 
         // add conditions that should always apply here
 
@@ -58,17 +57,18 @@ class MasterPenilaiansearch extends MasterPenilaian
             return $dataProvider;
         }
 
+        // grid filtering conditions
         $query->andFilterWhere([
+            'id_banding' => $this->id_banding,
             'id_penilaian' => $this->id_penilaian,
             'id_users' => $this->id_users,
-            'nilai_akhir' => $this->nilai_akhir,
-            'periode_awal' => $this->periode_awal,
-            'periode_akhir' => $this->periode_akhir,
-            'catatan'=> $this->catatan,
+            'tanggal_banding' => $this->tanggal_banding,
+            'tanggal_review' => $this->tanggal_review,
         ]);
 
-        $query->andFilterWhere(['like', 'id_kategori', $this->id_kategori])
-            ->andFilterWhere(['like', 'presentase_absensi', $this->presentase_absensi]);
+        $query->andFilterWhere(['like', 'status', $this->status])
+            ->andFilterWhere(['like', 'alasan', $this->alasan])
+            ->andFilterWhere(['like', 'review', $this->review]);
 
         return $dataProvider;
     }

@@ -8,6 +8,7 @@ use yii\helpers\ArrayHelper;
 use app\models\DetailPenilaian;
 use app\models\MasterPenilaiansearch;
 use app\components\Model;
+use app\models\MasterAnchor;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -58,8 +59,17 @@ class MasterPenilaianController extends Controller
      * @throws NotFoundHttpException if the model cannot be found
      */
     public function actionView($id_penilaian)
-    {
+    {   
         return $this->render('view', [
+            'model' => $this->findModel($id_penilaian),
+        ]);
+    }
+
+    public function actionViewModal($id_penilaian)
+    {
+        $this->layout = false; 
+        
+        return $this->render('view-modal', [
             'model' => $this->findModel($id_penilaian),
         ]);
     }
@@ -201,13 +211,13 @@ class MasterPenilaianController extends Controller
 
     public function actionListAnchor($id_kriteria)
     {
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        $anchors = \app\models\MasterAnchor::find()
+        $anchors = MasterAnchor::find()
             ->where(['id_kriteria' => $id_kriteria])
             ->all();
 
-        return \yii\helpers\ArrayHelper::map($anchors, 'id_anchor', function ($model) {
+        return ArrayHelper::map($anchors, 'id_anchor', function ($model) {
             $bobot = $model->kriteria ? $model->kriteria->bobot : '-';
             return $model->level_anchor 
                 . ' - ' . $model->deskripsi 

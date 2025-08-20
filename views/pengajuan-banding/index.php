@@ -10,25 +10,18 @@ use yii\grid\GridView;
 /** @var app\models\MasterPenilaiansearch $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title = 'Master Penilaian';
+$this->title = 'Banding Penilaian';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="master-penilaian-index">
+<div class="penilaian-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <p>
-        <?= Html::a('Create Master Penilaian', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
-
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
-
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,
+        'filterModel'  => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-            // 'id_penilaian',
             [
                 'attribute' => 'id_users',
                 'label' => 'Karyawan',
@@ -40,12 +33,12 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'periode_awal',
                 'label' => 'Periode Awal Penilaian',
-                'format' => ['date', 'php:d-m-Y '],
+                'format' => ['date', 'php:d-m-Y'],
             ],
             [
                 'attribute' => 'periode_akhir',
-                'label' => 'Periode Awal Akhir',
-                'format' => ['date', 'php:d-m-Y '],
+                'label' => 'Periode Akhir Penilaian',
+                'format' => ['date', 'php:d-m-Y'],
             ],
             [
                 'attribute' => 'id_kategori',
@@ -58,14 +51,33 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'presentase_absensi',
                 'label' => 'Presentase Absensi',
             ],
-            'catatan',
             [
-                'class' => ActionColumn::className(),
-                'urlCreator' => function ($action, MasterPenilaian $model, $key, $index, $column) {
+                'class' => 'yii\grid\ActionColumn',
+                'template' => '{view} {banding}',
+                'urlCreator' => function ($action, $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id_penilaian' => $model->id_penilaian]);
-                 }
+                },
+                'buttons' => [
+                    'banding' => function ($url, $model) {
+                        
+                        if ($model->banding) {
+                            return Html::tag('span', $model->banding->status, [
+                                'class' => 'badge badge-' . ($model->banding->status == 'Review' ? 'warning' : ($model->banding->status == 'Diterima' ? 'success' : ($model->banding->status == 'Ditolak' ? 'danger' : "Null" )))
+                            ]);
+                        } else {
+                            return Html::a('Ajukan Banding', 
+                                ['banding-penilaian/create', 'id_penilaian' => $model->id_penilaian], 
+                                [
+                                    'title' => 'Ajukan Banding',
+                                    'class' => 'btn btn-sm btn-outline-primary'
+                                ]
+                            );
+                        }
+                    }
+                ]
             ],
         ],
     ]); ?>
 
+    <hr>
 </div>

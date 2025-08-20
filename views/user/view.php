@@ -48,7 +48,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'nama',
             [
                 'attribute' => 'tanggal_masuk',
-                'format' => ['date', 'php:d-m-Y H:i'],
+                'format' => ['date', 'php:d-m-Y'],
             ],
             'pendidikan_terakhir',
             'status_karyawan',
@@ -64,7 +64,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'golongan',
             [
                 'attribute' => 'penilaian_terakhir',
-                'format' => ['date', 'php:d-m-Y H:i'],
+                'format' => ['date', 'php:d-m-Y'],
             ],
             'catatan_khusus',
         ],

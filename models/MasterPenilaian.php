@@ -35,7 +35,7 @@ class MasterPenilaian extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_users', 'presentase_absensi', 'periode_awal', 'periode_akhir'], 'required'],
+            [['id_users', 'presentase_absensi', 'periode_awal', 'periode_akhir','catatan'], 'required'],
             [['id_kategori', 'nilai_akhir'], 'default', 'value' => null],
             [['id_users', 'id_kategori'], 'integer'], 
             [['nilai_akhir', 'presentase_absensi'], 'number'],
@@ -58,6 +58,7 @@ class MasterPenilaian extends \yii\db\ActiveRecord
             'periode_akhir' => 'Periode Akhir',
             'id_kategori' => 'Status Nilai',
             'presentas_absensi' => 'Presentas Absensi',
+            'catatan' => "Catatan",
         ];
     }
 
@@ -66,6 +67,11 @@ class MasterPenilaian extends \yii\db\ActiveRecord
      *
      * @return \yii\db\ActiveQuery
      */
+
+    public function getBanding()
+    {
+        return $this->hasOne(BandingPenilaian::class, ['id_penilaian' => 'id_penilaian']);
+    }
 
     public function getDetailPenilaian()
     {
@@ -146,7 +152,6 @@ class MasterPenilaian extends \yii\db\ActiveRecord
             $totalBobot = 0;
             $totalNilaiBobot = 0;
 
-            // Refresh data detail penilaian dari database
             $details = $this->getDetailPenilaian()->with(['anchor', 'kriteria'])->all();
 
             if (empty($details)) {

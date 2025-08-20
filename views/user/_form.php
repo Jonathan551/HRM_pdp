@@ -18,17 +18,19 @@ use yii\bootstrap5\ActiveForm;
 
     <?= $form->field($model, 'username')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'password')->passwordInput() ?>
+    <?= $form->field($model, 'password')->passwordInput(['value' => '']) ?>
 
     <?= $form->field($model, 'id_jabatan')->dropDownList(
         ArrayHelper::map(MasterJabatan::find()->all(), 'id_jabatan', 'nama_jabatan'),
         ['prompt' => 'Pilih Jabatan']
-    ) ?>
+    )->label('Jabatan') 
+    ?>
     
     <?= $form->field($model, 'id_departement')->dropDownList(
         ArrayHelper::map(MasterDepartement::find()->all(), 'id_departement', 'nama_departement'),
         ['prompt' => 'Pilih Departement']
-    ) ?>
+    ) ->label('Departemen') 
+    ?>
 
     <?= $form->field($model, 'level_jabatan')->dropDownList(
         ArrayHelper::map(MasterJabatan::find()->all(), 'level_jabatan', 'level_jabatan'),

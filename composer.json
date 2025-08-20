@@ -21,7 +21,8 @@
         "deyraka/yii2-material-dashboard": "v1.0.0-beta",
         "kartik-v/yii2-widget-datepicker": "^1.4",
         "wbraganca/yii2-dynamicform": "^2.0",
-        "phpoffice/phpword": "^1.4"
+        "phpoffice/phpword": "^1.4",
+        "kartik-v/yii2-widget-fileinput": "@dev"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",
