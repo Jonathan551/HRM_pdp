@@ -9,7 +9,7 @@ use yii\helpers\ArrayHelper;
 /** @var $assigned int[] */
 /** @var $id_jabatan int|null */
 ?>
-<h3>Manajemen Permission per Jabatan</h3>
+<h3>Manajemen Permission</h3>
 
 <div class="card p-3">
     <?= Html::dropDownList(
@@ -23,7 +23,6 @@ use yii\helpers\ArrayHelper;
         ]
     ); ?>
 
-
     <?php if ($id_jabatan): ?>
         <hr>
 
@@ -32,7 +31,6 @@ use yii\helpers\ArrayHelper;
             'method' => 'post'
         ]); ?>
 
-        <!-- Daftar Permission -->
         <div class="list-group" style="max-height:480px; overflow:auto;">
             <?php foreach ($permissions as $perm): ?>
                 <label class="list-group-item d-flex align-items-center gap-2">
@@ -41,16 +39,13 @@ use yii\helpers\ArrayHelper;
                            value="<?= $perm->id_permission ?>"
                            <?= in_array($perm->id_permission, $assigned) ? 'checked' : '' ?>>
                     <strong><?= Html::encode($perm->nama_permission) ?></strong>
-                    <span class="text-muted ms-auto" style="font-size:12px;">
-                        <?= Html::encode($perm->deskripsi) ?>
-                    </span>
                 </label>
             <?php endforeach; ?>
         </div>
 
         <div class="mt-3">
-            <?= Html::submitButton('💾 Simpan', ['class' => 'btn btn-success']) ?>
-            <?= Html::a('↩ Kembali', ['index'], ['class' => 'btn btn-secondary']) ?>
+            <?= Html::submitButton('Simpan', ['class' => 'btn btn-success']) ?>
+            <?= Html::a('Kembali', ['index'], ['class' => 'btn btn-info']) ?>
         </div>
 
         <?php ActiveForm::end(); ?>
