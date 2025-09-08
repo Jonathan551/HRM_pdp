@@ -75,4 +75,8 @@ class MasterAnchor extends \yii\db\ActiveRecord
         return $this->hasOne(MasterKriteria::class, ['id_kriteria' => 'id_kriteria']);
     }
 
+    public function getDepartement()
+    {
+        return $this->hasOne(MasterDepartement::class, ['id_departement' => 'id_departement']);
+    }
 }

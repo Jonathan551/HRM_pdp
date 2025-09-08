@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Html;
 use yii\bootstrap5\ActiveForm;
+use kamran377\sweetalert2\SweetAlert;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\LoginForm */
@@ -50,3 +51,5 @@ $this->title = 'HRM';
         </div>
     </div>
 </div>
+
+<?= SweetAlert::widget() ?>

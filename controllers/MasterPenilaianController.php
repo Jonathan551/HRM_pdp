@@ -5,11 +5,14 @@ namespace app\controllers;
 use Yii;
 use app\models\MasterPenilaian;
 use yii\helpers\ArrayHelper;
+use app\models\MasterKriteria;
+use yii\web\Response;
 use app\models\DetailPenilaian;
 use app\models\MasterPenilaiansearch;
 use app\components\Model;
 use app\models\MasterAnchor;
 use yii\web\Controller;
+use app\models\User;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
@@ -211,18 +214,62 @@ class MasterPenilaianController extends Controller
 
     public function actionListAnchor($id_kriteria)
     {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        Yii::$app->response->format = Response::FORMAT_JSON;
 
         $anchors = MasterAnchor::find()
             ->where(['id_kriteria' => $id_kriteria])
+            ->with('kriteria') 
+            ->asArray(false)  
             ->all();
 
         return ArrayHelper::map($anchors, 'id_anchor', function ($model) {
             $bobot = $model->kriteria ? $model->kriteria->bobot : '-';
-            return $model->level_anchor 
-                . ' - ' . $model->deskripsi 
-                . ' (' . $model->nilai_anchor . ')'
-                . ' | Bobot: ' . $bobot;
+            return "{$model->level_anchor} - {$model->deskripsi} ({$model->nilai_anchor}) | Bobot: {$bobot}";
         });
     }
+
+
+
+    public function actionListKriteria($id_departement)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        if ($id_departement === '' || $id_departement === 'null') {
+            $id_departement = null;
+        }
+
+        $query = MasterKriteria::find();
+
+        if ($id_departement === null) {
+            $query->where(['id_departement' => null]);
+        } else {
+            $query->where([
+                'or',
+                ['id_departement' => (int)$id_departement],
+                ['id_departement' => null],
+            ]);
+        }
+
+        $kriteria = $query
+            ->orderBy(['id_departement' => SORT_ASC, 'nama_kriteria' => SORT_ASC])
+            ->asArray()
+            ->all();
+
+        return ArrayHelper::map($kriteria, 'id_kriteria', function ($row) {
+            $isUmum = $row['id_departement'] === null;
+            return $row['nama_kriteria'] . ($isUmum ? ' [Umum]' : '');
+        });
+    }
+
+
+    public function actionGetUserDepartement($id_user)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $user = User::findOne($id_user);
+        if($user){
+            return ['id_departement' => $user->id_departement];
+        }
+        return ['id_departement' => null];
+    }
+
 }

@@ -22,6 +22,7 @@
         "kartik-v/yii2-widget-datepicker": "^1.4",
         "wbraganca/yii2-dynamicform": "^2.0",
         "phpoffice/phpword": "^1.4",
+        "kamran377/yii2-sweetalert2": "^2.1",
         "kartik-v/yii2-widget-fileinput": "@dev"
     },
     "require-dev": {

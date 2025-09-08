@@ -37,7 +37,6 @@ use app\models\MasterAnchor;
         'placeholder' => 'Pilih tanggal...'
     ]) ?>
 
-
     <?= $form->field($model, 'presentase_absensi')->textInput(['maxlength' => true]) ?>
     
     <?= $form->field($model, 'catatan')->textInput(['maxlength' => true]) ?>
@@ -55,6 +54,16 @@ use app\models\MasterAnchor;
         </thead>
         <tbody>
             <?php foreach ($detailModels as $i => $detail): ?>
+                <?php
+                    $anchors = [];
+                    if ($detail->id_kriteria) {
+                        $anchors = ArrayHelper::map(
+                            MasterAnchor::find()->where(['id_kriteria' => $detail->id_kriteria])->all(),
+                            'id_anchor',
+                            fn($m) => $m->level_anchor . ' - ' . $m->deskripsi . ' (' . $m->nilai_anchor . ')'
+                        );
+                    }
+                ?>
                 <tr>
                     <td>
                         <?= Html::activeHiddenInput($detail, "[$i]id_detailpenilaian") ?>
@@ -72,13 +81,7 @@ use app\models\MasterAnchor;
                         <?= Html::activeDropDownList(
                             $detail,
                             "[$i]id_anchor",
-                            $detail->id_kriteria
-                                ? ArrayHelper::map(
-                                    MasterAnchor::find()->where(['id_kriteria' => $detail->id_kriteria])->all(),
-                                    'id_anchor',
-                                    fn($m) => $m->level_anchor . ' - ' . $m->deskripsi . ' (' . $m->nilai_anchor . ')'
-                                  )
-                                : [],
+                            $anchors,
                             [
                                 'class' => 'form-control id-anchor',
                                 'prompt' => 'Pilih Anchor'
@@ -90,6 +93,7 @@ use app\models\MasterAnchor;
                     </td>
                 </tr>
             <?php endforeach; ?>
+
         </tbody>
     </table>
 
@@ -117,66 +121,99 @@ use app\models\MasterAnchor;
         });
     ");
 
-
     $urlListAnchor = \yii\helpers\Url::to(['master-penilaian/list-anchor']);
-
-
-    $kriteriaOptions = '';
-    foreach (MasterKriteria::find()->all() as $k) {
-        $kriteriaOptions .= "<option value='{$k->id_kriteria}'>{$k->nama_kriteria}</option>";
-    }
-    $kriteriaOptionsJs = json_encode($kriteriaOptions);
-
+    $urlGetDepartemen = \yii\helpers\Url::to(['master-penilaian/get-user-departement']);
+    $urlListKriteria = \yii\helpers\Url::to(['master-penilaian/list-kriteria']);
 
     $rowIndex = count($detailModels);
 
-    $js = <<<JS
-    $(document).on('change', '.id-kriteria', function(){
-        var idKriteria = $(this).val();
-        var row = $(this).closest('tr');
-        var anchorDropdown = row.find('.id-anchor');
-        anchorDropdown.html('<option value="">Loading...</option>');
+   $js = <<<JS
+    var currentDepartemen = null;
+    var rowIndex = $rowIndex;
 
-        if(idKriteria){
-            $.getJSON('$urlListAnchor', {id_kriteria: idKriteria}, function(data){
-                anchorDropdown.empty();
-                anchorDropdown.append('<option value="">Pilih Anchor</option>');
-                $.each(data, function(key, value){
-                    anchorDropdown.append('<option value="' + key + '">' + value + '</option>');
+    // Saat pilih user -> ambil departemen -> load kriteria
+    $(document).on('change', '#masterpenilaian-id_users', function(){
+        var idUser = $(this).val();
+        if(idUser){
+            $.getJSON('$urlGetDepartemen', {id_user: idUser}, function(data){
+                currentDepartemen = data.id_departement;
+                $.getJSON('$urlListKriteria', {id_departement: currentDepartemen}, function(kriteria){
+                    var options = '<option value="">Pilih Kriteria</option>';
+                    $.each(kriteria, function(key, value){
+                        options += '<option value=\"'+key+'\">'+value+'</option>';
+                    });
+                    $('.id-kriteria').html(options);
+                    $('.id-anchor').html('<option value=\"\">Pilih Anchor</option>');
+                }).fail(function(jqXHR, textStatus, errorThrown){
+                    console.error('list-kriteria error:', textStatus, errorThrown);
                 });
+            }).fail(function(jqXHR, textStatus, errorThrown){
+                console.error('get-user-departement error:', textStatus, errorThrown);
             });
         } else {
-            anchorDropdown.html('<option value="">Pilih Anchor</option>');
+            currentDepartemen = null;
+            $('.id-kriteria').html('<option value=\"\">Pilih Kriteria</option>');
+            $('.id-anchor').html('<option value=\"\">Pilih Anchor</option>');
         }
     });
 
-    var rowIndex = $rowIndex;
-    var kriteriaOptions = $kriteriaOptionsJs;
+    $(document).on('change', '.id-kriteria', function () {
+        var idKriteria = $(this).val();
+        var anchorEl = $(this).closest('tr').find('.id-anchor'); 
+        anchorEl.html('<option value=\"\">Loading...</option>');
 
-  
-    $('#add-row').on('click', function(){
-        var newRow = `<tr>
-            <td>
-                <input type="hidden" name="DetailPenilaian[\${rowIndex}][id_detailpenilaian]" value="">
-                <select class="form-control id-kriteria" name="DetailPenilaian[\${rowIndex}][id_kriteria]">
-                    <option value="">Pilih Kriteria</option>
-                    \${kriteriaOptions}
-                </select>
-            </td>
-            <td>
-                <select class="form-control id-anchor" name="DetailPenilaian[\${rowIndex}][id_anchor]">
-                    <option value="">Pilih Anchor</option>
-                </select>
-            </td>
-            <td class="text-center">
-                <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
-            </td>
-        </tr>`;
-        $('#detail-table tbody').append(newRow);
-        rowIndex++;
+        if (idKriteria) {
+            $.getJSON('$urlListAnchor', {id_kriteria: idKriteria}, function (data) {
+                console.log('list-anchor response:', data);
+                anchorEl.empty().append('<option value=\"\">Pilih Anchor</option>');
+                $.each(data, function (key, value) {
+                    anchorEl.append($('<option></option>').attr('value', key).text(value));
+                });
+            }).fail(function(jqXHR, textStatus, errorThrown){
+                console.error('list-anchor error:', textStatus, errorThrown);
+                anchorEl.html('<option value=\"\">Gagal load anchor</option>');
+            });
+        } else {
+            anchorEl.html('<option value=\"\">Pilih Anchor</option>');
+        }
     });
 
-    // Hapus baris
+
+    $('#add-row').on('click', function(){
+        if(!currentDepartemen){
+            alert('Pilih karyawan dulu!');
+            return;
+        }
+        $.getJSON('$urlListKriteria', {id_departement: currentDepartemen}, function(data){
+            var options = '<option value=\"\">Pilih Kriteria</option>';
+            $.each(data, function(key, value){
+                options += '<option value=\"'+key+'\">'+value+'</option>';
+            });
+
+            var newRow = `<tr>
+                <td>
+                    <input type="hidden" name="DetailPenilaian[\${rowIndex}][id_detailpenilaian]" value="">
+                    <select class="form-control id-kriteria" name="DetailPenilaian[\${rowIndex}][id_kriteria]">
+                        \${options}
+                    </select>
+                </td>
+                <td>
+                    <select class="form-control id-anchor" name="DetailPenilaian[\${rowIndex}][id_anchor]">
+                        <option value=\"\">Pilih Anchor</option>
+                    </select>
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm remove-row">-</button>
+                </td>
+            </tr>`;
+            $('#detail-table tbody').append(newRow);
+            rowIndex++;
+        }).fail(function(jqXHR, textStatus, errorThrown){
+            console.error('add-row -> list-kriteria error:', textStatus, errorThrown);
+        });
+    });
+
+    
     $(document).on('click', '.remove-row', function(){
         $(this).closest('tr').remove();
     });

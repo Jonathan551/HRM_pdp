@@ -28,12 +28,13 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-
             [
                 'attribute' => 'id_departement',
-                'label' => 'Departemen',
                 'value' => function ($model) {
-                    return $model->departement ? $model->departement->nama_departement : '-';
+                    if ($model->id_departement === null) {
+                        return 'Umum';
+                    }
+                    return $model->departement->nama_departement ?? 'Umum';
                 },
             ],
             'nama_kriteria',

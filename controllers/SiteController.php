@@ -4,6 +4,12 @@ namespace app\controllers;
 
 use Yii;
 use yii\filters\AccessControl;
+use app\models\BandingPenilaian;
+use app\models\MasterEvent;
+use app\models\User;
+use app\models\MasterKriteria;
+use app\models\MasterPenilaian;
+use app\models\MasterKategori;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
@@ -60,16 +66,45 @@ class SiteController extends BaseController
      */
     public function actionIndex()
     {
+        $kriteriaCount = (int) MasterKriteria::find()->count();
+        $userCount     = (int) User::find()->count();
+        $bandingCount  = (int) BandingPenilaian::find()->count();
+        $eventCount    = (int) MasterEvent::find()->count();
+        $latestPenilaian = MasterPenilaian::find()
+            ->orderBy(['id_penilaian' => SORT_DESC]) 
+            ->limit(5)
+            ->all();
+        $latestBanding = BandingPenilaian::find()
+            ->orderBy(['id_banding' => SORT_DESC]) 
+            ->limit(5)
+            ->all();
+        $avgNilai = (float) (MasterPenilaian::find()->average('nilai_akhir') ?? 0);
 
-        return $this->render('index');
+        $dataKategori = [];
+            foreach (MasterKategori::find()->orderBy(['nilai_min' => SORT_ASC])->all() as $kat) {
+                $jumlah = (int) MasterPenilaian::find()
+                    ->where(['between', 'nilai_akhir', $kat->nilai_min, $kat->nilai_max])
+                    ->count();
+                $dataKategori[] = ['nama' => $kat->nama_kategori, 'jumlah' => $jumlah];
+        }
 
+        return $this->render('index', [
+            'kriteriaCount' => $kriteriaCount,
+            'userCount'     => $userCount,
+            'bandingCount'  => $bandingCount,
+            'eventCount'    => $eventCount,
+            'avgNilai'      => $avgNilai,       
+            'dataKategori'  => $dataKategori,
+            'latestPenilaian'=> $latestPenilaian,
+            'latestBanding'  => $latestBanding,   
+        ]);
     }
     /**
      * Login action.
      *
      * @return Response|string
      */
-     public function actionLogin()
+    public function actionLogin()
     {
         $this->layout = 'guest-main';
 
@@ -78,8 +113,14 @@ class SiteController extends BaseController
         }
 
         $model = new LoginForm();
-        if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->redirect(['site/index']); 
+
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->login()) {
+                Yii::$app->session->setFlash('success', 'Login berhasil, selamat datang!');
+                return $this->redirect(['site/index']);
+            } else {
+                Yii::$app->session->setFlash('error', 'Login gagal: username atau password salah!');
+            }
         }
 
         $model->password = '';
@@ -87,6 +128,7 @@ class SiteController extends BaseController
             'model' => $model,
         ]);
     }
+
 
     public function actionLogout()
     {

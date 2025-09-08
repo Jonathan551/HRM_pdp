@@ -15,9 +15,10 @@ use app\models\MasterDepartement;
     <?php $form = ActiveForm::begin(); ?>
 
     <?= $form->field($model, 'id_departement')->dropDownList(
-        ArrayHelper::map(MasterDepartement::find()->all(), 'id_departement', 'nama_departement'),
+        ArrayHelper::map(MasterDepartement::find()->all(), 'id_departement', 'nama_departement')
+        + [null => 'Umum'],
         ['prompt' => 'Pilih Departement']
-    ) ?>
+    )->label('Departemen')?>
 
     <?= $form->field($model, 'nama_kriteria')->textInput(['maxlength' => true]) ?>
 
