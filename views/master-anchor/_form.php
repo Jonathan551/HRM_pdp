@@ -21,7 +21,7 @@ use app\models\MasterKriteria;
     ->label('Kriteria Penilaian') 
     ?>
 
-    <?= $form->field($model, 'level_anchor')->textInput() ?>
+    <?= $form->field($model, 'level_anchor')->textInput() ->label('Skala') ?>
 
     <?= $form->field($model, 'deskripsi')->textarea(['rows' => 6]) ?>
 

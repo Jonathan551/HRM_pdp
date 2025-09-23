@@ -45,7 +45,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             <tr>
                                 <th>Kriteria</th>
                                 <th>Anchor</th>
-                                <th>Level</th>
+                                <th>Skala</th>
                                 <th>Nilai</th>
                                 <th>Bobot</th>
                             </tr>

@@ -127,7 +127,7 @@ use app\models\MasterAnchor;
 
     $rowIndex = count($detailModels);
 
-   $js = <<<JS
+    $js = <<<JS
     var currentDepartemen = null;
     var rowIndex = $rowIndex;
 

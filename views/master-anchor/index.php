@@ -37,7 +37,10 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $model->kriteria ? $model->kriteria->nama_kriteria : '-';
                 },
             ],
-            'level_anchor',
+            [
+                'attribute' => 'level_anchor',
+                'label' => 'Skala',
+            ],
             'deskripsi:ntext',
             'nilai_anchor',
             [

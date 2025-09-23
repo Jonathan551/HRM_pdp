@@ -35,63 +35,140 @@ class ReportController extends Controller
             ->one();
 
         $hasilKategori = $kategoriAktif ? $kategoriAktif->nama_kategori : "Tidak dikategorikan";
+        $allKategori   = MasterKategori::find()->orderBy(['nilai_max' => SORT_DESC])->all();
 
-        $allKategori = MasterKategori::find()->orderBy(['nilai_max' => SORT_DESC])->all();
+        // ===== Foto user (nama file di kolom users.foto) + fallback =====
+        $fotoPath = null;
+        if (!empty($penilaian->user->foto)) {
+            $try = Yii::getAlias('@webroot/uploads/users/' . $penilaian->user->foto);
+            if (is_file($try)) {
+                $fotoPath = $try;
+            }
+        }
+        if (!$fotoPath) {
+            $fallback = Yii::getAlias('@webroot/images/no-avatar.png');
+            if (is_file($fallback)) {
+                $fotoPath = $fallback;
+            }
+        }
 
         $phpWord = new PhpWord();
+
+        // ===== Table styles (rapi, tanpa border untuk header) =====
+        $phpWord->addTableStyle('HeaderTable', [
+            'borderSize'       => 0,
+            'borderColor'      => 'FFFFFF',
+            'cellMarginTop'    => 80,
+            'cellMarginBottom' => 80,
+            'cellMarginLeft'   => 120,
+            'cellMarginRight'  => 120,
+        ]);
+        $phpWord->addTableStyle('InfoTable', [
+            'borderSize'       => 0,
+            'borderColor'      => 'FFFFFF',
+            'cellMarginTop'    => 20,
+            'cellMarginBottom' => 20,
+            'cellMarginLeft'   => 80,
+            'cellMarginRight'  => 80,
+        ]);
+        $phpWord->addTableStyle('DetailTable', [
+            'borderSize' => 6,
+            'borderColor'=> '000000',
+            'alignment'  => \PhpOffice\PhpWord\SimpleType\JcTable::CENTER,
+        ]);
+
+        // ===== Section =====
         $section = $phpWord->addSection();
-
-        $section->addText("Laporan Penilaian Kinerja Karyawan", ['bold' => true, 'size' => 14], ['alignment' => 'center']);
+        $section->addText(
+            "Laporan Penilaian Kinerja Karyawan",
+            ['bold' => true, 'size' => 14],
+            ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]
+        );
         $section->addTextBreak(1);
 
-        $section->addText("Data Karyawan", ['bold' => true]);
-        $section->addText("Nama : " . $penilaian->user->nama);
-        $section->addText("No Hp : " . $penilaian->user->nomor_hp);
-        $section->addText("Tanggal_Lahir : " . $penilaian->user->tanggal_lahir);
-        $section->addText("Jenis Kelamin : " . $penilaian->user->jenis_kelamin);
-        $section->addText("Bagian : " . ($penilaian->user->departement ? $penilaian->user->departement->nama_departement : '-'));
-        $section->addText("Jabatan : " . ($penilaian->user->jabatan ? $penilaian->user->jabatan->nama_jabatan : '-'));
-        $section->addText("Periode Penilaian : {$penilaian->periode_awal} - {$penilaian->periode_akhir}");
+        // ===== HEADER: Foto kiri + info kanan (label | nilai) =====
+        $labelStyle = ['bold' => true];
+        $pTight     = ['spaceBefore' => 0, 'spaceAfter' => 0, 'lineHeight' => 1.05];
+
+        $headerTable = $section->addTable('HeaderTable');
+        $headerTable->addRow();
+
+        // Kolom kiri: Foto (proporsional)
+        $leftCell = $headerTable->addCell(2200, ['valign' => 'center']);
+        if ($fotoPath) {
+            $leftCell->addImage($fotoPath, [
+                'width'         => 110,          // Ubah bila perlu
+                'wrappingStyle' => 'inline',
+            ]);
+        } else {
+            $leftCell->addText('(Foto tidak tersedia)', ['italic' => true], ['alignment' => 'center']);
+        }
+
+        // Kolom kanan: Judul + sub-tabel info
+        $rightCell = $headerTable->addCell(7800);
+        $rightCell->addText('Data Karyawan', ['bold' => true, 'size' => 12], ['spaceAfter' => 120]);
+
+        $infoTable = $rightCell->addTable('InfoTable');
+        $addInfo = function($table, $label, $value) use ($labelStyle, $pTight) {
+            $table->addRow();
+            $table->addCell(2200)->addText($label, $labelStyle, $pTight);
+            $table->addCell(5600)->addText(': ' . ($value ?? '-'), [], $pTight);
+        };
+
+        $addInfo($infoTable, 'Nama', $penilaian->user->nama ?? '-');
+        $addInfo($infoTable, 'No Hp', $penilaian->user->nomor_hp ?? '-');
+        $addInfo($infoTable, 'Tanggal Lahir', $penilaian->user->tanggal_lahir ?? '-');
+        $addInfo($infoTable, 'Jenis Kelamin', $penilaian->user->jenis_kelamin ?? '-');
+        $addInfo($infoTable, 'Bagian', $penilaian->user->departement->nama_departement ?? '-');
+        $addInfo($infoTable, 'Jabatan', $penilaian->user->jabatan->nama_jabatan ?? '-');
+        $addInfo($infoTable, 'Periode Penilaian', "{$penilaian->periode_awal} - {$penilaian->periode_akhir}");
+
         $section->addTextBreak(1);
 
-        $table = $section->addTable(['borderSize'=>6,'borderColor'=>'000000']);
+        // ===== TABEL DETAIL (center semua konten) =====
+        $pCenter    = ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER];
+        $cellCenter = ['valign' => 'center'];
+
+        $table = $section->addTable('DetailTable');
         $table->addRow();
-        $table->addCell(2000)->addText("Kriteria");
-        $table->addCell(3000)->addText("Deskripsi");
-        $table->addCell(1000)->addText("Nilai Skala (1-5)");
-        $table->addCell(1000)->addText("Bobot");
-        $table->addCell(1500)->addText("Nilai Tertimbang (Nilai x Bobot)");
-        $table->addCell(3000)->addText("Deskripsi Perilaku");
+        $table->addCell(2000, $cellCenter)->addText("Kriteria", [], $pCenter);
+        $table->addCell(3000, $cellCenter)->addText("Deskripsi", [], $pCenter);
+        $table->addCell(1000, $cellCenter)->addText("Nilai Skala (1-5)", [], $pCenter);
+        $table->addCell(1000, $cellCenter)->addText("Bobot", [], $pCenter);
+        $table->addCell(1500, $cellCenter)->addText("Nilai Tertimbang (Nilai x Bobot)", [], $pCenter);
+        $table->addCell(3000, $cellCenter)->addText("Deskripsi Perilaku", [], $pCenter);
 
         $totalBobot = 0;
-        $totalSkor = 0;
+        $totalSkor  = 0;
         foreach ($detail as $d) {
-            $nilai = $d->anchor ? $d->anchor->nilai_anchor : 0;
-            $skor = $nilai * $d->kriteria->bobot;
+            $nilai = $d->anchor->nilai_anchor ?? 0;
+            $bobot = $d->kriteria->bobot ?? 0;
+            $skor  = $nilai * $bobot;
 
-            $totalBobot += $d->kriteria->bobot;
-            $totalSkor += $skor;
+            $totalBobot += $bobot;
+            $totalSkor  += $skor;
 
             $table->addRow();
-            $table->addCell(2000)->addText($d->kriteria->nama_kriteria);
-            $table->addCell(3000)->addText($d->kriteria->deskripsi);
-            $table->addCell(1000)->addText($nilai);
-            $table->addCell(1000)->addText($d->kriteria->bobot);
-            $table->addCell(1500)->addText(number_format($skor,2));
-            $table->addCell(3000)->addText($d->anchor ? $d->anchor->deskripsi : '-');
+            $table->addCell(2000, $cellCenter)->addText($d->kriteria->nama_kriteria ?? '-', [], $pCenter);
+            $table->addCell(3000, $cellCenter)->addText($d->kriteria->deskripsi ?? '-', [], $pCenter);
+            $table->addCell(1000, $cellCenter)->addText((string)$nilai, [], $pCenter);
+            $table->addCell(1000, $cellCenter)->addText((string)$bobot, [], $pCenter);
+            $table->addCell(1500, $cellCenter)->addText(number_format($skor, 2), [], $pCenter);
+            $table->addCell(3000, $cellCenter)->addText($d->anchor->deskripsi ?? '-', [], $pCenter);
         }
 
         $table->addRow();
-        $table->addCell(2000)->addText("Jumlah", ['bold'=>true]);
-        $table->addCell(3000)->addText("");
-        $table->addCell(1000)->addText("");
-        $table->addCell(1000)->addText($totalBobot, ['bold'=>true]);
-        $table->addCell(1500)->addText(number_format($totalSkor,2), ['bold'=>true]);
-        $table->addCell(3000)->addText("");
+        $table->addCell(2000, $cellCenter)->addText("Jumlah", ['bold'=>true], $pCenter);
+        $table->addCell(3000, $cellCenter)->addText("", [], $pCenter);
+        $table->addCell(1000, $cellCenter)->addText("", [], $pCenter);
+        $table->addCell(1000, $cellCenter)->addText((string)$totalBobot, ['bold'=>true], $pCenter);
+        $table->addCell(1500, $cellCenter)->addText(number_format($totalSkor, 2), ['bold'=>true], $pCenter);
+        $table->addCell(3000, $cellCenter)->addText("", [], $pCenter);
 
         $section->addTextBreak(1);
 
-        $section->addText("Total Skor Kinerja Tertimbang : " . number_format($rata,2));
+        // ===== Ringkasan + Kategori =====
+        $section->addText("Total Skor Kinerja Tertimbang : " . number_format($rata, 2));
         $section->addText("Hasil Penilaian Kinerja Karyawan : " . $hasilKategori);
         $section->addTextBreak(1);
 
@@ -100,7 +177,13 @@ class ReportController extends Controller
             $section->addText($kat->nama_kategori . " = Skor antara " . $kat->nilai_min . " - " . $kat->nilai_max);
         }
 
-        $filename = "Laporan_Kinerja_".$penilaian->user->nama.".docx";
+        // ===== Catatan =====
+        $section->addTextBreak(1);
+        $section->addText("Catatan Penilaian", ['bold' => true]);
+        $section->addText($penilaian->catatan ? (string)$penilaian->catatan : '-', [], ['alignment' => 'both']);
+
+        // ===== Output file =====
+        $filename = "Laporan_Kinerja_" . preg_replace('/[^\w\-]+/u', '_', ($penilaian->user->nama ?? 'User')) . ".docx";
         header("Content-Description: File Transfer");
         header("Content-Disposition: attachment; filename=$filename");
         header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');

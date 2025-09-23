@@ -84,6 +84,21 @@ use yii\bootstrap5\ActiveForm;
         'placeholder' => 'Isi catatan, atau biarkan kosong untuk default'
     ]) ?>
 
+    <?php if ($model->foto): ?>
+        <div class="mb-2">
+            <img src="<?= Html::encode($model->getFotoUrl()) ?>"
+                 style="width:64px;height:64px;object-fit:cover;border-radius:50%;"
+                 alt="Preview Foto">
+        </div>
+    <?php endif; ?>
+
+    <?= $form->field($model, 'fotoFile')->fileInput()->label('Upload Foto (jpg/png/webp, maks 2MB)') ?>
+
+    <div class="form-group">
+        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update',
+            ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+    </div>
+    
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
         <?= Html::a('Kembali', ['index'], ['class' => 'btn btn-info']) ?>

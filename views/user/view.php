@@ -67,6 +67,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'format' => ['date', 'php:d-m-Y'],
             ],
             'catatan_khusus',
+            'foto',
         ],
     ]) ?>
 

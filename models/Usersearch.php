@@ -18,7 +18,7 @@ class Usersearch extends User
     {
         return [
             [['id_users', 'id_jabatan', 'id_departement', 'level_jabatan', 'golongan'], 'integer'],
-            [['username', 'password_hash', 'nama', 'tanggal_masuk', 'pendidikan_terakhir', 'status_karyawan', 'lokasi_kerja', 'atasan_langsung', 'nomor_hp', 'email', 'tanggal_lahir', 'jenis_kelamin', 'penilaian_terakhir', 'catatan_khusus'], 'safe'],
+            [['username', 'password_hash', 'nama', 'tanggal_masuk', 'pendidikan_terakhir', 'status_karyawan', 'lokasi_kerja', 'atasan_langsung', 'nomor_hp', 'email', 'tanggal_lahir', 'jenis_kelamin', 'penilaian_terakhir', 'catatan_khusus','foto'], 'safe'],
         ];
     }
 
@@ -79,7 +79,8 @@ class Usersearch extends User
             ->andFilterWhere(['like', 'nomor_hp', $this->nomor_hp])
             ->andFilterWhere(['like', 'email', $this->email])
             ->andFilterWhere(['like', 'jenis_kelamin', $this->jenis_kelamin])
-            ->andFilterWhere(['like', 'catatan_khusus', $this->catatan_khusus]);
+            ->andFilterWhere(['like', 'catatan_khusus', $this->catatan_khusus])
+            ->andFilterWhere(['like', 'foto', $this->foto]);
 
         return $dataProvider;
     }

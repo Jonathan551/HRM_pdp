@@ -70,6 +70,20 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             'catatan_khusus',
             [
+                'attribute' => 'foto',
+                'label' => 'Foto',
+                'format' => 'raw',
+                'value' => function ($model) {
+                    /** @var $model \app\models\User */
+                    return Html::img($model->getFotoUrl(), [
+                        'alt' => 'Foto',
+                        'style' => 'width:40px;height:40px;object-fit:cover;border-radius:50%;'
+                    ]);
+                },
+                'contentOptions' => ['style' => 'width:70px;'],
+                'filter' => false,
+            ],
+            [
                 'class' => ActionColumn::className(),
                 'urlCreator' => function ($action, User $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id_users' => $model->id_users]);

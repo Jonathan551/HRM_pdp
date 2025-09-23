@@ -29,6 +29,7 @@ use yii\web\IdentityInterface;
  * @property int|null $golongan
  * @property string|null $penilaian_terakhir
  * @property string|null $catatan_khusus
+ * @property string|null $foto
  *
  * @property MasterDepartement $departement
  * @property MasterJabatan $jabatan
@@ -41,6 +42,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
      */
     const JENIS_KELAMIN_PRIA = 'pria';
     const JENIS_KELAMIN_WANITA = 'wanita';
+
+    public $fotoFile;
 
     public $password;
 
@@ -71,6 +74,13 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
             [['nomor_hp'], 'string', 'max' => 20],
             ['jenis_kelamin', 'in', 'range' => array_keys(self::optsJenisKelamin())],
             [['username'], 'unique'],
+            [['foto'], 'string', 'max' => 255], 
+            [['fotoFile'], 'file',
+                'skipOnEmpty' => true,
+                'extensions' => ['jpg','jpeg','png','webp'],
+                'checkExtensionByMimeType' => true,
+                'maxSize' => 2 * 1024 * 1024, // 2MB
+            ],
             [['id_jabatan'], 'exist', 'skipOnError' => true, 'targetClass' => MasterJabatan::class, 'targetAttribute' => ['id_jabatan' => 'id_jabatan']],
             [['id_departement'], 'exist', 'skipOnError' => true, 'targetClass' => MasterDepartement::class, 'targetAttribute' => ['id_departement' => 'id_departement']],
         ];
@@ -111,6 +121,8 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
             'golongan' => 'Golongan',
             'penilaian_terakhir' => 'Penilaian Terakhir',
             'catatan_khusus' => 'Catatan Khusus',
+            'foto' => 'Nama File Foto',
+            'fotoFile' => 'Upload Foto',
         ];
     }
 
@@ -277,7 +289,6 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
 
         foreach (['tanggal_masuk', 'tanggal_lahir', 'penilaian_terakhir'] as $attr) {
             if (!empty($this->$attr) && $this->$attr != '0000-00-00' && $this->$attr != '0000-00-00 00:00:00') {
-                // Jika ada waktu
                 if (strpos($this->$attr, ':') !== false) {
                     $this->$attr = Yii::$app->formatter->asDatetime($this->$attr, 'php:d-m-Y H:i');
                 } else {
@@ -285,5 +296,13 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
                 }
             }
         }
+    }
+
+    public function getFotoUrl(): string
+    {
+        if ($this->foto && file_exists(Yii::getAlias('@webroot/uploads/users/' . $this->foto))) {
+            return Yii::getAlias('@web/uploads/users/' . $this->foto);
+        }
+        return Yii::getAlias('@web/images/no-avatar.jpeg'); 
     }
 }

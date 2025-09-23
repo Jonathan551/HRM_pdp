@@ -2,11 +2,14 @@
 
 namespace app\controllers;
 
+use Yii;
 use app\models\User;
 use app\models\Usersearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\web\UploadedFile;
 use yii\filters\VerbFilter;
+
 
 /**
  * UserController implements the CRUD actions for User model.
@@ -68,19 +71,21 @@ class UserController extends Controller
     public function actionCreate()
     {
         $model = new User();
-        $model->scenario = 'create'; 
+        $model->scenario = 'create';
 
         if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id_users' => $model->id_users]);
+            if ($model->load($this->request->post())) {
+                $this->handleFotoUpload($model, false);
+
+                if ($model->save(false)) {
+                    return $this->redirect(['view', 'id_users' => $model->id_users]);
+                }
             }
         } else {
             $model->loadDefaultValues();
         }
 
-        return $this->render('create', [
-            'model' => $model,
-        ]);
+        return $this->render('create', ['model' => $model]);
     }
 
     /**
@@ -93,15 +98,18 @@ class UserController extends Controller
     public function actionUpdate($id_users)
     {
         $model = $this->findModel($id_users);
-        $model->scenario = 'update'; 
+        $model->scenario = 'update';
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id_users' => $model->id_users]);
+        if ($this->request->isPost && $model->load($this->request->post())) {
+            // === handle upload (DRY) ===
+            $this->handleFotoUpload($model, true);
+
+            if ($model->save(false)) {
+                return $this->redirect(['view', 'id_users' => $model->id_users]);
+            }
         }
 
-        return $this->render('update', [
-            'model' => $model,
-        ]);
+        return $this->render('update', ['model' => $model]);
     }
 
     /**
@@ -133,4 +141,35 @@ class UserController extends Controller
 
         throw new NotFoundHttpException('The requested page does not exist.');
     }
+
+    protected function handleFotoUpload(User $model, bool $isUpdate): void
+    {
+        $model->fotoFile = UploadedFile::getInstance($model, 'fotoFile');
+        $oldName = $model->getOldAttribute('foto');
+
+        if ($model->fotoFile && $model->validate(['fotoFile'])) {
+            $this->ensureUploadDir();
+
+            if ($isUpdate && $oldName && file_exists(Yii::getAlias('@webroot/uploads/users/' . $oldName))) {
+                @unlink(Yii::getAlias('@webroot/uploads/users/' . $oldName));
+            }
+
+            $newName = Yii::$app->security->generateRandomString(16) . '.' . $model->fotoFile->extension;
+            $path = Yii::getAlias('@webroot/uploads/users/' . $newName);
+
+            $model->fotoFile->saveAs($path, false);
+            $model->foto = $newName;
+        } else {
+            $model->foto = $oldName;
+        }
+    }
+
+    protected function ensureUploadDir(): void
+    {
+        $dir = Yii::getAlias('@webroot/uploads/users');
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+    }
+
 }
