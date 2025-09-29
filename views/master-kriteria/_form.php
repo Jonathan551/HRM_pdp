@@ -24,7 +24,13 @@ use app\models\MasterDepartement;
 
     <?= $form->field($model, 'deskripsi')->textarea(['rows' => 6]) ?>
 
-    <?= $form->field($model, 'bobot')->textInput() ?>
+     <?= $form->field($model, 'bobot')->textInput([
+        'type' => 'number',
+        'min' => 0,
+        'step' => 1,
+        'maxlength' => true,
+        'placeholder' => 'Masukkan berupa angka'
+    ])->label('Bobot') ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

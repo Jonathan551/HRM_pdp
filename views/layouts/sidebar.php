@@ -29,12 +29,6 @@ $this->registerJsFile('@web/js/sidebar.js', [
                 'icon' => 'folder',
                 'items' => [
                     [
-                        'label' => 'Master Data User',
-                        'icon' => 'account_circle',
-                        'url' => ['/user/index'],
-                        'visible' => UserAccess::hasPermission('akses_user')
-                    ],
-                    [
                         'label' => 'Master Data Jabatan',
                         'icon' => 'badge',
                         'url' => ['/master-jabatan/index'],
@@ -45,6 +39,12 @@ $this->registerJsFile('@web/js/sidebar.js', [
                         'icon' => 'business',
                         'url' => ['/master-departement/index'],
                         'visible' => UserAccess::hasPermission('akses_departement')
+                    ],
+                    [
+                        'label' => 'Master Data User',
+                        'icon' => 'account_circle',
+                        'url' => ['/user/index'],
+                        'visible' => UserAccess::hasPermission('akses_user')
                     ],
                     [
                         'label' => 'Master Data Kriteria',

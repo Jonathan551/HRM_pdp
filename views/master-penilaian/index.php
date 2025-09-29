@@ -44,7 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'attribute' => 'periode_akhir',
-                'label' => 'Periode Awal Akhir',
+                'label' => 'Periode Akhir Penilaian',
                 'format' => ['date', 'php:d-m-Y '],
             ],
             [

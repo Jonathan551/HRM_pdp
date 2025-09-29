@@ -14,7 +14,13 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'nama_jabatan')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'level_jabatan')->textInput() ?>
+    <?= $form->field($model, 'level_jabatan')->textInput([
+        'type' => 'number',
+        'min' => 0,
+        'step' => 1,
+        'maxlength' => true,
+        'placeholder' => 'Masukkan berupa angka'
+    ])->label('Level Jabatan') ?>
 
     <?= $form->field($model, 'deskripsi')->textarea(['rows' => 6]) ?>
 

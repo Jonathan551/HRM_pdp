@@ -3,7 +3,10 @@
 namespace app\models;
 
 use Yii;
+use yii\web\Response;
 use yii\web\IdentityInterface;
+use app\models\MasterJabatan;
+use app\models\MasterPenilaian;
 
 /**
  * This is the model class for table "users".
@@ -61,10 +64,13 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username', 'id_jabatan', 'id_departement', 'level_jabatan', 'nama', 'tanggal_masuk', 'pendidikan_terakhir', 'status_karyawan', 'lokasi_kerja', 'atasan_langsung', 'nomor_hp', 'email', 'tanggal_lahir', 'jenis_kelamin', 'golongan', 'penilaian_terakhir'], 'required', 'message' => 'Tidak boleh kosong'],
+            [['username', 'id_jabatan', 'id_departement', 'level_jabatan', 'nama', 'tanggal_masuk', 'pendidikan_terakhir', 'status_karyawan', 'lokasi_kerja', 'atasan_langsung', 'nomor_hp', 'email', 'tanggal_lahir', 'jenis_kelamin', 'golongan'], 'required', 'message' => 'Tidak boleh kosong'],
+            ['username', 'match', 'pattern' => '/^[A-Za-z0-9._]+$/', 
+                'message' => 'Username hanya boleh berisi huruf, angka, titik, atau underscore, tanpa spasi.'],
             [['id_jabatan', 'id_departement', 'level_jabatan', 'golongan'], 'integer'],
             [['tanggal_masuk', 'tanggal_lahir', 'penilaian_terakhir'], 'safe'],
             [['password'], 'required', 'on' => 'create', 'message' => 'Tidak boleh kosong'],
+            ['password', 'string', 'min' => 6],
             [['password'], 'safe', 'on' => 'update'],
             ['email', 'email', 'message' => 'Format email tidak valid'],
             ['nomor_hp', 'match', 'pattern' => '/^[0-9]+$/', 'message' => 'Hanya boleh angka'],
@@ -258,31 +264,40 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
 
     public function beforeSave($insert)
     {
-        if (parent::beforeSave($insert)) {
-                if (!empty($this->password)) {
-                    $this->password = Yii::$app->security->generatePasswordHash($this->password);
-                } else {
-                    if (!$this->isNewRecord) {
-                        $this->password = $this->getOldAttribute('password');
-                    }
-                foreach (['tanggal_masuk', 'tanggal_lahir', 'penilaian_terakhir'] as $attr) {
-                    if (!empty($this->$attr) && preg_match('/\d{2}-\d{2}-\d{4}/', $this->$attr)) {
-                        if (strpos($this->$attr, ':') !== false) {
-                            $this->$attr = Yii::$app->formatter->asDatetime($this->$attr, 'php:Y-m-d H:i:s');
-                        } else {
-                            $this->$attr = Yii::$app->formatter->asDate($this->$attr, 'php:Y-m-d');
-                        }
-                    }
-                }
-                if (empty($this->catatan_khusus)) {
-                    $this->catatan_khusus = 'Tidak ada';
-            }
-                 return true;
-            }
-            return false;
-        }
-    }
+        if (!parent::beforeSave($insert)) return false;
 
+        $pwd = trim((string)$this->password);
+
+        if ($insert) { 
+            if ($pwd === '') {
+                $this->addError('password', 'Password wajib diisi.');
+                return false;
+            }
+            $this->password_hash = Yii::$app->security->generatePasswordHash($pwd);
+        } else {      
+            if ($pwd !== '') {
+                $this->password_hash = Yii::$app->security->generatePasswordHash($pwd);
+            } else {
+                $this->password_hash = $this->getOldAttribute('password_hash');
+            }
+        }
+
+        foreach (['tanggal_masuk','tanggal_lahir','penilaian_terakhir'] as $attr) {
+            if (!empty($this->$attr) &&
+                preg_match('/^\d{2}-\d{2}-\d{4}( \d{2}:\d{2}:\d{2})?$/', $this->$attr)) {
+                $this->$attr = strpos($this->$attr, ':') !== false
+                    ? Yii::$app->formatter->asDatetime($this->$attr, 'php:Y-m-d H:i:s')
+                    : Yii::$app->formatter->asDate($this->$attr, 'php:Y-m-d');
+            }
+        }
+
+        if ($this->catatan_khusus === null || $this->catatan_khusus === '') {
+            $this->catatan_khusus = 'Tidak ada';
+        }
+
+        return true;
+    }
+    
     public function afterFind()
     {
         parent::afterFind();
@@ -304,5 +319,48 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
             return Yii::getAlias('@web/uploads/users/' . $this->foto);
         }
         return Yii::getAlias('@web/images/no-avatar.jpeg'); 
+    }
+
+    public function actionGetLevelJabatan($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $jab = MasterJabatan::findOne($id);
+        return ['level_jabatan' => $jab ? $jab->level_jabatan : null];
+    }
+
+    public function actionLatestPenilaian($id_users)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $latest = MasterPenilaian::find()
+            ->where(['id_users' => $id_users])
+            ->orderBy(['periode_akhir' => SORT_DESC])
+            ->one();
+
+        if ($latest && $latest->periode_akhir) {
+            $tgl = Yii::$app->formatter->asDate($latest->periode_akhir, 'php:d-m-Y');
+            return ['penilaian_terakhir' => $tgl];
+        }
+        return ['penilaian_terakhir' => null];
+    }
+
+    public function prefillFormValues(): void
+    {
+        if ($this->id_users) {
+            $latest = MasterPenilaian::find()
+                ->where(['id_users' => $this->id_users])
+                ->orderBy(['periode_akhir' => SORT_DESC])
+                ->one();
+
+            if ($latest && $latest->periode_akhir) {
+                $this->penilaian_terakhir = Yii::$app->formatter
+                    ->asDate($latest->periode_akhir, 'php:d-m-Y');
+            }
+        }
+        if ($this->id_jabatan) {
+            $jab = MasterJabatan::findOne($this->id_jabatan);
+            if ($jab) {
+                $this->level_jabatan = $jab->level_jabatan;
+            }
+        }
     }
 }

@@ -36,6 +36,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     }
                     return $model->departement->nama_departement ?? 'Umum';
                 },
+                'label' => 'Departement',
             ],
             'nama_kriteria',
             'deskripsi:ntext',

@@ -68,22 +68,24 @@ class UserController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
-    public function actionCreate()
+   public function actionCreate()
     {
         $model = new User();
         $model->scenario = 'create';
 
-        if ($this->request->isPost) {
-            if ($model->load($this->request->post())) {
+        if (Yii::$app->request->isPost) {
+            if ($model->load(Yii::$app->request->post())) {
+
+                $model->prefillFormValues();
                 $this->handleFotoUpload($model, false);
 
-                if ($model->save(false)) {
+                if ($model->validate() && $model->save(false)) {
                     return $this->redirect(['view', 'id_users' => $model->id_users]);
                 }
             }
-        } else {
-            $model->loadDefaultValues();
+            return $this->render('create', ['model' => $model]);
         }
+        $model->prefillFormValues();
 
         return $this->render('create', ['model' => $model]);
     }
@@ -95,19 +97,24 @@ class UserController extends Controller
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id_users)
+   public function actionUpdate($id_users)
     {
         $model = $this->findModel($id_users);
         $model->scenario = 'update';
 
-        if ($this->request->isPost && $model->load($this->request->post())) {
-            // === handle upload (DRY) ===
-            $this->handleFotoUpload($model, true);
+        if (Yii::$app->request->isPost) {
+            if ($model->load(Yii::$app->request->post())) {
 
-            if ($model->save(false)) {
-                return $this->redirect(['view', 'id_users' => $model->id_users]);
+                $model->prefillFormValues();
+                $this->handleFotoUpload($model, true);
+
+                if ($model->validate() && $model->save(false)) {
+                    return $this->redirect(['view', 'id_users' => $model->id_users]);
+                }
             }
+            return $this->render('update', ['model' => $model]);
         }
+        $model->prefillFormValues();
 
         return $this->render('update', ['model' => $model]);
     }
@@ -171,5 +178,4 @@ class UserController extends Controller
             @mkdir($dir, 0755, true);
         }
     }
-
 }
