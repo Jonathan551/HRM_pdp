@@ -33,6 +33,8 @@ class MasterKategori extends \yii\db\ActiveRecord
             [['nama_kategori', 'nilai_min', 'nilai_max'], 'required'],
             [['nilai_min', 'nilai_max'], 'number'],
             [['nama_kategori'], 'string', 'max' => 255],
+            ['nilai_max', 'compare', 'compareAttribute' => 'nilai_min', 'operator' => '>=', 
+            'message' => 'Nilai maksimum harus lebih besar atau sama dengan minimum'],
         ];
     }
 

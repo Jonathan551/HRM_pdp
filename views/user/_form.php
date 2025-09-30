@@ -62,7 +62,13 @@ use yii\web\View;
     ]) ?>
 
     <?= $form->field($model, 'jenis_kelamin')->dropDownList(['pria' => 'Pria', 'wanita' => 'Wanita'], ['prompt' => '']) ?>
-    <?= $form->field($model, 'golongan')->textInput() ?>
+    <?= $form->field($model, 'golongan')->textInput([
+        'type' => 'number',
+        'min' => 0,
+        'step' => 1,
+        'maxlength' => true,
+        'placeholder' => 'Masukkan berupa angka'
+    ])->label('Golongan') ?>
 
     <?= $form->field($model, 'penilaian_terakhir')->textInput([
         'readonly' => true,

@@ -14,9 +14,19 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'nama_kategori')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'nilai_min')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'nilai_min')->textInput([
+        'type' => 'number',
+        'step' => 'any',
+        'maxlength' => true,
+        'placeholder' => 'Masukkan berupa angka'
+    ])->label('Nilai Minimum') ?>
 
-    <?= $form->field($model, 'nilai_max')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'nilai_max')->textInput([
+        'type' => 'number',
+        'step' => 'any',
+        'maxlength' => true,
+        'placeholder' => 'Masukkan berupa angka'
+    ])->label('Nilai Maximum') ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
