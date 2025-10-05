@@ -54,7 +54,7 @@ class MasterEvent extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_users', 'judul', 'deskripsi', 'tanggal', 'jenis_event', 'lokasi', 'created_by'], 'default', 'value' => null],
+            [['id_users', 'judul', 'deskripsi', 'tanggal', 'jenis_event', 'lokasi', 'created_by'], 'required','message' => '{attribute} wajib diisi.'],
             [['severity'], 'default', 'value' => 'low'],
             [['status'], 'default', 'value' => 'open'],
             [['id_users', 'id_departement', 'created_by'], 'integer'],

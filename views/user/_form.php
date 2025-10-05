@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\helpers\Url; 
 use yii\helpers\ArrayHelper;
@@ -6,8 +7,11 @@ use app\models\MasterJabatan;
 use app\models\MasterDepartement;
 use yii\bootstrap5\ActiveForm;
 use yii\web\View;
-?>
 
+/** @var yii\web\View $this */
+/** @var app\models\User $model */
+
+?>
 <div class="user-form">
 
     <?php $form = ActiveForm::begin(); ?>
@@ -103,41 +107,21 @@ use yii\web\View;
     $this->registerJsFile('https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js', [
         'depends' => [\yii\web\JqueryAsset::class],
     ]);
+    $this->registerJsFile('https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js', [
+        'depends' => [\yii\web\JqueryAsset::class],
+    ]);
 
-    $urlLevel  = Url::to(['user/get-level-jabatan']);
-    $urlLatest = $model->isNewRecord ? null : Url::to(['user/latest-penilaian', 'id_users' => $model->id_users]);
+ 
+    $cfg = [
+        'urlLevel'  => Url::to(['/user/get-level-jabatan']),
+        'urlLatest' => $model->isNewRecord ? null : Url::to(['/user/latest-penilaian', 'id_users' => $model->id_users]),
+    ];
+    $this->registerJs('window.UserFormConfig = ' . json_encode($cfg) . ';', View::POS_HEAD);
 
-    $this->registerJs(<<<JS
-        flatpickr('.datepicker', {
-        dateFormat: 'd-m-Y',
-        allowInput: true,
-        clickOpens: true,
-        disableMobile: true
-        });
-
-        $('#user-id_jabatan').on('change', function () {
-        var id = $(this).val();
-        if (!id) { $('#user-level_jabatan').val(''); return; }
-        $.getJSON('{$urlLevel}', { id: id }).done(function(res){
-            $('#user-level_jabatan').val(res && res.level_jabatan ? res.level_jabatan : '');
-        });
-        });
-
-        if ($('#user-id_jabatan').val()) {
-        $('#user-id_jabatan').trigger('change');
-        }
-
-        JS, View::POS_READY);
-
-        if ($urlLatest) {
-            $this->registerJs(<<<JS
-        $.getJSON('{$urlLatest}').done(function(res){
-        if (res && res.penilaian_terakhir) {
-            $('#user-penilaian_terakhir').val(res.penilaian_terakhir);
-        }
-        });
-        JS, View::POS_READY);
-        }
+   
+    $this->registerJsFile('@web/js/user-form.js', [
+        'depends'  => [\yii\web\JqueryAsset::class],
+        'position' => View::POS_END,
+    ]);
     ?>
-
 </div>

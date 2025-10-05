@@ -34,11 +34,23 @@ class DetailPenilaian extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_penilaian', 'id_kriteria', 'id_anchor'], 'default', 'value' => null],
-            [['id_penilaian', 'id_kriteria', 'id_anchor'], 'integer'],
+            [['id_kriteria', 'id_anchor'], 'required', 'message' => '{attribute} wajib diisi.'],
+            [['id_penilaian', 'id_kriteria', 'id_anchor'], 'integer', 'message' => '{attribute} harus berupa angka.'],
             [['id_penilaian'], 'exist', 'skipOnError' => true, 'targetClass' => MasterPenilaian::class, 'targetAttribute' => ['id_penilaian' => 'id_penilaian']],
-            [['id_kriteria'], 'exist', 'skipOnError' => true, 'targetClass' => MasterKriteria::class, 'targetAttribute' => ['id_kriteria' => 'id_kriteria']],
-            [['id_anchor'], 'exist', 'skipOnError' => true, 'targetClass' => MasterAnchor::class, 'targetAttribute' => ['id_anchor' => 'id_anchor']],
+             [
+                ['id_kriteria'],
+                'exist',
+                'targetClass' => MasterKriteria::class,
+                'targetAttribute' => ['id_kriteria' => 'id_kriteria'],
+                'message' => Yii::t('app', '{attribute} tidak valid.'),
+            ],
+            [
+                ['id_anchor'],
+                'exist',
+                'targetClass' => MasterAnchor::class,
+                'targetAttribute' => ['id_anchor' => 'id_anchor'],
+                'message' => Yii::t('app', '{attribute} tidak valid.'),
+            ],
         ];
     }
 
@@ -50,8 +62,8 @@ class DetailPenilaian extends \yii\db\ActiveRecord
         return [
             'id_detailpenilaian' => 'Id Detailpenilaian',
             'id_penilaian' => 'Id Penilaian',
-            'id_kriteria' => 'Id Kriteria',
-            'id_anchor' => 'Id Anchor',
+            'id_kriteria' => Yii::t('app', 'Kriteria'),
+            'id_anchor'   => Yii::t('app', 'Anchor'),
         ];
     }
 

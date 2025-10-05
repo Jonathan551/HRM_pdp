@@ -15,13 +15,30 @@ use app\models\MasterAnchor;
 /** @var app\models\DetailPenilaian[] $detailModels */
 ?>
 
-<div class="master-penilaian-form">
 
-    <?php $form = ActiveForm::begin([
+
+<div class="master-penilaian-form">
+    
+    <?php 
+    
+    $form = ActiveForm::begin([
         'id' => 'master-penilaian-form',
         'method' => 'post',
-    ]); ?>
+    ]); 
+        echo $form->errorSummary(
+        array_merge([$model], $detailModels),
+        ['class' => 'alert alert-danger', 'header' => Yii::t('app', 'Perbaiki kesalahan berikut:')]
+    );
 
+    ?>
+
+    <h4 class="mb-2">
+        Detail Penilaian
+        <small class="text-danger">
+            <?= Html::error($model, 'detailModels') /* tampilkan pesan agregat detail */ ?>
+        </small>
+    </h4>
+    
     <?= $form->field($model, 'id_users')->widget(Select2::class, [
         'data' => ArrayHelper::map(
             User::find()
@@ -124,7 +141,6 @@ use app\models\MasterAnchor;
         <?= Html::submitButton('Simpan', ['class' => 'btn btn-success']) ?>
         <?= Html::a('Kembali', ['index'], ['class' => 'btn btn-info']) ?>
     </div>
-
     <?php ActiveForm::end(); ?>
 </div>
 

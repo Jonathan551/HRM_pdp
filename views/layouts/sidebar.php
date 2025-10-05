@@ -124,7 +124,7 @@ $this->registerJsFile('@web/js/sidebar.js', [
                         'label' => 'Master Banding Penilaian',
                         'icon' => 'assignment',
                         'url' => ['/banding-penilaian/index'],
-                        'visible' => UserAccess::hasPermission('akses_banding')
+                        'visible' => UserAccess::hasPermission('akses_review_banding')
                     ],
                     [
                         'label' => 'Banding Penilaian',
@@ -133,7 +133,9 @@ $this->registerJsFile('@web/js/sidebar.js', [
                         'visible' => UserAccess::hasPermission('akses_banding')
                     ],
                 ],
-                'visible' => UserAccess::hasPermission('akses_banding')
+                'visible' => 
+                    UserAccess::hasPermission('akses_banding') ||
+                    UserAccess::hasPermission('akses_review_banding')
             ],
         ]
     ]); ?>

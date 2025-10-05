@@ -34,7 +34,7 @@ class MasterAnchor extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_kriteria', 'level_anchor', 'deskripsi', 'nilai_anchor'], 'default', 'value' => null],
+            [['id_kriteria', 'level_anchor', 'deskripsi', 'nilai_anchor'], 'required','message' => '{attribute} wajib diisi.'],
             [['id_kriteria', 'level_anchor', 'nilai_anchor'], 'integer'],
             [['deskripsi'], 'string'],
             [['id_kriteria'], 'exist', 'skipOnError' => true, 'targetClass' => MasterKriteria::class, 'targetAttribute' => ['id_kriteria' => 'id_kriteria']],

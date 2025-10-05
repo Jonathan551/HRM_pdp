@@ -1,4 +1,5 @@
 <?php
+// File: views/master-event/_form.php
 
 use app\models\User;
 use yii\helpers\ArrayHelper;
@@ -8,32 +9,44 @@ use yii\widgets\ActiveForm;
 /** @var yii\web\View $this */
 /** @var app\models\MasterEvent $model */
 /** @var yii\widgets\ActiveForm $form */
-?>
 
+// Ambil user login & rakit label tampilan
+$currentUserId = Yii::$app->user->id;
+$currentUser   = User::find()->with('departement')->where(['id_users' => $currentUserId])->one();
+$displayName   = $currentUser
+    ? ($currentUser->nama . ' (' . ($currentUser->departement->nama_departement ?? '-') . ')')
+    : 'User';
+
+$isNew = $model->isNewRecord;
+
+// Jika create, paksa id_users & created_by = user login (WHY: keamanan & konsistensi)
+if ($isNew) {
+    $model->id_users   = $currentUserId;
+    $model->created_by = $currentUserId;
+}
+?>
 <div class="master-event-form">
 
     <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]); ?>
 
-    <?= $form->field($model, 'id_users')->dropDownList(
-        ArrayHelper::map(
-            User::find()->with('departement')->all(),
-            'id_users',
-            function($user) {
-                return $user->nama . ' (' . ($user->departement ? $user->departement->nama_departement : '-') . ')';
-            }
-        ),
-        [
-            'prompt' => 'Pilih User',
-            'id' => 'id_users'
-        ]
-    )->label('User') ?>
+    <?php
+    // Tampilkan User read-only, kirim id_users via hidden input (WHY: field disabled tidak terkirim)
+    // Saat update, tampilkan user milik record
+    $ownerUser = $isNew ? $currentUser : User::find()->with('departement')->where(['id_users' => $model->id_users])->one();
+    $ownerName = $ownerUser
+        ? ($ownerUser->nama . ' (' . ($ownerUser->departement->nama_departement ?? '-') . ')')
+        : '-';
+    ?>
+    <div class="form-group">
+        <label class="control-label">User</label>
+        <?= Html::textInput('user_display', $ownerName, ['class' => 'form-control', 'readonly' => true]) ?>
+        <?= $form->field($model, 'id_users')->hiddenInput(['value' => $ownerUser->id_users ?? $currentUserId])->label(false) ?>
+    </div>
     <div style="margin-bottom:15px;"></div>
-
 
     <?= $form->field($model, 'judul')->textInput(['maxlength' => true]) ?>
     <?= $form->field($model, 'deskripsi')->textarea(['rows' => 6]) ?>
     <div style="margin-bottom:15px;"></div>
-
 
     <div class="form-group">
         <?= Html::button('Tambah Gambar', ['class' => 'btn btn-primary', 'id' => 'btn-add-file']) ?>
@@ -41,7 +54,6 @@ use yii\widgets\ActiveForm;
     </div>
 
     <?= $form->field($model, 'uploadFile')->fileInput(['id' => 'event-upload', 'style' => 'display:none;'])->label(false) ?>
-
 
     <?php if (!$model->isNewRecord && $model->gambar): ?>
         <div id="existing-image" style="margin-bottom:15px;">
@@ -55,17 +67,14 @@ use yii\widgets\ActiveForm;
         <img id="preview-image" src="" width="200" style="border:1px solid #ccc; padding:5px;">
     </div>
 
-
     <?= $form->field($model, 'tanggal')->textInput([
         'class' => 'form-control datepicker',
         'placeholder' => 'Pilih tanggal...'
     ]) ?>
     <div style="margin-bottom:15px;"></div>
 
-
     <?= $form->field($model, 'jenis_event')->textInput(['maxlength' => true]) ?>
     <div style="margin-bottom:15px;"></div>
-
 
     <?= $form->field($model, 'severity')->dropDownList([
         'low' => 'Low',
@@ -75,17 +84,13 @@ use yii\widgets\ActiveForm;
     ], ['prompt' => 'Pilih Severity']) ?>
     <div style="margin-bottom:15px;"></div>
 
-
     <?= $form->field($model, 'lokasi')->textInput(['maxlength' => true]) ?>
     <div style="margin-bottom:15px;"></div>
 
-
-    <?= $form->field($model, 'created_by')->hiddenInput()->label(false) ?>
+    <?= $form->field($model, 'created_by')->hiddenInput(['value' => $currentUserId])->label(false) ?>
 
     <?php if ($model->isNewRecord): ?>
-        <?= $form->field($model, 'status')->dropDownList([
-            'open' => 'Open'
-        ]) ?>
+        <?= $form->field($model, 'status')->dropDownList(['open' => 'Open']) ?>
     <?php else: ?>
         <?= $form->field($model, 'status')->dropDownList([
             'open' => 'Open',
@@ -94,7 +99,6 @@ use yii\widgets\ActiveForm;
         ], ['prompt' => 'Pilih Status']) ?>
     <?php endif; ?>
     <div style="margin-bottom:15px;"></div>
-
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
@@ -108,11 +112,12 @@ use yii\widgets\ActiveForm;
         $this->registerJsFile('https://cdn.jsdelivr.net/npm/flatpickr', [
             'depends' => [\yii\web\JqueryAsset::class]
         ]);
-
+        $defaultDateJs = $isNew ? "defaultDate: 'today'," : "";
         $this->registerJs("
             flatpickr('.datepicker', {
                 dateFormat: 'd-m-Y',
-                allowInput: true
+                allowInput: true,
+                $defaultDateJs
             });
 
             const uploadInput = document.getElementById('event-upload');
@@ -122,9 +127,7 @@ use yii\widgets\ActiveForm;
             const btnRemove = document.getElementById('btn-remove-file');
             const existingImage = document.getElementById('existing-image');
 
-            btnAdd.addEventListener('click', function() {
-                uploadInput.click();
-            });
+            btnAdd.addEventListener('click', function() { uploadInput.click(); });
 
             uploadInput.addEventListener('change', function() {
                 const [file] = this.files;
@@ -132,17 +135,16 @@ use yii\widgets\ActiveForm;
                     previewImage.src = URL.createObjectURL(file);
                     previewContainer.style.display = 'block';
                     btnRemove.style.display = 'inline-block';
-                    if (existingImage) existingImage.style.display = 'none'; // hide old image
+                    if (existingImage) existingImage.style.display = 'none';
                 }
             });
-
 
             btnRemove.addEventListener('click', function() {
                 uploadInput.value = '';
                 previewImage.src = '';
                 previewContainer.style.display = 'none';
                 btnRemove.style.display = 'none';
-                if (existingImage) existingImage.style.display = 'block'; // restore old image
+                if (existingImage) existingImage.style.display = 'block';
             });
         ");
     ?>

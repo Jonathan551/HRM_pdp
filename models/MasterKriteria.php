@@ -35,7 +35,7 @@ class MasterKriteria extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_departement', 'nama_kriteria', 'deskripsi', 'bobot'], 'default', 'value' => null],
+            [['id_departement', 'nama_kriteria', 'deskripsi', 'bobot'], 'required','message' => '{attribute} wajib diisi.'],
             [['id_departement', 'bobot'], 'integer'],
             [['deskripsi'], 'string'],
             [['nama_kriteria'], 'string', 'max' => 100],

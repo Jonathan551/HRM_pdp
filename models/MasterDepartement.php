@@ -33,7 +33,7 @@ class MasterDepartement extends \yii\db\ActiveRecord
     {
         return [
             [['deskripsi'], 'default', 'value' => null],
-            [['nama_departement'], 'required'],
+            [['nama_departement'], 'required','message' => '{attribute} wajib diisi.'],
             [['deskripsi'], 'string'],
             [['nama_departement'], 'string', 'max' => 100],
         ];

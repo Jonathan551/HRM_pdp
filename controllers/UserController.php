@@ -8,6 +8,9 @@ use app\models\Usersearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
+use app\models\MasterJabatan;
+use yii\web\Response;
+use app\models\MasterPenilaian;
 use yii\filters\VerbFilter;
 
 
@@ -177,5 +180,28 @@ class UserController extends Controller
         if (!is_dir($dir)) {
             @mkdir($dir, 0755, true);
         }
+    }
+
+    public function actionGetLevelJabatan(int $id): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $jab = MasterJabatan::findOne($id);
+        return ['level_jabatan' => $jab->level_jabatan ?? null];
+    }
+
+    public function actionLatestPenilaian(int $id_users): array
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $latest = MasterPenilaian::find()
+            ->where(['id_users' => $id_users])
+            ->orderBy(['periode_akhir' => SORT_DESC])
+            ->one();
+
+        return [
+            'penilaian_terakhir' => $latest && $latest->periode_akhir
+                ? Yii::$app->formatter->asDate($latest->periode_akhir, 'php:d-m-Y')
+                : null,
+        ];
     }
 }

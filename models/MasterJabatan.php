@@ -33,7 +33,7 @@ class MasterJabatan extends \yii\db\ActiveRecord
     {
         return [
             [['level_jabatan', 'deskripsi'], 'default', 'value' => null],
-            [['nama_jabatan'], 'required'],
+            [['nama_jabatan'], 'required' ,'message' => '{attribute} wajib diisi.'],
             [['level_jabatan'], 'integer'],
             [['deskripsi'], 'string'],
             [['nama_jabatan'], 'string', 'max' => 100],

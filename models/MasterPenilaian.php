@@ -21,6 +21,11 @@ use Yii;
  */
 class MasterPenilaian extends \yii\db\ActiveRecord
 {
+    
+     private const DATE_FORMAT = 'php:d-m-Y';
+
+    public array $detailModels = [];
+
     /**
      * {@inheritdoc}
      */
@@ -35,13 +40,20 @@ class MasterPenilaian extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_users', 'presentase_absensi', 'periode_awal', 'periode_akhir','catatan'], 'required'],
-            [['id_kategori', 'nilai_akhir'], 'default', 'value' => null],
+            [['id_users', 'presentase_absensi', 'periode_awal', 'periode_akhir','catatan'], 'required','message' => '{attribute} wajib diisi.'],
+            [['catatan', 'nilai_akhir'], 'default', 'value' => null],
             [['id_users', 'id_kategori'], 'integer'], 
             [['nilai_akhir', 'presentase_absensi'], 'number'],
-            [['periode_awal', 'periode_akhir'], 'safe'], 
+            [['periode_awal', 'periode_akhir'], 'date', 'format' => self::DATE_FORMAT, 'message' => '{attribute} tidak valid.'],
+            ['periode_akhir', 'compare',
+                'compareAttribute' => 'periode_awal',
+                'operator' => '>=',
+                'type' => 'date',
+                'message' => 'Periode Akhir harus sama atau setelah Periode Awal.',
+            ],
             [['id_kategori'], 'safe'], 
             [['id_users'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['id_users' => 'id_users']],
+            [['detailModels'], 'validateDetails'],
         ];
     }
 
@@ -52,13 +64,14 @@ class MasterPenilaian extends \yii\db\ActiveRecord
     {
         return [
             'id_penilaian' => 'Id Penilaian',
-            'id_users' => 'Id Users',
+            'id_users' => 'Nama Karyawan',
             'nilai_akhir' => 'Nilai Akhir',
             'periode_awal' => 'Periode Awal',
             'periode_akhir' => 'Periode Akhir',
             'id_kategori' => 'Status Nilai',
             'presentas_absensi' => 'Presentas Absensi',
             'catatan' => "Catatan",
+            'detailModels'        => Yii::t('app', 'Detail Penilaian'),
         ];
     }
 
@@ -204,6 +217,15 @@ class MasterPenilaian extends \yii\db\ActiveRecord
     {
         return $this->getDetailPenilaian()->exists();
     }
+
+    public function validateDetails(string $attribute): void
+    {
+        if (empty($this->detailModels)) {
+            $this->addError($attribute, Yii::t('app', 'Minimal satu baris Detail Penilaian harus diisi.'));
+        }
+    }
+
+
 
     public function afterFind()
     {
