@@ -44,8 +44,9 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             'status',
             [
-                'attribute' => 'tanggal_banding',
-                'format' => ['date', 'php:d-m-Y'],
+                'label'  => 'Tanggal Banding',
+                'format' => 'raw',
+                'value'  => $model->tanggalBandingDisplay,
             ],
             'alasan:ntext',
         ],

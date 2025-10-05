@@ -36,31 +36,34 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
             ],
             'status',
-             [
-                'attribute' => 'tanggal_banding',
-                'format' => ['date', 'php:d-m-Y'],
-            ],
+            ['label' => 'Tanggal Banding', 'value' => 'tanggalBandingDisplay', 'format' => 'raw'],
             'alasan:ntext',
             'review:ntext',
+            ['label' => 'Tanggal Review', 'value' => 'tanggalReviewDisplay', 'format' => 'raw'],
             [
-                'attribute' => 'tanggal_review',
-                'format' => ['date', 'php:d-m-Y'],
-            ],
-           [
                 'class' => 'yii\grid\ActionColumn',
-                'template' => '{review}',   // hanya tampilkan tombol "review"
+                'template' => '{reviewStatus}', 
                 'buttons' => [
-                    'review' => function ($url, $model, $key) {
-                        return Html::a(
-                            '<i class="fas fa-search"></i> Review',
-                            ['banding-penilaian/banding', 'id_banding' => $model->id_banding], 
-                            [
-                                'class' => 'btn btn-sm btn-primary',
-                                'title' => 'Review data',
-                            ]
-                        );
+                    'reviewStatus' => function ($url, $model, $key) {
+                        if ($model->status === BandingPenilaian::STATUS_REVIEW) {
+                            return Html::a(
+                                '<i class="fas fa-search"></i> Review',
+                                ['banding-penilaian/banding', 'id_banding' => $model->id_banding], 
+                                ['class' => 'btn btn-sm btn-primary', 'title' => 'Review data']
+                            );
+                        }
+                        $badgeClass = ($model->status === BandingPenilaian::STATUS_DITERIMA)
+                            ? 'badge bg-success'
+                            : 'badge bg-danger';
+
+                        return Html::tag('span', Html::encode($model->status), [
+                            'class' => $badgeClass,
+                            'style' => 'padding:6px 10px; font-weight:600;',
+                            'title' => 'Keputusan final',
+                        ]);
                     },
                 ],
+                'contentOptions' => ['style' => 'width:160px; text-align:right;'],
             ],
         ],
     ]); ?>

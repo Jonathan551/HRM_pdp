@@ -80,12 +80,12 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'periode_awal',
                 'label' => 'Periode Awal Penilaian',
-                'format' => ['date', 'php:d-m-Y H:i'],
+                'format' => ['date', 'php:d-m-Y '],
             ],
             [
                 'attribute' => 'periode_akhir',
                 'label' => 'Periode Awal Akhir',
-                'format' => ['date', 'php:d-m-Y H:i'],
+                'format' => ['date', 'php:d-m-Y '],
             ],
             [
                 'attribute' => 'id_kategori',

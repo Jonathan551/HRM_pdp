@@ -6,7 +6,8 @@ use yii\helpers\Html;
 /** @var app\models\BandingPenilaian $model */
 
 $this->title = 'Form Banding Penilaian';
-$this->params['breadcrumbs'][] = ['label' => 'Banding Penilaians', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => 'Pengajuan Banding', 'url' => ['/pengajuan-banding/index']];
+
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="banding-penilaian-create">

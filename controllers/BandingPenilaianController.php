@@ -4,214 +4,174 @@ namespace app\controllers;
 
 use Yii;
 use app\models\BandingPenilaian;
-use app\models\BandingPenilaiansearch;
-use app\models\MasterPenilaian;
+use app\models\BandingPenilaianSearch; // pastikan S besar
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\db\Exception as DbException;
 
-/**
- * BandingPenilaianController implements the CRUD actions for BandingPenilaian model.
- */
 class BandingPenilaianController extends Controller
 {
-    /**
-     * @inheritDoc
-     */
     public function behaviors()
     {
-        return array_merge(
-            parent::behaviors(),
-            [
-                'verbs' => [
-                    'class' => VerbFilter::className(),
-                    'actions' => [
-                        'delete' => ['POST'],
-                    ],
+        return array_merge(parent::behaviors(), [
+            'verbs' => [
+                'class'   => VerbFilter::class,
+                'actions' => [
+                    'delete' => ['POST'],
+                    'review' => ['GET','POST'],
                 ],
-            ]
-        );
+            ],
+        ]);
     }
 
-    /**
-     * Lists all BandingPenilaian models.
-     *
-     * @return string
-     */
+    private function isFinal(BandingPenilaian $m): bool
+    {
+        return $m->status !== BandingPenilaian::STATUS_REVIEW;
+    }
+
+    private function applyDecisionFromButton(BandingPenilaian $m, ?string $btn): void
+    {
+        if ($btn === 'terima') {
+            $m->status = BandingPenilaian::STATUS_DITERIMA;
+        } elseif ($btn === 'tolak') {
+            $m->status = BandingPenilaian::STATUS_DITOLAK;
+        }
+    }
+
+    private function trySave(BandingPenilaian $m): bool
+    {
+        try {
+            if ($m->save()) {
+                return true;
+            }
+            $first = '';
+            foreach ($m->getFirstErrors() as $msg) { $first = $msg; break; }
+            Yii::$app->session->setFlash('error', $first ?: 'Gagal menyimpan data.');
+            return false;
+        } catch (DbException $e) {
+            Yii::$app->session->setFlash('error', 'Tidak dapat menyimpan: ' . $e->getMessage());
+            return false;
+        } catch (\Throwable $e) {
+            Yii::$app->session->setFlash('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function handleForm(BandingPenilaian $model, string $viewName)
+    {
+        if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
+            if ($this->trySave($model)) {
+                Yii::$app->session->setFlash('success', 'Data tersimpan.');
+                return $this->redirect(['view', 'id_banding' => $model->id_banding]);
+            }
+        }
+        return $this->render($viewName, compact('model'));
+    }
+
+    private function redirectAfterDecision(BandingPenilaian $m, ?string $btn)
+    {
+        if ($btn === 'terima') {
+            return $this->redirect(['master-penilaian/update', 'id_penilaian' => $m->id_penilaian]);
+        }
+        if ($btn === 'tolak') {
+            return $this->redirect(['banding-penilaian/view', 'id_banding' => $m->id_banding]);
+        }
+        // default: kembali ke view banding
+        return $this->redirect(['view', 'id_banding' => $m->id_banding]);
+    }
+
     public function actionIndex()
     {
-        $searchModel = new BandingPenilaiansearch();
-        $dataProvider = $searchModel->search($this->request->queryParams);
-
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
+        $searchModel  = new BandingPenilaianSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        return $this->render('index', compact('searchModel','dataProvider'));
     }
 
-    /**
-     * Displays a single BandingPenilaian model.
-     * @param int $id_banding Id Banding
-     * @return string
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     public function actionView($id_banding)
-    {   
-        return $this->render('view', [
-            'model' => $this->findModel($id_banding),
-        ]);
+    {
+        return $this->render('view', ['model' => $this->findModel($id_banding)]);
     }
 
-   public function actionReview($id_banding)
+    public function actionReview($id_banding)
     {
         $model = $this->findModel($id_banding);
 
-        if ($this->request->isPost) {
-            if ($model->load($this->request->post())) {
+        if ($this->isFinal($model)) {
+            Yii::$app->session->setFlash('warning', 'Keputusan sudah final dan tidak dapat diubah.');
+            return $this->redirect(['view', 'id_banding' => $model->id_banding]);
+        }
 
-                $submitBtn = Yii::$app->request->post('submitBtn');
-                $model->tanggal_review = date('Y-m-d H:i:s');
+        if (Yii::$app->request->isPost) {
+            $model->load(Yii::$app->request->post());
 
-                if ($submitBtn === 'tolak') {
-                    $model->status = 'Ditolak';
-                    if ($model->save(false)) {
-                        return $this->redirect(['banding-penilaian/index']);
-                    }
-                }
+            $btn = Yii::$app->request->post('submitBtn'); 
+            $this->applyDecisionFromButton($model, $btn);
 
-                if ($submitBtn === 'terima') {
-                    $model->status = 'Diterima';
-                    if ($model->save(false)) {
-                        return $this->redirect([
-                            'master-penilaian/update',
-                            'id_penilaian' => $model->id_penilaian
-                        ]);
-                    }
+            if ($this->trySave($model)) {
+                if ($btn === 'terima') {
+                    Yii::$app->session->setFlash('success', 'Banding DITERIMA (final).');
+                } elseif ($btn === 'tolak') {
+                    Yii::$app->session->setFlash('success', 'Banding DITOLAK (final).');
+                } else {
+                    Yii::$app->session->setFlash('success', 'Draft review disimpan.');
                 }
-                if ($model->save()) {
-                    Yii::$app->session->setFlash('success', 'Review berhasil disimpan');
-                    return $this->redirect(['view', 'id_banding' => $model->id_banding]);
-                }
+                return $this->redirectAfterDecision($model, $btn);
             }
         }
 
-        return $this->render('review', [
-            'model' => $model,
-        ]);
+        return $this->render('review', compact('model'));
     }
 
     public function actionBanding($id_banding)
     {
-        return $this->render('banding', [
-            'model' => $this->findModel($id_banding),
-        ]);
+        return $this->render('banding', ['model' => $this->findModel($id_banding)]);
     }
 
-    /**
-     * Creates a new BandingPenilaian model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
-     */
-    public function actionCreate($id_penilaian = null)
+   public function actionCreate($id_penilaian = null)
     {
         $model = new BandingPenilaian();
-
         if ($id_penilaian !== null) {
             $model->id_penilaian = $id_penilaian;
         }
+        
+        $model->id_users = Yii::$app->user->id;
 
-        if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
+        if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
+            if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Banding diajukan.');
                 return $this->redirect(['view', 'id_banding' => $model->id_banding]);
             }
-        } else {
-            $model->loadDefaultValues();
+            Yii::$app->session->setFlash('error', reset($model->firstErrors) ?: 'Gagal menyimpan.');
         }
 
-        return $this->render('create', [
-            'model' => $model,
-        ]);
+        return $this->render('create', compact('model'));
     }
 
-    /**
-     * Updates an existing BandingPenilaian model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $id_banding Id Banding
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
+
     public function actionUpdate($id_banding)
     {
         $model = $this->findModel($id_banding);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
+        if ($this->isFinal($model)) {
+            Yii::$app->session->setFlash('warning', 'Data banding sudah final dan tidak dapat diubah.');
             return $this->redirect(['view', 'id_banding' => $model->id_banding]);
         }
 
-        return $this->render('update', [
-            'model' => $model,
-        ]);
+        return $this->handleForm($model, 'update');
     }
 
-    /**
-     * Deletes an existing BandingPenilaian model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $id_banding Id Banding
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     public function actionDelete($id_banding)
     {
         $this->findModel($id_banding)->delete();
-
         return $this->redirect(['index']);
     }
 
-    /**
-     * Finds the BandingPenilaian model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id_banding Id Banding
-     * @return BandingPenilaian the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
     protected function findModel($id_banding)
     {
         if (($model = BandingPenilaian::findOne(['id_banding' => $id_banding])) !== null) {
             return $model;
         }
-
         throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
-     public function beforeSave($insert)
-    {
-        if (parent::beforeSave($insert)) {
-                foreach (['tanggal_banding','tanggal_review'] as $attr) {
-                    if (!empty($this->$attr) && preg_match('/\d{2}-\d{2}-\d{4}/', $this->$attr)) {
-                        if (strpos($this->$attr, ':') !== false) {
-                            $this->$attr = Yii::$app->formatter->asDatetime($this->$attr, 'php:Y-m-d H:i:s');
-                        } else {
-                            $this->$attr = Yii::$app->formatter->asDate($this->$attr, 'php:Y-m-d');
-                        }
-                }
-                 return true;
-            }
-            return false;
-        }
-    }
-
-    public function afterFind()
-    {
-        parent::afterFind();
-
-        foreach (['tanggal_banding', 'tanggal_review'] as $attr) {
-            if (!empty($this->$attr) && $this->$attr != '0000-00-00' && $this->$attr != '0000-00-00 00:00:00') {
-                if (strpos($this->$attr, ':') !== false) {
-                    $this->$attr = Yii::$app->formatter->asDatetime($this->$attr, 'php:d-m-Y H:i');
-                } else {
-                    $this->$attr = Yii::$app->formatter->asDate($this->$attr, 'php:d-m-Y');
-                }
-            }
-        }
     }
 }

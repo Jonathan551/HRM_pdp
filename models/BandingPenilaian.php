@@ -3,166 +3,150 @@
 namespace app\models;
 
 use Yii;
+use yii\db\ActiveRecord;
+use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
 
-/**
- * This is the model class for table "banding_penilaian".
- *
- * @property int $id_banding
- * @property int|null $id_penilaian
- * @property int|null $id_users
- * @property string|null $status
- * @property string|null $tanggal_banding
- * @property string|null $alasan
- * @property string|null $review
- * @property string|null $tanggal_review
- *
- * @property MasterPenilaian $penilaian
- * @property User $users
- */
-class BandingPenilaian extends \yii\db\ActiveRecord
+class BandingPenilaian extends ActiveRecord
 {
 
-    /**
-     * ENUM field values
-     */
-    const STATUS_REVIEW = 'Review';
-    const STATUS_DITERIMA = 'Diterima';
-    const STATUS_DITOLAK = 'Ditolak';
-    const STATUS = '';
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'tanggal_banding', 
+                'updatedAtAttribute' => false,            
+                'value' => new Expression('NOW()'),        
+            ],
+        ];
+    }
 
-    /**
-     * {@inheritdoc}
-     */
+    const STATUS_REVIEW   = 'Review';
+    const STATUS_DITERIMA = 'Diterima';
+    const STATUS_DITOLAK  = 'Ditolak';
+
+
     public static function tableName()
     {
         return 'banding_penilaian';
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    public static function optsStatus(): array
+    {
+        return [
+            self::STATUS_REVIEW   => 'Review',
+            self::STATUS_DITERIMA => 'Diterima',
+            self::STATUS_DITOLAK  => 'Ditolak',
+        ];
+    }
+
     public function rules()
     {
         return [
-            [['id_penilaian', 'id_users', 'tanggal_banding', 'alasan', 'tanggal_review'], 'default', 'value' => null],
-            [['status'], 'default', 'value' => 'Review'],
             [['id_penilaian', 'id_users'], 'integer'],
-            [['status', 'alasan', 'review'], 'string'],
-            [['tanggal_banding', 'tanggal_review' , 'review'], 'safe'],
-            ['status', 'in', 'range' => array_keys(self::optsStatus())],
-            [['id_penilaian'], 'exist', 'skipOnError' => true, 'targetClass' => MasterPenilaian::class, 'targetAttribute' => ['id_penilaian' => 'id_penilaian']],
-            [['id_users'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['id_users' => 'id_users']],
+            [['status'], 'default', 'value' => self::STATUS_REVIEW],
+            [['status'], 'in', 'range' => array_keys(self::optsStatus())],
+            [['alasan', 'review'], 'string'],
+            ['alasan', 'required', 'message' => 'Alasan banding wajib diisi.'],
+            ['alasan', 'trim'],
+            ['alasan', 'string', 'max' => 5000],
+            [['tanggal_banding', 'tanggal_review'], 'safe'],
+            [['id_penilaian'], 'exist', 'skipOnError' => true,
+                'targetClass' => MasterPenilaian::class, 'targetAttribute' => ['id_penilaian' => 'id_penilaian']],
+            [['id_users'], 'exist', 'skipOnError' => true,
+                'targetClass' => User::class, 'targetAttribute' => ['id_users' => 'id_users']],
+            ['status', function ($attribute) {
+                if ($this->isNewRecord) return;
+                $old = $this->getOldAttribute('status');
+                $new = $this->$attribute;
+                if ($new === $old) return;
+
+                $allowed = ($old === self::STATUS_REVIEW) && in_array($new, [self::STATUS_DITERIMA, self::STATUS_DITOLAK], true);
+                if (!$allowed) {
+                    $this->addError($attribute, 'Keputusan sudah final dan tidak bisa diubah.');
+                }
+            }],
+            [['alasan', 'review'], function ($attribute) {
+                if (!$this->isNewRecord && $this->getOldAttribute('status') !== self::STATUS_REVIEW) {
+                    if ($this->$attribute !== $this->getOldAttribute($attribute)) {
+                        $this->addError($attribute, 'Data banding sudah final dan tidak dapat diubah.');
+                    }
+                }
+            }],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function attributeLabels()
     {
         return [
-            'id_banding' => 'Id Banding',
-            'id_penilaian' => 'Id Penilaian',
-            'id_users' => 'Id Users',
-            'status' => 'Status',
-            'tanggal_banding' => 'Tanggal Banding',
-            'alasan' => 'Alasan',
-            'review' => 'Review',
-            'tanggal_review' => 'Tanggal Review',
+            'id_banding'       => 'Id Banding',
+            'id_penilaian'     => 'Id Penilaian',
+            'id_users'         => 'Id Users',
+            'status'           => 'Status',
+            'tanggal_banding'  => 'Tanggal Banding',
+            'alasan'           => 'Alasan',
+            'review'           => 'Review',
+            'tanggal_review'   => 'Tanggal Review',
         ];
     }
 
-    /**
-     * Gets query for [[Penilaian]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
     public function getPenilaian()
     {
         return $this->hasOne(MasterPenilaian::class, ['id_penilaian' => 'id_penilaian']);
     }
 
-    /**
-     * Gets query for [[Users]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
     public function getUser()
     {
         return $this->hasOne(User::class, ['id_users' => 'id_users']);
     }
 
-    /**
-     * column status ENUM value labels
-     * @return string[]
-     */
-    public static function optsStatus()
+    public function displayStatus(): string
     {
-        return [
-            self::STATUS_REVIEW => 'Review',
-            self::STATUS_DITERIMA => 'Diterima',
-            self::STATUS_DITOLAK => 'Ditolak',
-            self::STATUS => '',
-        ];
+        return self::optsStatus()[$this->status] ?? $this->status;
     }
 
-    /**
-     * @return string
-     */
-    public function displayStatus()
+    public function isStatusReview(): bool   { return $this->status === self::STATUS_REVIEW; }
+    public function isStatusDiterima(): bool { return $this->status === self::STATUS_DITERIMA; }
+    public function isStatusDitolak(): bool  { return $this->status === self::STATUS_DITOLAK; }
+
+    public function setStatusToReview(): void   { $this->status = self::STATUS_REVIEW; }
+    public function setStatusToDiterima(): void { $this->status = self::STATUS_DITERIMA; }
+    public function setStatusToDitolak(): void  { $this->status = self::STATUS_DITOLAK; }
+
+   public function getTanggalBandingDisplay(): string
     {
-        return self::optsStatus()[$this->status];
+        $v = $this->tanggal_banding;
+        if (empty($v) || $v === '0000-00-00' || $v === '0000-00-00 00:00:00') {
+            return '-';
+        }
+        return Yii::$app->formatter->asDatetime($v, 'php:d-m-Y ');
     }
 
-    /**
-     * @return bool
-     */
-    public function isStatusReview()
+    public function getTanggalReviewDisplay(): string
     {
-        return $this->status === self::STATUS_REVIEW;
+        $v = $this->tanggal_review;
+        if (empty($v) || $v === '0000-00-00' || $v === '0000-00-00 00:00:00') {
+            return '-';
+        }
+        return Yii::$app->formatter->asDatetime($v, 'php:d-m-Y ');
     }
 
-    public function setStatusToReview()
+     public function beforeSave($insert)
     {
-        $this->status = self::STATUS_REVIEW;
-    }
+        if (!parent::beforeSave($insert)) return false;
 
-    /**
-     * @return bool
-     */
-    public function isStatusDiterima()
-    {
-        return $this->status === self::STATUS_DITERIMA;
-    }
+        if (!$insert) {
+            $old = $this->getOldAttribute('status');
+            if (
+                $old === self::STATUS_REVIEW &&
+                in_array($this->status, [self::STATUS_DITERIMA, self::STATUS_DITOLAK], true) &&
+                empty($this->tanggal_review)
+            ) {
+                $this->tanggal_review = new Expression('NOW()');
+            }
+        }
 
-    public function setStatusToDiterima()
-    {
-        $this->status = self::STATUS_DITERIMA;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isStatusDitolak()
-    {
-        return $this->status === self::STATUS_DITOLAK;
-    }
-
-    public function setStatusToDitolak()
-    {
-        $this->status = self::STATUS_DITOLAK;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isStatus()
-    {
-        return $this->status === self::STATUS;
-    }
-
-    public function setStatusTo()
-    {
-        $this->status = self::STATUS;
+        return true;
     }
 }
