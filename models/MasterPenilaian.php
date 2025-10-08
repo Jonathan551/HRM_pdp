@@ -21,9 +21,6 @@ use Yii;
  */
 class MasterPenilaian extends \yii\db\ActiveRecord
 {
-    
-     private const DATE_FORMAT = 'php:d-m-Y';
-
     public array $detailModels = [];
 
     /**
@@ -40,22 +37,22 @@ class MasterPenilaian extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_users', 'presentase_absensi', 'periode_awal', 'periode_akhir','catatan'], 'required','message' => '{attribute} wajib diisi.'],
-            [['catatan', 'nilai_akhir'], 'default', 'value' => null],
-            [['id_users', 'id_kategori'], 'integer'], 
-            [['nilai_akhir', 'presentase_absensi'], 'number'],
-            [['periode_awal', 'periode_akhir'], 'date', 'format' => self::DATE_FORMAT, 'message' => '{attribute} tidak valid.'],
-            ['periode_akhir', 'compare',
-                'compareAttribute' => 'periode_awal',
-                'operator' => '>=',
-                'type' => 'date',
-                'message' => 'Periode Akhir harus sama atau setelah Periode Awal.',
-            ],
-            [['id_kategori'], 'safe'], 
-            [['id_users'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['id_users' => 'id_users']],
+            [['id_users','presentase_absensi','periode_awal','periode_akhir','catatan'],
+                'required','message'=>'{attribute} wajib diisi.'],
+
+            [['catatan','nilai_akhir'], 'default', 'value'=>null],
+            [['id_users','id_kategori'], 'integer'],
+            [['nilai_akhir','presentase_absensi'], 'number'],
+            [['periode_awal','periode_akhir'], 'validatePeriodeFormat'],
+            ['periode_akhir', 'validatePeriodeOrder'],
+            [['id_kategori'], 'safe'],
+            [['id_users'], 'exist', 'skipOnError'=>true,
+                'targetClass'=>User::class, 'targetAttribute'=>['id_users'=>'id_users']],
+
             [['detailModels'], 'validateDetails'],
         ];
     }
+
 
     /**
      * {@inheritdoc}
@@ -119,16 +116,6 @@ class MasterPenilaian extends \yii\db\ActiveRecord
     public function beforeSave($insert): bool
     {
         if (parent::beforeSave($insert)) {
-            foreach (['periode_awal', 'periode_akhir'] as $attr) {
-                if (!empty($this->$attr) && preg_match('/\d{2}-\d{2}-\d{4}/', $this->$attr)) {
-                    if (strpos($this->$attr, ':') !== false) {
-                        $this->$attr = Yii::$app->formatter->asDatetime($this->$attr, 'php:Y-m-d H:i:s');
-                    } else {
-                        $this->$attr = Yii::$app->formatter->asDate($this->$attr, 'php:Y-m-d');
-                    }
-                }
-            }
-            
             if (!empty($this->id_kategori)) {
                 $this->id_kategori = (int)$this->id_kategori;
             } else {
@@ -154,6 +141,51 @@ class MasterPenilaian extends \yii\db\ActiveRecord
             $this->NilaiAkhir();
         }
     }
+
+    public function validatePeriodeFormat($attribute)
+    {
+        $ts = $this->formathelper($this->$attribute);
+        if ($this->$attribute !== null && $ts === null) {
+            $this->addError($attribute, $this->getAttributeLabel($attribute).' tidak valid (gunakan dd-mm-YYYY).');
+        }
+    }
+
+    public function validatePeriodeOrder($attribute)
+    {
+        $start = $this->formathelper($this->periode_awal);
+        $end   = $this->formathelper($this->periode_akhir);
+
+
+        if ($start === null || $end === null) return;
+
+        if ($end < $start) {
+            $this->addError('periode_akhir', 'Periode Akhir harus sama atau setelah Periode Awal.');
+        } else {
+            $this->periode_awal  = date('Y-m-d', $start);
+            $this->periode_akhir = date('Y-m-d', $end);
+        }
+    }
+
+
+    private function formathelper($val): ?int
+    {
+        if ($val === null || $val === '') return null;
+        $val = trim((string)$val);
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $val)) {
+            $dt = \DateTime::createFromFormat('Y-m-d', $val);
+            return $dt ? $dt->getTimestamp() : null;
+        }
+
+        $dt = \DateTime::createFromFormat('d-m-Y', $val);
+        if ($dt && $dt->format('d-m-Y') === $val) return $dt->getTimestamp();
+
+        $dt = \DateTime::createFromFormat('d/m/Y', $val);
+        if ($dt && $dt->format('d/m/Y') === $val) return $dt->getTimestamp();
+
+        return null;
+    }
+
 
     /**
      * Method untuk menghitung nilai akhir dan kategori
@@ -225,19 +257,14 @@ class MasterPenilaian extends \yii\db\ActiveRecord
         }
     }
 
-
-
     public function afterFind()
     {
         parent::afterFind();
-
-        foreach (['periode_awal', 'periode_akhir'] as $attr) {
-            if (!empty($this->$attr) && $this->$attr != '0000-00-00' && $this->$attr != '0000-00-00 00:00:00') {
-                if (strpos($this->$attr, ':') !== false) {
-                    $this->$attr = Yii::$app->formatter->asDatetime($this->$attr, 'php:d-m-Y H:i');
-                } else {
-                    $this->$attr = Yii::$app->formatter->asDate($this->$attr, 'php:d-m-Y');
-                }
+        foreach (['periode_awal','periode_akhir'] as $attr) {
+            $v = $this->$attr;
+            if ($v && preg_match('/^\d{4}-\d{2}-\d{2}$/', $v)) {
+                $dt = \DateTime::createFromFormat('Y-m-d', $v);
+                if ($dt) $this->$attr = $dt->format('d-m-Y');
             }
         }
     }

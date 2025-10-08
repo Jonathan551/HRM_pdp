@@ -14,6 +14,7 @@ use app\models\DetailPenilaian;
 use app\models\MasterKriteria;
 use app\models\MasterAnchor;
 use app\models\User;
+use app\components\NotificationService;
 use app\components\Model;
 
 class MasterPenilaianController extends Controller
@@ -65,6 +66,9 @@ class MasterPenilaianController extends Controller
         $details = [new DetailPenilaian()];
 
         if ($this->processForm($model, $details)) {
+            NotificationService::fireCreate($model, $model->id_users);
+
+            Yii::$app->session->setFlash('success', 'Data berhasil dibuat.');
             return $this->redirect(['view', 'id_penilaian' => $model->id_penilaian]);
         }
 
@@ -80,6 +84,9 @@ class MasterPenilaianController extends Controller
         $details = $model->detailPenilaian ?: [new DetailPenilaian()];
 
         if ($this->processForm($model, $details)) {
+            NotificationService::fireUpdate($model, $model->id_users);
+
+            Yii::$app->session->setFlash('success', 'Data berhasil diperbarui.');
             return $this->redirect(['view', 'id_penilaian' => $model->id_penilaian]);
         }
 
@@ -91,7 +98,23 @@ class MasterPenilaianController extends Controller
 
     public function actionDelete($id_penilaian)
     {
-        $this->findModel($id_penilaian)->delete();
+        $model  = $this->findModel($id_penilaian);
+
+        $targetUserId = $model->id_users;                       
+        $pk           = (string)$model->getPrimaryKey();
+        $kode         = $model->kode ?? $pk;                    
+
+        $model->delete();
+
+        NotificationService::fireDelete(
+            $model,
+            $targetUserId,
+            'Laporan penilaian dihapus',
+            "Laporan penilaian {$kode} telah dihapus.",
+            $pk
+        );
+
+        Yii::$app->session->setFlash('success', 'Data berhasil dihapus.');
         return $this->redirect(['index']);
     }
 
@@ -170,7 +193,6 @@ class MasterPenilaianController extends Controller
     private function validateRequiredDetails(MasterPenilaian $model, array $details): bool
     {
         if (count($details) === 0) {
-            // Kenapa: mencegah simpan tanpa detail
             $model->addError('id_penilaian', 'Minimal 1 baris Detail Penilaian wajib diisi.');
             Yii::$app->session->setFlash('error', 'Minimal 1 baris Detail Penilaian wajib diisi.');
             return false;
@@ -196,7 +218,6 @@ class MasterPenilaianController extends Controller
                         'id_kriteria' => (int)$detail->id_kriteria,
                     ])->exists();
                 if (!$belongs) {
-                    // Kenapa: integritas data anchor↔kriteria
                     $detail->addError('id_anchor', 'Anchor tidak sesuai dengan kriteria pada baris #' . ($i + 1) . '.');
                     $valid = false;
                 }
@@ -295,4 +316,5 @@ class MasterPenilaianController extends Controller
         }
         return ['id_departement' => null];
     }
+
 }
