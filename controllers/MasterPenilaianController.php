@@ -67,7 +67,12 @@ class MasterPenilaianController extends Controller
 
         if ($this->processForm($model, $details)) {
             NotificationService::fireCreate($model, $model->id_users);
-
+            $result = $this->kirimEmailPenilaian($model);
+            if ($result['ok']) {
+                    Yii::$app->session->setFlash('success', 'Penilaian tersimpan & email terkirim.');
+                } else {
+                    Yii::$app->session->setFlash('warning', 'Penilaian tersimpan, email gagal: ' . $result['message']);
+                }
             Yii::$app->session->setFlash('success', 'Data berhasil dibuat.');
             return $this->redirect(['view', 'id_penilaian' => $model->id_penilaian]);
         }
@@ -251,6 +256,7 @@ class MasterPenilaianController extends Controller
 
             $transaction->commit();
             return true;
+
         } catch (\Throwable $e) {
             $transaction->rollBack();
             Yii::error($e->getMessage(), __METHOD__);
@@ -317,4 +323,50 @@ class MasterPenilaianController extends Controller
         return ['id_departement' => null];
     }
 
+     /**
+     * 
+     *
+     * @param MasterPenilaian   $model
+     * @param string|null 
+     * @return array{ok:bool,message:string}
+     */
+     protected function kirimEmailPenilaian(MasterPenilaian $model): array
+    {
+        $toEmail = $model->user->email ?? null;
+        if (!filter_var((string)$toEmail, FILTER_VALIDATE_EMAIL)) {
+            return ['ok' => false, 'message' => 'Email tujuan tidak valid/tersedia pada users'];
+        }
+
+        try {
+            $pdf = Yii::$app->reportService->buildPenilaianPdf((int)$model->id_penilaian);
+        } catch (\Throwable $e) {
+            return ['ok' => false, 'message' => 'Gagal membangun PDF: ' . $e->getMessage()];
+        }
+
+        $subject = sprintf('Hasil Penilaian #%d', (int)$model->id_penilaian);
+        $body = sprintf(
+            '<p>Halo %s,</p><p>Terlampir hasil penilaian periode <strong>%s - %s</strong> dengan skor akhir <strong>%s</strong>.</p><p>Terima kasih,<br>%s</p>',
+            htmlspecialchars($model->user->nama ?? 'Karyawan', ENT_QUOTES),
+            htmlspecialchars((string)$model->periode_awal, ENT_QUOTES),
+            htmlspecialchars((string)$model->periode_akhir, ENT_QUOTES),
+            htmlspecialchars((string)$model->nilai_akhir, ENT_QUOTES),
+            htmlspecialchars(Yii::$app->name, ENT_QUOTES)
+        );
+
+        try {
+            $ok = Yii::$app->phpMailer->send(
+                $toEmail,
+                $subject,
+                $body,
+                [$pdf['path']],
+                Yii::$app->name
+            );
+            @unlink($pdf['path']);
+
+            return ['ok' => (bool)$ok, 'message' => $ok ? 'Terkirim' : 'Mailer gagal'];
+        } catch (\Throwable $e) {
+            @unlink($pdf['path']);
+            return ['ok' => false, 'message' => 'Gagal kirim email: ' . $e->getMessage()];
+        }
+    }
 }

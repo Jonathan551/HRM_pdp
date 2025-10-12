@@ -24,7 +24,9 @@
         "phpoffice/phpword": "^1.4",
         "kamran377/yii2-sweetalert2": "^2.1",
         "kartik-v/yii2-widget-fileinput": "@dev",
-        "kartik-v/yii2-widget-select2": "@dev"
+        "kartik-v/yii2-widget-select2": "@dev",
+        "dompdf/dompdf": "2.0",
+        "phpmailer/phpmailer": "^6.11"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.1.0",
