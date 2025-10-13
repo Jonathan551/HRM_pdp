@@ -14,6 +14,7 @@ use app\models\DetailPenilaian;
 use app\models\MasterKriteria;
 use app\models\MasterAnchor;
 use app\models\User;
+use app\components\NotificationService;
 use app\components\Model;
 
 class MasterPenilaianController extends Controller
@@ -65,6 +66,14 @@ class MasterPenilaianController extends Controller
         $details = [new DetailPenilaian()];
 
         if ($this->processForm($model, $details)) {
+            NotificationService::fireCreate($model, $model->id_users);
+            $result = $this->kirimEmailPenilaian($model);
+            if ($result['ok']) {
+                    Yii::$app->session->setFlash('success', 'Penilaian tersimpan & email terkirim.');
+                } else {
+                    Yii::$app->session->setFlash('warning', 'Penilaian tersimpan, email gagal: ' . $result['message']);
+                }
+            Yii::$app->session->setFlash('success', 'Data berhasil dibuat.');
             return $this->redirect(['view', 'id_penilaian' => $model->id_penilaian]);
         }
 
@@ -80,6 +89,9 @@ class MasterPenilaianController extends Controller
         $details = $model->detailPenilaian ?: [new DetailPenilaian()];
 
         if ($this->processForm($model, $details)) {
+            NotificationService::fireUpdate($model, $model->id_users);
+
+            Yii::$app->session->setFlash('success', 'Data berhasil diperbarui.');
             return $this->redirect(['view', 'id_penilaian' => $model->id_penilaian]);
         }
 
@@ -91,7 +103,23 @@ class MasterPenilaianController extends Controller
 
     public function actionDelete($id_penilaian)
     {
-        $this->findModel($id_penilaian)->delete();
+        $model  = $this->findModel($id_penilaian);
+
+        $targetUserId = $model->id_users;                       
+        $pk           = (string)$model->getPrimaryKey();
+        $kode         = $model->kode ?? $pk;                    
+
+        $model->delete();
+
+        NotificationService::fireDelete(
+            $model,
+            $targetUserId,
+            'Laporan penilaian dihapus',
+            "Laporan penilaian {$kode} telah dihapus.",
+            $pk
+        );
+
+        Yii::$app->session->setFlash('success', 'Data berhasil dihapus.');
         return $this->redirect(['index']);
     }
 
@@ -170,7 +198,6 @@ class MasterPenilaianController extends Controller
     private function validateRequiredDetails(MasterPenilaian $model, array $details): bool
     {
         if (count($details) === 0) {
-            // Kenapa: mencegah simpan tanpa detail
             $model->addError('id_penilaian', 'Minimal 1 baris Detail Penilaian wajib diisi.');
             Yii::$app->session->setFlash('error', 'Minimal 1 baris Detail Penilaian wajib diisi.');
             return false;
@@ -196,7 +223,6 @@ class MasterPenilaianController extends Controller
                         'id_kriteria' => (int)$detail->id_kriteria,
                     ])->exists();
                 if (!$belongs) {
-                    // Kenapa: integritas data anchor↔kriteria
                     $detail->addError('id_anchor', 'Anchor tidak sesuai dengan kriteria pada baris #' . ($i + 1) . '.');
                     $valid = false;
                 }
@@ -230,6 +256,7 @@ class MasterPenilaianController extends Controller
 
             $transaction->commit();
             return true;
+
         } catch (\Throwable $e) {
             $transaction->rollBack();
             Yii::error($e->getMessage(), __METHOD__);
@@ -294,5 +321,52 @@ class MasterPenilaianController extends Controller
             return ['id_departement' => $user->id_departement];
         }
         return ['id_departement' => null];
+    }
+
+     /**
+     * 
+     *
+     * @param MasterPenilaian   $model
+     * @param string|null 
+     * @return array{ok:bool,message:string}
+     */
+     protected function kirimEmailPenilaian(MasterPenilaian $model): array
+    {
+        $toEmail = $model->user->email ?? null;
+        if (!filter_var((string)$toEmail, FILTER_VALIDATE_EMAIL)) {
+            return ['ok' => false, 'message' => 'Email tujuan tidak valid/tersedia pada users'];
+        }
+
+        try {
+            $pdf = Yii::$app->reportService->buildPenilaianPdf((int)$model->id_penilaian);
+        } catch (\Throwable $e) {
+            return ['ok' => false, 'message' => 'Gagal membangun PDF: ' . $e->getMessage()];
+        }
+
+        $subject = sprintf('Hasil Penilaian #%d', (int)$model->id_penilaian);
+        $body = sprintf(
+            '<p>Halo %s,</p><p>Terlampir hasil penilaian periode <strong>%s - %s</strong> dengan skor akhir <strong>%s</strong>.</p><p>Terima kasih,<br>%s</p>',
+            htmlspecialchars($model->user->nama ?? 'Karyawan', ENT_QUOTES),
+            htmlspecialchars((string)$model->periode_awal, ENT_QUOTES),
+            htmlspecialchars((string)$model->periode_akhir, ENT_QUOTES),
+            htmlspecialchars((string)$model->nilai_akhir, ENT_QUOTES),
+            htmlspecialchars(Yii::$app->name, ENT_QUOTES)
+        );
+
+        try {
+            $ok = Yii::$app->phpMailer->send(
+                $toEmail,
+                $subject,
+                $body,
+                [$pdf['path']],
+                Yii::$app->name
+            );
+            @unlink($pdf['path']);
+
+            return ['ok' => (bool)$ok, 'message' => $ok ? 'Terkirim' : 'Mailer gagal'];
+        } catch (\Throwable $e) {
+            @unlink($pdf['path']);
+            return ['ok' => false, 'message' => 'Gagal kirim email: ' . $e->getMessage()];
+        }
     }
 }

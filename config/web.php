@@ -1,6 +1,8 @@
 <?php
+$params       = require __DIR__ . '/params.php';
+$paramsLocal  = is_file(__DIR__ . '/params-local.php') ? require __DIR__ . '/params-local.php' : [];
+$params       = array_replace_recursive($params, $paramsLocal);
 
-$params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
 $config = [
@@ -15,73 +17,41 @@ $config = [
         'formatter' => [
             'class' => 'yii\i18n\Formatter',
             'nullDisplay' => 'Tidak ada',
-        ],
-        'assetManager' => [ //SETTING FOR MATERIAL DASHBOARD THEME
-            'bundles' => [
-                'deyraka\materialdashboard\web\MaterialDashboardAsset',
-            ],
-            
+            'defaultTimeZone' => 'Asia/Jakarta',
         ],
         'request' => [
-            // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'Iw4cYD9Z7e8DQZfIQgEUtyrJY3WkjbjD',
         ],
-        'cache' => [
-            'class' => 'yii\caching\FileCache',
+        'phpMailer' => [
+            'class'     => \app\components\PhpMailer::class,
+            'fromEmail' => $params['fromEmail'],
+            'smtpConfig'=> $params['smtp_prod'],   
+        ],  
+        'reportService' => [
+            'class' => \app\components\ReportService::class,
+            'dompdfPath' => '@vendor/dompdf/dompdf',
         ],
-        'user' => [
-            'identityClass' => 'app\models\User',
-            'enableAutoLogin' => true,
-        ],
-        'errorHandler' => [
-            'errorAction' => 'site/error',
-        ],
+        'cache' => ['class' => 'yii\caching\FileCache'],
+        'user' => ['identityClass' => 'app\models\User', 'enableAutoLogin' => true],
+        'errorHandler' => ['errorAction' => 'site/error'],
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@app/mail',
-            // send all mails to a file by default.
-            'useFileTransport' => true,
+            'useFileTransport' => true, 
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
-            'targets' => [
-                [
-                    'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning', 'info', 'trace'],
-                ],
-            ],
+            'targets' => [[ 'class' => 'yii\log\FileTarget', 'levels' => ['error','warning','info'] ]],
         ],
         'db' => $db,
-        /*
-        'urlManager' => [
-            'enablePrettyUrl' => true,
-            'showScriptName' => false,
-            'rules' => [
-            ],
-        ],
-        */
     ],
-    'params' => [
-            $params,
-            'bsVersion' => '5.x',
-    ],
+    'params' => array_merge($params, ['bsVersion' => '5.x']),
 ];
 
 if (YII_ENV_DEV) {
-    // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
-    $config['modules']['debug'] = [
-        'class' => 'yii\debug\Module',
-        // uncomment the following to add your IP if you are not connecting from localhost.
-        //'allowedIPs' => ['127.0.0.1', '::1'],
-    ];
-
+    $config['modules']['debug'] = ['class' => 'yii\debug\Module'];
     $config['bootstrap'][] = 'gii';
-    $config['modules']['gii'] = [
-        'class' => 'yii\gii\Module',
-        // uncomment the following to add your IP if you are not connecting from localhost.
-        //'allowedIPs' => ['127.0.0.1', '::1'],
-    ];
+    $config['modules']['gii'] = ['class' => 'yii\gii\Module'];
 }
-
 return $config;

@@ -1,10 +1,29 @@
 function initDatepicker() {
-  flatpickr(".datepicker", {
-    dateFormat: "d-m-Y",
-    allowInput: true,
-    locale: "id",
+  document.querySelectorAll(".datepicker").forEach(function (el) {
+    var v = (el.value || "").trim();
+    var def = null;
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+      def = v;
+    } else if (/^\d{2}-\d{2}-\d{4}$/.test(v)) {
+      var p = v.split("-");
+      def = p[2] + "-" + p[1] + "-" + p[0];
+      el.value = def;
+    } else {
+      def = null;
+    }
+
+    flatpickr(el, {
+      dateFormat: "Y-m-d",
+      altInput: true,
+      altFormat: "d-m-Y",
+      defaultDate: def,
+      allowInput: true,
+      locale: "id",
+    });
   });
 }
+
 
 var currentDepartemen = null;
 

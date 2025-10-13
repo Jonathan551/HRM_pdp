@@ -77,7 +77,6 @@ class BandingPenilaianController extends Controller
         if ($btn === 'tolak') {
             return $this->redirect(['banding-penilaian/view', 'id_banding' => $m->id_banding]);
         }
-        // default: kembali ke view banding
         return $this->redirect(['view', 'id_banding' => $m->id_banding]);
     }
 
