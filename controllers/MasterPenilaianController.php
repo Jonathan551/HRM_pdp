@@ -63,7 +63,7 @@ class MasterPenilaianController extends Controller
     public function actionCreate()
     {
         $model   = new MasterPenilaian();
-        $details = [new DetailPenilaian()];
+        $details = [];
 
         if ($this->processForm($model, $details)) {
             NotificationService::fireCreate($model, $model->id_users);

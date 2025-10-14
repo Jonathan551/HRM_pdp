@@ -33,9 +33,8 @@ use app\models\MasterAnchor;
     ?>
 
     <h4 class="mb-2">
-        Detail Penilaian
         <small class="text-danger">
-            <?= Html::error($model, 'detailModels') /* tampilkan pesan agregat detail */ ?>
+            <?= Html::error($model, 'detailModels') ?>
         </small>
     </h4>
     

@@ -137,6 +137,20 @@ $this->registerJsFile('@web/js/sidebar.js', [
                     UserAccess::hasPermission('akses_banding') ||
                     UserAccess::hasPermission('akses_review_banding')
             ],
+            [
+                'label' => 'Statistik',
+                'icon' => 'analytics',
+                'items' => [
+                    [
+                        'label' => 'Statistik Antar Departemen',
+                        'icon' => 'analytics',
+                        'url' => ['/statistik/index'],
+                        'visible' => UserAccess::hasPermission('akses_statistik')
+                    ],
+                ],
+                'visible' => 
+                    UserAccess::hasPermission('akses_statistik') 
+            ],
         ]
     ]); ?>
     </div>
