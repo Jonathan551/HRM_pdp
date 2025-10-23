@@ -1,4 +1,7 @@
 <?php
+
+use yii\web\View;
+
 $params       = require __DIR__ . '/params.php';
 $paramsLocal  = is_file(__DIR__ . '/params-local.php') ? require __DIR__ . '/params-local.php' : [];
 $params       = array_replace_recursive($params, $paramsLocal);
@@ -14,6 +17,24 @@ $config = [
         '@npm'   => '@vendor/npm-asset',
     ],
     'components' => [
+       'view' => [
+            'on ' . View::EVENT_END_BODY => function () {
+            // muat guard HANYA saat user SUDAH login
+            if (Yii::$app->user->isGuest) {
+                return; // jangan load di halaman login/guest
+            }
+
+            Yii::$app->view->registerJsVar(
+                'appLoginUrl',
+                \yii\helpers\Url::to(['site/login'], true),
+                View::POS_HEAD
+            );
+
+            Yii::$app->view->registerJsFile('@web/js/bfcache-guard.js', [
+                'position' => View::POS_END
+            ]);
+            },
+        ],
         'formatter' => [
             'class' => 'yii\i18n\Formatter',
             'nullDisplay' => 'Tidak ada',

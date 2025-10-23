@@ -116,6 +116,15 @@ class SiteController extends BaseController
 
         if ($model->load(Yii::$app->request->post())) {
             if ($model->login()) {
+                Yii::$app->response->cookies->add(new \yii\web\Cookie([
+                    'name'     => 'was_logged_out',
+                    'value'    => '',
+                    'expire'   => time() - 3600,
+                    'httpOnly' => false,
+                    'sameSite' => 'Lax',
+                    'path'     => '/',
+                    'secure'   => false,
+                ]));
                 Yii::$app->session->setFlash('success', 'Login berhasil, selamat datang!');
                 return $this->redirect(['site/index']);
             } else {
@@ -130,12 +139,26 @@ class SiteController extends BaseController
     }
 
 
-    public function actionLogout()
+   public function actionLogout()
     {
-        $session = Yii::$app->session;
-        $session->destroy();
+        Yii::$app->user->logout(true);
 
-        Yii::$app->user->logout();
+        $s = Yii::$app->session;
+        if ($s->isActive) $s->destroy();
+        $s->open();
+        $s->regenerateID(true);
+
+
+        Yii::$app->response->cookies->add(new \yii\web\Cookie([
+            'name'     => 'was_logged_out',
+            'value'    => '1',
+            'expire'   => time() + 600, 
+            'httpOnly' => false,
+            'sameSite' => 'Lax',
+            'path'     => '/',         
+            'secure'   => false,        
+        ]));
+
         return $this->redirect(['site/login']);
     }
 }

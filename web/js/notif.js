@@ -74,15 +74,12 @@
       });
   }
 
-  // expose init (kalau pakai PJAX)z
   window.NotifInit = function(){
     refreshNotif();
     if(!window.__notifInterval){
       window.__notifInterval = setInterval(refreshNotif, 30000);
     }
   };
-
-  console.log('[notif] file loaded');
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window.NotifInit);
   else window.NotifInit();
   document.addEventListener('pjax:end', window.NotifInit);

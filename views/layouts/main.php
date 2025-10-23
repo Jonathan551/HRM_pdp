@@ -1,10 +1,13 @@
 <?php
 use yii\helpers\Html;
-
+use yii\helpers\Url;
+use yii\web\View;
 
 \yii\web\YiiAsset::register($this);
 \yii\bootstrap5\BootstrapAsset::register($this);
 \yii\bootstrap5\BootstrapPluginAsset::register($this);
+$this->registerJsVar('appLoginUrl', Url::to(['site/login'], true), View::POS_HEAD);
+$this->registerJsFile('@web/js/bfcache-guard.js', ['position' => View::POS_END]);
 
 if (class_exists('deyraka\materialdashboard\web\MaterialDashboardAsset')) {
     deyraka\materialdashboard\web\MaterialDashboardAsset::register($this);

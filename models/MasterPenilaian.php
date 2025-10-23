@@ -58,8 +58,9 @@ class MasterPenilaian extends \yii\db\ActiveRecord
     public function getDetailPenilaian(){ return $this->hasMany(DetailPenilaian::class, ['id_penilaian'=>'id_penilaian']); }
     public function getKategori(){ return $this->hasOne(MasterKategori::class, ['id_kategori'=>'id_kategori']); }
     public function getUser(){ return $this->hasOne(User::class, ['id_users'=>'id_users']); }
+    public function getBanding(){ return $this->hasOne(BandingPenilaian::class, ['id_penilaian' => 'id_penilaian'])
+            ->inverseOf('penilaian'); }
 
-   
     public function beforeSave($insert): bool
     {
         if (!parent::beforeSave($insert)) return false;
