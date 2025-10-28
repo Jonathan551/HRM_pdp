@@ -8,8 +8,9 @@ use yii\db\Query;
 use app\components\UserAccess;
 use app\models\MasterJabatan;
 use app\models\Permissions;
+use app\controllers\BaseController;
 
-class RolePermissionController extends Controller
+class RolePermissionController extends BaseController
 {
     public function actionIndex($id_jabatan = null)
     {
@@ -39,8 +40,6 @@ class RolePermissionController extends Controller
                     'id_permission'=> (int)$idPermission
                 ])->execute();
             }
-
-            UserAccess::invalidateUserCache();
 
             Yii::$app->session->setFlash('success', 'Permissions berhasil diperbarui.');
             return $this->redirect(['index', 'id_jabatan' => $id_jabatan]);

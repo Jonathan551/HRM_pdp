@@ -19,9 +19,8 @@ $config = [
     'components' => [
        'view' => [
             'on ' . View::EVENT_END_BODY => function () {
-            // muat guard HANYA saat user SUDAH login
             if (Yii::$app->user->isGuest) {
-                return; // jangan load di halaman login/guest
+                return; 
             }
 
             Yii::$app->view->registerJsVar(

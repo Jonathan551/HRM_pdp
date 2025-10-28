@@ -7,11 +7,11 @@ use app\models\MasterKriteriasearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-
+use app\controllers\BaseController;
 /**
  * MasterKriteriaController implements the CRUD actions for MasterKriteria model.
  */
-class MasterKriteriaController extends Controller
+class MasterKriteriaController extends BaseController
 {
     /**
      * @inheritDoc

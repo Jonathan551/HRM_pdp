@@ -8,8 +8,8 @@ use yii\db\Query;
 use yii\db\Expression;
 use yii\helpers\ArrayHelper;
 use app\models\MasterDepartement; 
-
-class StatistikController extends Controller
+use app\controllers\BaseController;
+class StatistikController extends BaseController
 {
   
     public function actionIndex($method = 'minmax', $basis = 'perdept')

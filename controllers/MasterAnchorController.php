@@ -7,11 +7,12 @@ use app\models\MasterAnchorsearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use app\controllers\BaseController;
 
 /**
  * MasterAnchorController implements the CRUD actions for MasterAnchor model.
  */
-class MasterAnchorController extends Controller
+class MasterAnchorController extends BaseController
 {
     /**
      * @inheritDoc

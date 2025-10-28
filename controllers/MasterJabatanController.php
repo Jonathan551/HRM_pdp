@@ -7,11 +7,11 @@ use app\models\MasterJabatansearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-
+use app\controllers\BaseController;
 /**
  * MasterJabatanController implements the CRUD actions for MasterJabatan model.
  */
-class MasterJabatanController extends Controller
+class MasterJabatanController extends BaseController
 {
     /**
      * @inheritDoc

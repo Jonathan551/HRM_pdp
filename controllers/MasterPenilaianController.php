@@ -1,9 +1,8 @@
 <?php
-// File: controllers/MasterPenilaianController.php
 namespace app\controllers;
 
 use Yii;
-use yii\web\Controller; 
+use app\controllers\BaseController;
 use yii\web\Response;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -17,7 +16,7 @@ use app\models\User;
 use app\components\NotificationService;
 use app\components\Model;
 
-class MasterPenilaianController extends Controller
+class MasterPenilaianController extends BaseController
 {
     public function behaviors()
     {

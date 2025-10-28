@@ -7,11 +7,11 @@ use app\models\MasterKategorisearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-
+use app\controllers\BaseController;
 /**
  * MasterKategoriController implements the CRUD actions for MasterKategori model.
  */
-class MasterKategoriController extends Controller
+class MasterKategoriController extends BaseController
 {
     /**
      * @inheritDoc

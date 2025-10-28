@@ -7,8 +7,8 @@ use yii\web\Controller;
 use yii\data\ActiveDataProvider;
 use app\models\MasterPenilaian;
 use app\models\MasterPenilaianSearch;
-
-class PenilaianController extends Controller
+use app\controllers\BaseController;
+class PenilaianController extends BaseController
 {
     public function actionIndex()
     {

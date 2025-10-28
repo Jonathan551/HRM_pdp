@@ -7,11 +7,12 @@ use app\models\MasterDepartementsearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use app\controllers\BaseController;
 
 /**
  * MasterDepartementController implements the CRUD actions for MasterDepartement model.
  */
-class MasterDepartementController extends Controller
+class MasterDepartementController extends BaseController
 {
     /**
      * @inheritDoc

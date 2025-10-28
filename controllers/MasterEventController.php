@@ -9,12 +9,12 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
-
+use app\controllers\BaseController;
 
 /**
  * MasterEventController implements the CRUD actions for MasterEvent model.
  */
-class MasterEventController extends Controller
+class MasterEventController extends BaseController
 {
     /**
      * @inheritDoc

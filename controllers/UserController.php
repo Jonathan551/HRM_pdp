@@ -12,12 +12,12 @@ use app\models\MasterJabatan;
 use yii\web\Response;
 use app\models\MasterPenilaian;
 use yii\filters\VerbFilter;
-
+use app\controllers\BaseController;
 
 /**
  * UserController implements the CRUD actions for User model.
  */
-class UserController extends Controller
+class UserController extends BaseController
 {
     /**
      * @inheritDoc

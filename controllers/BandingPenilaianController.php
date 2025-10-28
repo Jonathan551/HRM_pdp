@@ -9,8 +9,9 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\db\Exception as DbException;
+use app\controllers\BaseController;
 
-class BandingPenilaianController extends Controller
+class BandingPenilaianController extends BaseController
 {
     public function behaviors()
     {
