@@ -1,56 +1,91 @@
 <?php
-
-use app\models\MasterAnchor;
 use yii\helpers\Html;
-use yii\helpers\Url;
-use yii\grid\ActionColumn;
 use yii\grid\GridView;
+use yii\helpers\Url;
 
-/** @var yii\web\View $this */
-/** @var app\models\MasterAnchorsearch $searchModel */
-/** @var yii\data\ActiveDataProvider $dataProvider */
+/** @var yii\data\ArrayDataProvider $dataProvider */
 
 $this->title = 'Master Anchor';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="master-anchor-index">
-
     <h1><?= Html::encode($this->title) ?></h1>
-
     <p>
         <?= Html::a('Create Master Anchor', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
-
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
-
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,
+        'summary' => "Showing {begin}-{end} of {totalCount} items.",
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
+            [
+                'class' => 'yii\grid\SerialColumn',
+                'header' => '#',
+                'headerOptions' => [
+                    'style' => 'color:#9c27b0; font-weight:600;'
+                ],
+            ],
 
-            // 'id_anchor',
             [
-                'attribute' => 'id_kriteria',
-                'label' => 'Kriteria',
-                'value' => function ($model) {
-                    return $model->kriteria ? $model->kriteria->nama_kriteria : '-';
+                'attribute' => 'nama_departemen',
+                'label'     => 'Departemen',
+                'value'     => function ($model) {
+                    return $model['nama_departement'] ?: '-';
                 },
+                'headerOptions' => [
+                    'style' => 'color:#9c27b0; font-weight:600;'
+                ],
+                'contentOptions' => [
+                    'style' => 'white-space:nowrap;'
+                ],
             ],
+
             [
-                'attribute' => 'level_anchor',
-                'label' => 'Skala',
+                'attribute' => 'nama_kriteria',
+                'label'     => 'Kriteria',
+                'headerOptions' => [
+                    'style' => 'color:#9c27b0; font-weight:600;'
+                ],
             ],
-            'deskripsi:ntext',
-            'nilai_anchor',
+
             [
-                'class' => ActionColumn::className(),
-                'urlCreator' => function ($action, MasterAnchor $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'id_anchor' => $model->id_anchor]);
-                 }
+                'attribute' => 'jumlah_skala',
+                'label'     => 'Jumlah Level/Skala',
+                'contentOptions' => [
+                    'style' => 'text-align:center; width:140px;'
+                ],
+                'headerOptions' => [
+                    'style' => 'text-align:center; color:#9c27b0; font-weight:600;'
+                ],
+            ],
+
+            [
+                'label' => 'Aksi',
+                'format' => 'raw',
+                'value' => function ($model) {
+                    $viewUrl = Url::to([
+                        'master-anchor/view',
+                        'id_kriteria' => $model['id_kriteria'],
+                    ]);
+
+                    return Html::a(
+                        '<i class="material-icons" style="font-size:18px;">visibility</i>',
+                        $viewUrl,
+                        [
+                            'title' => 'Lihat detail level anchor',
+                            'style' => 'color:#9c27b0;'
+                        ]
+                    );
+                },
+                'contentOptions' => [
+                    'style' => 'text-align:center; width:80px;'
+                ],
+                'headerOptions' => [
+                    'style' => 'text-align:center; color:#9c27b0; font-weight:600;'
+                ],
             ],
         ],
+        'tableOptions' => [
+            'class' => 'table table-striped table-bordered',
+        ],
     ]); ?>
-
-
 </div>

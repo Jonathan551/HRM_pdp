@@ -14,9 +14,6 @@ class RolePermissionController extends BaseController
 {
     public function actionIndex($id_jabatan = null)
     {
-        if (!UserAccess::hasPermission('akses_manajemen')) {
-            throw new ForbiddenHttpException('Anda tidak punya akses.');
-        }
 
         $jabatans = MasterJabatan::find()->orderBy(['nama_jabatan'=>SORT_ASC])->all();
         $permissions = Permissions::find()->orderBy(['nama_permission'=>SORT_ASC])->all();

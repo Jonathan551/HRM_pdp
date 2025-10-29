@@ -32,13 +32,13 @@ $this->registerJsFile('@web/js/sidebar.js', [
                         'label' => 'Master Data Jabatan',
                         'icon' => 'badge',
                         'url' => ['/master-jabatan/index'],
-                        'visible' => UserAccess::hasPermission('akses_jabatan')
+                        'visible' => UserAccess::hasPermission('akses_master-jabatan')
                     ],
                     [
                         'label' => 'Master Data Depatement',
                         'icon' => 'business',
                         'url' => ['/master-departement/index'],
-                        'visible' => UserAccess::hasPermission('akses_departement')
+                        'visible' => UserAccess::hasPermission('akses_master-departement')
                     ],
                     [
                         'label' => 'Master Data User',
@@ -50,35 +50,35 @@ $this->registerJsFile('@web/js/sidebar.js', [
                         'label' => 'Master Data Kriteria',
                         'icon' => 'content_paste',
                         'url' => ['/master-kriteria/index'],
-                        'visible' => UserAccess::hasPermission('akses_kriteria')
+                        'visible' => UserAccess::hasPermission('akses_master-kriteria')
                     ],
                     [
                         'label' => 'Master Data Anchor',
                         'icon' => 'anchor',
                         'url' => ['/master-anchor/index'],
-                        'visible' => UserAccess::hasPermission('akses_anchor')
+                        'visible' => UserAccess::hasPermission('akses_master-anchor')
                     ],
                     [
                         'label' => 'Master Data Kategori',
                         'icon' => 'category',
                         'url' => ['/master-kategori/index'],
-                        'visible' => UserAccess::hasPermission('akses_kategori')
+                        'visible' => UserAccess::hasPermission('akses_master-kategori')
                     ],
                     [
                         'label' => 'Manajemen User',
                         'icon' => 'account_circle', 
                         'url' => ['/role-permission/index'],
-                        'visible' => UserAccess::hasPermission('akses_manajemen')
+                        'visible' => UserAccess::hasPermission('akses_role-permission')
                     ],
                 ],
                 'visible' => (
                     UserAccess::hasPermission('akses_user') ||
-                    UserAccess::hasPermission('akses_jabatan') ||
-                    UserAccess::hasPermission('akses_departement') ||
-                    UserAccess::hasPermission('akses_kriteria') ||
-                    UserAccess::hasPermission('akses_anchor') ||
-                    UserAccess::hasPermission('akses_kategori') ||
-                    UserAccess::hasPermission('akses_manajemen') 
+                    UserAccess::hasPermission('akses_master-jabatan') ||
+                    UserAccess::hasPermission('akses_master-departement') ||
+                    UserAccess::hasPermission('akses_master-kriteria') ||
+                    UserAccess::hasPermission('akses_master-anchor') ||
+                    UserAccess::hasPermission('akses_master-kategori') ||
+                    UserAccess::hasPermission('akses_role-permission') 
                 )
             ],
             [
@@ -89,7 +89,7 @@ $this->registerJsFile('@web/js/sidebar.js', [
                         'label' => 'Penilaian Karyawan',
                         'icon' => 'assignment_ind',
                         'url' => ['/master-penilaian/index'],
-                        'visible' => UserAccess::hasPermission('akses_penilaian')
+                        'visible' => UserAccess::hasPermission('akses_master-penilaian')
                     ],
                     [
                         'label' => 'Laporan Penilaian',
@@ -99,7 +99,7 @@ $this->registerJsFile('@web/js/sidebar.js', [
                     ],
                 ],
                 'visible' => (
-                    UserAccess::hasPermission('akses_penilaian') ||
+                    UserAccess::hasPermission('akses_master-penilaian') ||
                     UserAccess::hasPermission('akses_laporan')
                 )
             ],
@@ -111,10 +111,10 @@ $this->registerJsFile('@web/js/sidebar.js', [
                         'label' => 'Event',
                         'icon' => 'event',
                         'url' => ['/master-event/index'],
-                        'visible' => UserAccess::hasPermission('akses_event')
+                        'visible' => UserAccess::hasPermission('akses_master-event')
                     ],
                 ],
-                'visible' => UserAccess::hasPermission('akses_event')
+                'visible' => UserAccess::hasPermission('akses_master-event')
             ],
             [
                 'label' => 'Banding Penilaian',
@@ -124,18 +124,18 @@ $this->registerJsFile('@web/js/sidebar.js', [
                         'label' => 'Master Banding Penilaian',
                         'icon' => 'assignment',
                         'url' => ['/banding-penilaian/index'],
-                        'visible' => UserAccess::hasPermission('akses_review_banding')
+                        'visible' => UserAccess::hasPermission('akses_banding-penilaian')
                     ],
                     [
                         'label' => 'Banding Penilaian',
                         'icon' => 'content_paste_search',
                         'url' => ['/pengajuan-banding/index'],
-                        'visible' => UserAccess::hasPermission('akses_banding')
+                        'visible' => UserAccess::hasPermission('akses_pengajuan-banding')
                     ],
                 ],
                 'visible' => 
-                    UserAccess::hasPermission('akses_banding') ||
-                    UserAccess::hasPermission('akses_review_banding')
+                    UserAccess::hasPermission('akses_banding-penilaian') ||
+                    UserAccess::hasPermission('akses_pengajuan-banding')
             ],
             [
                 'label' => 'Statistik',

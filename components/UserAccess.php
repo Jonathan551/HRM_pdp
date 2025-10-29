@@ -14,10 +14,15 @@ class UserAccess
         $userId = $userId ?? Yii::$app->user->identity->id_users ?? null;
         if (!$userId) return false;
 
+        $legacyPermission   = str_replace('-', '', $permission);
+        $candidatesToCheck  = [$permission, $legacyPermission];
+
         if (self::AUTO_REGISTER) {
-            $exists = (new Query())->from('permissions')
-                ->where(['nama_permission' => $permission])->exists();
-            
+            $exists = (new Query())
+                ->from('permissions')
+                ->where(['nama_permission' => $candidatesToCheck])
+                ->exists();
+
             if (!$exists) {
                 try {
                     Yii::$app->db->createCommand()->insert('permissions', [
@@ -25,7 +30,10 @@ class UserAccess
                         'deskripsi'       => 'Auto generated',
                     ])->execute();
                 } catch (\Exception $e) {
-                    Yii::error("Failed to auto-register permission: {$permission}", __METHOD__);
+                    Yii::error(
+                        "Failed to auto-register permission: {$permission}. Error: " . $e->getMessage(),
+                        __METHOD__
+                    );
                 }
             }
         }
@@ -39,7 +47,13 @@ class UserAccess
                 ->where(['u.id_users' => $userId])
                 ->column();
         }
+        
+        foreach (self::$permCache[$userId] as $dbPermissionName) {
+            if (in_array($dbPermissionName, $candidatesToCheck, true)) {
+                return true;
+            }
+        }
 
-        return in_array($permission, self::$permCache[$userId], true);
+        return false;
     }
 }

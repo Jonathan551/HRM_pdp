@@ -34,7 +34,6 @@ class BaseController extends Controller
             Yii::$app->response->redirect(['site/error'])->send();
             Yii::$app->end();
         }
-
         return true;
     }
 }

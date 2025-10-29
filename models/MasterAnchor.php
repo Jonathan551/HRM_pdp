@@ -35,7 +35,10 @@ class MasterAnchor extends \yii\db\ActiveRecord
     {
         return [
             [['id_kriteria', 'level_anchor', 'deskripsi', 'nilai_anchor'], 'required','message' => '{attribute} wajib diisi.'],
-            [['id_kriteria', 'level_anchor', 'nilai_anchor'], 'integer'],
+            [['id_kriteria', 'level_anchor'], 'integer'],
+            [['id_kriteria', 'level_anchor'], 'unique', 'targetAttribute' => ['id_kriteria', 'level_anchor'],
+            'message' => 'Level ini sudah ada untuk kriteria tersebut.'
+            ],
             [['deskripsi'], 'string'],
             [['id_kriteria'], 'exist', 'skipOnError' => true, 'targetClass' => MasterKriteria::class, 'targetAttribute' => ['id_kriteria' => 'id_kriteria']],
         ];

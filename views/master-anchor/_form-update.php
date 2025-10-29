@@ -2,14 +2,12 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use yii\helpers\Url;
 
 /** @var yii\web\View $this */
-/** @var app\models\BatchAnchorInput $model */
-/** @var array $departemenDropdown */
+/** @var app\models\MasterAnchor $model */
 
 $form = ActiveForm::begin([
-    'id' => 'anchor-batch-form',
+    'id' => 'master-anchor-single-form',
     'method' => 'post',
 ]);
 ?>
@@ -45,45 +43,40 @@ $form = ActiveForm::begin([
 <div class="row">
     <div class="col-md-6">
 
-        <?= $form->field($model, 'id_departement')->dropDownList(
-            $departementDropdown,
-            [
-                'prompt' => 'Pilih Departemen...',
-                'id' => 'departemen-select',
-                'data-kriteria-url' => Url::to(['master-anchor/kriteria-by-departemen']),
-            ]
-        ) ?>
-
         <?= $form->field($model, 'id_kriteria')->dropDownList(
-            [],
+            \yii\helpers\ArrayHelper::map(
+                \app\models\MasterKriteria::find()
+                    ->orderBy(['nama_kriteria' => SORT_ASC])
+                    ->all(),
+                'id_kriteria',
+                'nama_kriteria'
+            ),
             [
-                'prompt'   => 'Pilih Kriteria...',
-                'id'       => 'kriteria-select',
-                'disabled' => true,
+                'prompt' => 'Pilih Kriteria...',
+                'disabled' => true, 
             ]
-        ) ?>
+        ); ?>
 
-    
-        <?= $form->field($model, 'skala')->textInput([
+        <?= $form->field($model, 'level_anchor')->textInput([
+            'readonly' => true,
+        ]) ?>
+
+        <?= $form->field($model, 'deskripsi')->textarea([
+            'rows' => 3,
+        ]) ?>
+
+       <?= $form->field($model, 'nilai_anchor')->textInput([
             'type' => 'number',
-            'id'   => 'input-skala',
-        ])->hint('Masukkan jumlah level anchor yang ingin dibuat (misal 3)') ?>
+            'step' => '0.001',
+            'max'  => $this->params['maxSkala'] ?? null, 
+        ])->hint('Masukkan angka desimal (maksimal 3 angka di belakang koma). Nilai tidak boleh melebihi skala.') ?>
 
     </div>
 </div>
 
-<hr>
-
-<h4 style="color:#9c27b0; font-weight:500; margin-top:10px;">Detail Level Anchor</h4>
-<p style="font-size:13px; color:#666; margin-top:4px;">
-Setiap level punya deskripsi perilaku & nilai anchor. Jumlah baris akan mengikuti Skala.
-</p>
-
-<div id="levels-wrapper" class="mb-3"></div>
-
 <div class="form-group">
     <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
-    <?= Html::a('Kembali', ['index'], ['class' => 'btn btn-info']) ?>
+    <?= Html::a('Kembali', ['view', 'id_kriteria' => $model->id_kriteria], ['class' => 'btn btn-info']) ?>
 </div>
 
 <?php ActiveForm::end(); ?>

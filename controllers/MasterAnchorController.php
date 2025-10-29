@@ -2,9 +2,13 @@
 
 namespace app\controllers;
 
+use Yii;
+use yii\web\Response;
+use yii\helpers\ArrayHelper;
 use app\models\MasterAnchor;
-use app\models\MasterAnchorsearch;
-use yii\web\Controller;
+use app\models\BatchAnchorInput;
+use yii\data\ArrayDataProvider;
+use app\models\MasterKriteria;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use app\controllers\BaseController;
@@ -39,11 +43,35 @@ class MasterAnchorController extends BaseController
      */
     public function actionIndex()
     {
-        $searchModel = new MasterAnchorsearch();
-        $dataProvider = $searchModel->search($this->request->queryParams);
+        $rows = (new \yii\db\Query())
+            ->select([
+                'ma.id_kriteria',
+                'mk.nama_kriteria',
+                'd.nama_departement AS nama_departement',
+                'COUNT(ma.id_anchor) AS jumlah_skala',
+            ])
+            ->from('master_anchor ma')
+            ->innerJoin('master_kriteria mk', 'mk.id_kriteria = ma.id_kriteria')
+            ->leftJoin('master_departement d', 'd.id_departement = mk.id_departement')
+            ->groupBy([
+                'ma.id_kriteria',
+                'mk.nama_kriteria',
+                'd.nama_departement',
+            ])
+            ->orderBy([
+                'd.nama_departement' => SORT_ASC,
+                'mk.nama_kriteria'  => SORT_ASC,
+            ])
+            ->all();
+
+        $dataProvider = new ArrayDataProvider([
+            'allModels'  => $rows,
+            'pagination' => [
+                'pageSize' => 15,
+            ],
+        ]);
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }
@@ -54,10 +82,21 @@ class MasterAnchorController extends BaseController
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id_anchor)
+     public function actionView($id_kriteria)
     {
+        $kriteria = MasterKriteria::findOne($id_kriteria);
+        if (!$kriteria) {
+            throw new NotFoundHttpException('Kriteria tidak ditemukan.');
+        }
+
+        $anchors = MasterAnchor::find()
+            ->where(['id_kriteria' => $id_kriteria])
+            ->orderBy(['level_anchor' => SORT_ASC])
+            ->all();
+
         return $this->render('view', [
-            'model' => $this->findModel($id_anchor),
+            'kriteria' => $kriteria,
+            'anchors'  => $anchors,
         ]);
     }
 
@@ -68,18 +107,52 @@ class MasterAnchorController extends BaseController
      */
     public function actionCreate()
     {
-        $model = new MasterAnchor();
+        $model = new BatchAnchorInput();
 
-        if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id_anchor' => $model->id_anchor]);
+ 
+        $model->skala = $model->skala ?? 1;
+
+        if ($model->load(Yii::$app->request->post())) {
+
+       
+            $model->anchors = Yii::$app->request->post('anchors', []);
+
+            if ($model->validate()) {
+                $transaction = Yii::$app->db->beginTransaction();
+                try {
+                    foreach ($model->anchors as $row) {
+                        $anchor = new MasterAnchor();
+                        $anchor->id_kriteria   = $model->id_kriteria;
+                        $anchor->level_anchor  = (int)$row['level_anchor'];
+                        $anchor->deskripsi     = $row['deskripsi'];
+                        $anchor->nilai_anchor  = $row['nilai_anchor'];
+
+                        if (!$anchor->save()) {
+                            throw new \Exception('Gagal simpan anchor level '.$row['level_anchor']);
+                        }
+                    }
+
+                    $transaction->commit();
+                    Yii::$app->session->setFlash('success', 'Anchor berhasil disimpan.');
+                    return $this->redirect(['index']);
+                } catch (\Throwable $e) {
+                    $transaction->rollBack();
+                    Yii::$app->session->setFlash('error', $e->getMessage());
+                }
             }
-        } else {
-            $model->loadDefaultValues();
         }
+
+        $departemenList = (new \yii\db\Query())
+            ->select(['id_departement', 'nama_departement'])
+            ->from('master_departement')
+            ->orderBy(['nama_departement' => SORT_ASC])
+            ->all();
+
+        $departementDropdown = ArrayHelper::map($departemenList, 'id_departement', 'nama_departement');
 
         return $this->render('create', [
             'model' => $model,
+            'departementDropdown' => $departementDropdown,
         ]);
     }
 
@@ -95,13 +168,14 @@ class MasterAnchorController extends BaseController
         $model = $this->findModel($id_anchor);
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id_anchor' => $model->id_anchor]);
+            return $this->redirect(['view', 'id_kriteria' => $model->id_kriteria]);
         }
 
         return $this->render('update', [
             'model' => $model,
         ]);
     }
+
 
     /**
      * Deletes an existing MasterAnchor model.
@@ -112,10 +186,41 @@ class MasterAnchorController extends BaseController
      */
     public function actionDelete($id_anchor)
     {
-        $this->findModel($id_anchor)->delete();
+        $model = $this->findModel($id_anchor);
 
-        return $this->redirect(['index']);
+        $anchors = MasterAnchor::find()
+            ->where(['id_kriteria' => $model->id_kriteria])
+            ->orderBy(['level_anchor' => SORT_ASC])
+            ->all();
+
+        $maxLevel = 0;
+        foreach ($anchors as $a) {
+            if ($a->level_anchor > $maxLevel) {
+                $maxLevel = $a->level_anchor;
+            }
+        }
+
+
+        if ((int)$model->level_anchor !== (int)$maxLevel) {
+            Yii::$app->session->setFlash(
+                'error',
+                'Level ini tidak boleh dihapus. Hapus dari level paling tinggi terlebih dahulu.'
+            );
+            return $this->redirect([
+                'view',
+                'id_kriteria' => $model->id_kriteria,
+            ]);
+        }
+
+        $model->delete();
+
+        Yii::$app->session->setFlash('success', 'Level berhasil dihapus.');
+        return $this->redirect([
+            'view',
+            'id_kriteria' => $model->id_kriteria,
+        ]);
     }
+
 
     /**
      * Finds the MasterAnchor model based on its primary key value.
@@ -133,5 +238,18 @@ class MasterAnchorController extends BaseController
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
-    
+    public function actionKriteriaByDepartemen($id_departement)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $list = MasterKriteria::find()
+            ->select(['id_kriteria', 'nama_kriteria'])
+            ->where(['id_departement' => $id_departement])
+            ->orderBy(['nama_kriteria' => SORT_ASC])
+            ->asArray()
+            ->all();
+
+        return $list;
+    }
 }
+
