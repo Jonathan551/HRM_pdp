@@ -10,7 +10,7 @@ use yii\widgets\ActiveForm;
 /** @var app\models\MasterEvent $model */
 /** @var yii\widgets\ActiveForm $form */
 
-// Ambil user login & rakit label tampilan
+
 $currentUserId = Yii::$app->user->id;
 $currentUser   = User::find()->with('departement')->where(['id_users' => $currentUserId])->one();
 $displayName   = $currentUser
@@ -19,7 +19,6 @@ $displayName   = $currentUser
 
 $isNew = $model->isNewRecord;
 
-// Jika create, paksa id_users & created_by = user login (WHY: keamanan & konsistensi)
 if ($isNew) {
     $model->id_users   = $currentUserId;
     $model->created_by = $currentUserId;
@@ -30,8 +29,6 @@ if ($isNew) {
     <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]); ?>
 
     <?php
-    // Tampilkan User read-only, kirim id_users via hidden input (WHY: field disabled tidak terkirim)
-    // Saat update, tampilkan user milik record
     $ownerUser = $isNew ? $currentUser : User::find()->with('departement')->where(['id_users' => $model->id_users])->one();
     $ownerName = $ownerUser
         ? ($ownerUser->nama . ' (' . ($ownerUser->departement->nama_departement ?? '-') . ')')
