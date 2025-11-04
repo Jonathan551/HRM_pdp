@@ -12,6 +12,10 @@ $this->registerJsFile('@web/js/komentar.js', [
     'depends' => [\yii\web\YiiAsset::class],
 ]);
 
+$this->registerJsFile('@web/js/komentar-aksi.js', [
+    'depends' => [\yii\web\YiiAsset::class],
+]);
+
 $this->registerCssFile('@web/css/event-view.css', [
     'depends' => [\yii\bootstrap5\BootstrapAsset::class],
 ]);

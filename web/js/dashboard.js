@@ -35,3 +35,5 @@ function initDashboardCharts(avgNilai, dataKategori) {
     }
   });
 }
+
+

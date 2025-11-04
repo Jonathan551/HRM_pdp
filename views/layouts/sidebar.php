@@ -19,10 +19,15 @@ $this->registerJsFile('@web/js/sidebar.js', [
         <?= Menu::widget([
         'items' => [
             [
-                'label' => 'Dashboard',
+                'label' => 'Dashboard Admin',
                 'icon' => 'dashboard',
                 'url' => ['/site/index'],
                 'visible' => UserAccess::hasPermission('akses_dashboard')
+            ],
+            [
+            'label' => 'Dashboard',
+            'icon'  => 'dashboard',
+            'url'   => ['/dashboard-user/user'],
             ],
             [
                 'label' => 'Master Data',

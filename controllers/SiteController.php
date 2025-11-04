@@ -126,7 +126,7 @@ class SiteController extends BaseController
                     'secure'   => false,
                 ]));
                 Yii::$app->session->setFlash('success', 'Login berhasil, selamat datang!');
-                return $this->redirect(['site/index']);
+                return $this->redirect(['dashboard-user/user']);
             } else {
                 Yii::$app->session->setFlash('error', 'Login gagal: username atau password salah!');
             }
