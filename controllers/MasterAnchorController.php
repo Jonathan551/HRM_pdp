@@ -251,5 +251,133 @@ class MasterAnchorController extends BaseController
 
         return $list;
     }
+
+    public function actionBulkUpdate($id_kriteria)
+    {
+        $kriteria = MasterKriteria::findOne($id_kriteria);
+        if (!$kriteria) {
+            throw new NotFoundHttpException('Kriteria tidak ditemukan.');
+        }
+        
+        $existing = MasterAnchor::find()
+            ->where(['id_kriteria' => $id_kriteria])
+            ->orderBy(['level_anchor' => SORT_ASC])
+            ->all();
+
+        $prefill = [];
+        $maxLevel = 0;
+        foreach ($existing as $a) {
+            $lvl = (int)$a->level_anchor;
+            $maxLevel = max($maxLevel, $lvl);
+            $prefill[$lvl] = [
+                'level_anchor' => $lvl,
+                'deskripsi'    => (string)$a->deskripsi,
+                'nilai_anchor' => (string)$a->nilai_anchor,
+            ];
+        }
+        
+        $model = new BatchAnchorInput();
+        $model->id_kriteria    = $id_kriteria;
+        $model->id_departement = $kriteria->id_departement;   
+        $model->skala          = $maxLevel ?: 1;
+        $model->anchors        = $prefill;
+
+        if ($model->load(Yii::$app->request->post())) {
+            $model->id_departement = $kriteria->id_departement;
+            
+            $postBI    = Yii::$app->request->post('BatchAnchorInput', []);
+            $anchorsIn = $postBI['anchors'] ?? [];
+            $skala     = (int)$model->skala;
+
+            $errorMsg = null;
+            
+            if (!is_array($anchorsIn) || count($anchorsIn) !== $skala) {
+                $errorMsg = 'Jumlah level tidak sesuai skala. Expected: ' . $skala . ', Got: ' . count($anchorsIn);
+            } else {
+                $decimal = '/^\d+(\.\d{1,3})?$/';
+                for ($i = 1; $i <= $skala; $i++) {
+                    $row = $anchorsIn[$i] ?? null;
+                    
+                    if (!$row) {
+                        $errorMsg = "Data untuk level {$i} tidak ditemukan.";
+                        break;
+                    }
+                    
+                    if (
+                        !isset($row['deskripsi']) ||
+                        !isset($row['nilai_anchor']) ||
+                        !isset($row['level_anchor']) ||
+                        trim($row['deskripsi']) === '' ||
+                        $row['nilai_anchor'] === ''
+                    ) {
+                        $errorMsg = "Semua kolom deskripsi dan nilai anchor wajib diisi (level {$i}).";
+                        break;
+                    }
+
+                    if ((int)$row['level_anchor'] !== $i) {
+                        $errorMsg = 'Level tidak berurutan (harus 1..skala).';
+                        break;
+                    }
+                    
+                    if (!preg_match($decimal, (string)$row['nilai_anchor'])) {
+                        $errorMsg = 'Nilai Anchor harus angka dengan maksimal 3 angka di belakang koma.';
+                        break;
+                    }
+                    
+                    if ((float)$row['nilai_anchor'] > $skala) {
+                        $errorMsg = "Nilai Anchor level {$i} tidak boleh lebih besar dari skala ({$skala}).";
+                        break;
+                    }
+                }
+            }
+
+            if ($errorMsg !== null) {
+                Yii::$app->session->setFlash('error', $errorMsg);
+            } else {
+                $tx = Yii::$app->db->beginTransaction();
+                try {
+                    for ($i = 1; $i <= $skala; $i++) {
+                        $row = $anchorsIn[$i];
+                        
+                        $anchor = MasterAnchor::findOne([
+                            'id_kriteria'  => $id_kriteria,
+                            'level_anchor' => $i,
+                        ]);
+                        
+                        if (!$anchor) {
+                            $anchor = new MasterAnchor();
+                            $anchor->id_kriteria  = $id_kriteria;
+                            $anchor->level_anchor = $i;
+                        }
+
+                        $anchor->deskripsi    = trim((string)$row['deskripsi']);
+                        $anchor->nilai_anchor = (float)$row['nilai_anchor'];
+
+                        if (!$anchor->save(false)) {
+                            throw new \RuntimeException('Gagal menyimpan level ' . $i);
+                        }
+                    }
+                    
+                    MasterAnchor::deleteAll([
+                        'and',
+                        ['id_kriteria' => $id_kriteria],
+                        ['>', 'level_anchor', $skala],
+                    ]);
+
+                    $tx->commit();
+                    Yii::$app->session->setFlash('success', 'Master Anchor berhasil diperbarui.');
+                    return $this->redirect(['view', 'id_kriteria' => $id_kriteria]);
+                } catch (\Throwable $e) {
+                    $tx->rollBack();
+                    Yii::$app->session->setFlash('error', 'Terjadi kesalahan: ' . $e->getMessage());
+                }
+            }
+        }
+        
+        return $this->render('bulk-update', [
+            'kriteria' => $kriteria,
+            'model'    => $model,
+        ]);
+    }
 }
 
