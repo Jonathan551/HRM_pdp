@@ -22,10 +22,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'data-bs-toggle' => 'modal',
             'data-bs-target' => '#detailPenilaianModal'
         ]) ?>
-        <?= Html::a('Print Laporan', ['report/cetak', 'id' => $model->id_penilaian], [
-            'class' => 'btn btn-primary',
-            'target' => '_blank' 
-        ]) ?>
     </p>
 
     <div class="modal fade" id="detailPenilaianModal" tabindex="-1" aria-labelledby="detailPenilaianModalLabel" aria-hidden="true">

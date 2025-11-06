@@ -68,8 +68,8 @@ $this->registerCssFile('@web/css/timeline.css', ['depends' => [\yii\web\JqueryAs
                         </span>
                     </div>
                     <div class="timeline-actions">
-                        <?= Html::a('<i class="fas fa-eye"></i> View', ['view','id_event'=>$event->id_event], ['class'=>'btn btn-sm btn-outline-primary']) ?>
-                        <?= Html::a('<i class="fas fa-edit"></i> Update', ['update','id_event'=>$event->id_event], ['class'=>'btn btn-sm btn-outline-success']) ?>
+                        <?= Html::a(' View', ['view','id_event'=>$event->id_event], ['class'=>'btn btn-sm btn-primary']) ?>
+                        <?= Html::a(' Update', ['update','id_event'=>$event->id_event], ['class'=>'btn btn-sm btn-success']) ?>
                     </div>
                 </div>
             </div>

@@ -53,7 +53,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             [
                 'class' => ActionColumn::className(),
-                'template' => '{view}', // hanya tombol View
+                'template' => '{view}',
                 'urlCreator' => function ($action, MasterPenilaian $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id_penilaian' => $model->id_penilaian]);
                 }

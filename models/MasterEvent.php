@@ -248,6 +248,12 @@ class MasterEvent extends \yii\db\ActiveRecord
         $this->status = self::STATUS_CLOSED;
     }
 
+    public function getKomentar()
+    {
+        return $this->hasMany(Komentar::class, ['id_event' => 'id_event'])
+            ->orderBy(['created_at' => SORT_DESC]); 
+    }
+
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {

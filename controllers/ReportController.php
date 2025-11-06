@@ -7,7 +7,7 @@ use yii\web\Response;
 use yii\web\NotFoundHttpException;
 use app\controllers\BaseController;
 
-class ReportController extends BaseController
+class ReportController extends Controller
 {
     public function actionCetak($id)
     {

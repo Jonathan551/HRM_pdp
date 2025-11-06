@@ -1,8 +1,3 @@
-/* ========================================
-   Event View Styling - Modern & Clean
-   ======================================== */
-
-/* Container */
 .event-view-container {
   max-width: 1000px;
   margin: 0 auto;
@@ -234,7 +229,6 @@
   border-color: #e2e8f0;
 }
 
-/* Section Styling */
 .description-section,
 .image-section,
 .details-section {
@@ -268,12 +262,10 @@
   font-style: italic;
 }
 
-/* Image Section */
 .image-wrapper {
+  max-width: 640px;       
+  margin: 0 auto;        
   position: relative;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  background: #f8fafc;
 }
 
 .image-link {
@@ -282,10 +274,10 @@
 }
 
 .event-image {
-  width: 100%;
-  height: auto;
   display: block;
-  transition: transform 0.3s ease;
+  width: 100%;
+  height: auto;           
+  border-radius: 10px;
 }
 
 .image-link:hover .event-image {
@@ -315,6 +307,11 @@
 .image-overlay i {
   font-size: 1.25rem;
 }
+
+@media (min-width: 992px){
+   .image-wrapper{ max-width: 560px; }
+}
+
 
 /* Details Grid */
 .details-grid {
@@ -408,4 +405,37 @@
   .meta-divider {
     display: none;
   }
+}
+
+/* Comment Design */
+.comment-section{
+  margin-top: 18px;
+  text-align: right;
+}
+.comment-list { 
+display: grid; 
+gap: 18px;
+margin-top: 12px;
+}
+.comment-item{
+   padding: 18px;
+  display: flex; gap: 18px;
+  border: 1px solid #e1e4e8; background:#fff;
+  border-radius: 8px; padding: 18px;
+}
+.comment-avatar{
+  width: 40px; height: 40px; border-radius: 50%;
+  object-fit: cover; border: 1px solid #e5e7eb;
+}
+.comment-main{ flex: 1; min-width: 0; }
+.comment-header{
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.95rem;
+}
+.comment-author{ font-weight: 600; }
+.comment-dot{ color:#9aa0a6; }
+.comment-date{ color:#6c757d; font-size: 0.85rem; }
+.comment-content{
+  margin-top: 4px; white-space: pre-wrap; word-wrap: break-word;
+  font-size: 0.95rem;
 }

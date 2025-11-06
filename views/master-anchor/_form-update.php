@@ -2,6 +2,8 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use app\models\MasterKriteria;
+use yii\helpers\ArrayHelper;
 
 /** @var yii\web\View $this */
 /** @var app\models\MasterAnchor $model */
@@ -44,8 +46,8 @@ $form = ActiveForm::begin([
     <div class="col-md-6">
 
         <?= $form->field($model, 'id_kriteria')->dropDownList(
-            \yii\helpers\ArrayHelper::map(
-                \app\models\MasterKriteria::find()
+            ArrayHelper::map(
+                MasterKriteria::find()
                     ->orderBy(['nama_kriteria' => SORT_ASC])
                     ->all(),
                 'id_kriteria',

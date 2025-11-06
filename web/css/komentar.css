@@ -1,0 +1,33 @@
+.komentar-main{
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  background: #fff;
+}
+.komentar-tabs .nav-link{
+  border: none;
+  padding: 10px 14px;
+}
+.composer-tabs .nav-link.active{
+  border-bottom: 2px solid #0d6efd;
+  color: #0d6efd;
+  background: transparent;
+}
+.komentar-body{
+  padding: 12px;
+  border-top: 1px solid #eaecef;
+}
+.komentar-write textarea#komentar-deskripsi{
+  width: 100%;
+  resize: vertical;
+  min-height: 140px;
+  font-size: 0.95rem;
+}
+.komentar-preview{
+  min-height: 140px;
+  padding: 12px;
+  background: #fafbfc;
+  border: 1px solid #eaecef;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

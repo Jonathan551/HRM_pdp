@@ -1,5 +1,6 @@
 <?php
 use yii\helpers\Html;
+use yii\helpers\Url;
 
 /** @var yii\web\View $this */
 /** @var app\models\MasterEvent $model */
@@ -7,10 +8,18 @@ use yii\helpers\Html;
 $this->title = $model->judul;
 $this->params['breadcrumbs'][] = ['label' => 'Events', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
+$this->registerJsFile('@web/js/komentar.js', [
+    'depends' => [\yii\web\YiiAsset::class],
+]);
+
+$this->registerJsFile('@web/js/komentar-aksi.js', [
+    'depends' => [\yii\web\YiiAsset::class],
+]);
 
 $this->registerCssFile('@web/css/event-view.css', [
     'depends' => [\yii\bootstrap5\BootstrapAsset::class],
 ]);
+
 
 $dt = 'php:d M Y H:i:s';
 $da = 'php:d M Y ';  
@@ -124,18 +133,18 @@ $statusClass = [
     </div>
 
     <?php if ($gambarUrl): ?>
-      <div class="image-section">
-        <h4 class="section-title">Dokumentasi</h4>
-        <div class="image-wrapper">
-          <?= Html::a(
-            Html::img($gambarUrl, ['class' => 'event-image', 'alt' => 'Dokumentasi Event', 'loading' => 'lazy']),
-            $gambarUrl,
-            ['target' => '_blank', 'rel' => 'noopener', 'class' => 'image-link']
-          ) ?>
-          <div class="image-overlay"><i class="bi bi-zoom-in"></i><span>Klik untuk memperbesar</span></div>
-        </div>
+    <div class="image-section">
+      <h4 class="section-title">Dokumentasi</h4>
+      <div class="image-wrapper">
+        <?= Html::a(
+          Html::img($gambarUrl, ['class' => 'event-image', 'alt' => 'Dokumentasi Event', 'loading' => 'lazy']),
+          $gambarUrl,
+          ['target' => '_blank', 'rel' => 'noopener', 'class' => 'image-link']
+        ) ?>
+        <div class="image-overlay"><i class="bi bi-zoom-in"></i><span>Klik untuk memperbesar</span></div>
       </div>
-    <?php endif; ?>
+    </div>
+  <?php endif; ?>
 
     <div class="details-section">
       <h4 class="section-title">Informasi Detail</h4>
@@ -163,5 +172,25 @@ $statusClass = [
         </div>
       </div>
     </div>
+  </div>
+    <div class="comment-list">
+      <?php if (!empty($comments)): ?>
+        <?php foreach ($comments as $kom): ?>
+          <?= $this->render('@app/views/komentar/_item', ['model' => $kom]) ?>
+        <?php endforeach; ?>
+      <?php else: ?>
+        <div class="text-muted small">Belum ada komentar.</div>
+      <?php endif; ?>
+    </div>
+    <div class="comment-section">
+      <?= Html::button('<i class="bi bi-chat-dots"></i> Buat Komentar', [
+          'class' => 'btn btn-primary',
+          'id'    => 'btn-create-comment',
+          'encode'=> false,
+          'data'  => [
+              'url' => Url::to(['komentar/create', 'id_event' => $model->id_event]),
+          ],
+      ]) ?>
+    <div id="comment-form" class="mt-3 d-none"></div>
   </div>
 </div>

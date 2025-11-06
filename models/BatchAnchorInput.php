@@ -17,8 +17,6 @@ class BatchAnchorInput extends Model
         return [
             [['id_departement', 'id_kriteria', 'skala'], 'required'],
             [['id_departement', 'id_kriteria', 'skala'], 'integer'],
-
-            // anchors itu harus ada
             ['anchors', 'required', 'message' => 'Mohon isi nilai anchor'],
             ['anchors', 'validateAnchors'],
         ];

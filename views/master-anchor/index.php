@@ -57,31 +57,29 @@ $this->params['breadcrumbs'][] = $this->title;
                     'style' => 'text-align:center; color:#9c27b0; font-weight:600;'
                 ],
             ],
-
             [
                 'label' => 'Aksi',
                 'format' => 'raw',
                 'value' => function ($model) {
-                    $viewUrl = Url::to([
-                        'master-anchor/view',
-                        'id_kriteria' => $model['id_kriteria'],
-                    ]);
+                    $viewUrl = Url::to(['master-anchor/view', 'id_kriteria' => $model['id_kriteria']]);
+                    $bulkUrl = Url::to(['master-anchor/bulk-update', 'id_kriteria' => $model['id_kriteria']]);
 
-                    return Html::a(
+                    $btnView = Html::a(
                         '<i class="material-icons" style="font-size:18px;">visibility</i>',
                         $viewUrl,
-                        [
-                            'title' => 'Lihat detail level anchor',
-                            'style' => 'color:#9c27b0;'
-                        ]
+                        ['title' => 'Lihat detail level anchor', 'style' => 'color:#9c27b0; margin-right:8px;']
                     );
+
+                    $btnBulk = Html::a(
+                        '<i class="material-icons" style="font-size:18px;">edit</i>',
+                        $bulkUrl,
+                        ['title' => 'Edit semua level', 'style' => 'color:#9c27b0;']
+                    );
+
+                    return $btnView . $btnBulk;
                 },
-                'contentOptions' => [
-                    'style' => 'text-align:center; width:80px;'
-                ],
-                'headerOptions' => [
-                    'style' => 'text-align:center; color:#9c27b0; font-weight:600;'
-                ],
+                'contentOptions' => ['style' => 'text-align:center; width:110px;'],
+                'headerOptions'  => ['style' => 'text-align:center; color:#9c27b0; font-weight:600;'],
             ],
         ],
         'tableOptions' => [

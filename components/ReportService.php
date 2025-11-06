@@ -18,7 +18,6 @@ class ReportService extends Component
     /** @return array{path:string, filename:string} */
     public function buildPenilaianPdf(int $id): array
     {
-        // Why: validasi dependency di sini supaya komponen tetap bisa di-instantiate
         if (!class_exists(PhpWord::class)) {
             throw new Exception('Dependency phpoffice/phpword belum terpasang.');
         }
@@ -60,7 +59,7 @@ class ReportService extends Component
             if (is_file($fallback)) { $fotoPath = $fallback; }
         }
 
-        // ===== Build dokumen =====
+
         $phpWord = new PhpWord();
         $phpWord->addTableStyle('HeaderTable', [
             'borderSize' => 0, 'borderColor' => 'FFFFFF',
@@ -159,7 +158,6 @@ class ReportService extends Component
         $section->addText("Catatan Penilaian", ['bold'=>true]);
         $section->addText($penilaian->catatan ? (string)$penilaian->catatan : '-', [], ['alignment'=>'both']);
 
-        // Render PDF via DOMPDF
         Settings::setPdfRendererName(Settings::PDF_RENDERER_DOMPDF);
         Settings::setPdfRendererPath($dompdfDir);
 

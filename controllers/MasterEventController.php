@@ -6,6 +6,7 @@ use Yii;
 use app\models\MasterEvent;
 use app\models\MasterEventsearch;
 use yii\web\Controller;
+use app\models\Komentar;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
@@ -60,12 +61,22 @@ class MasterEventController extends BaseController
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id_event)
+   public function actionView($id_event)
     {
+        $model = $this->findModel($id_event); 
+
+        $comments = Komentar::find()
+            ->where(['id_event' => $model->id_event])
+            ->with('users')
+            ->orderBy(['created_at' => SORT_DESC])
+            ->all();
+
         return $this->render('view', [
-            'model' => $this->findModel($id_event),
+            'model'    => $model,
+            'comments' => $comments,
         ]);
     }
+
 
     /**
      * Creates a new MasterEvent model.

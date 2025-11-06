@@ -19,7 +19,7 @@ $displayName   = $currentUser
 
 $isNew = $model->isNewRecord;
 
-
+// Jika create, paksa id_users & created_by = user login (WHY: keamanan & konsistensi)
 if ($isNew) {
     $model->id_users   = $currentUserId;
     $model->created_by = $currentUserId;

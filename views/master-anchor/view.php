@@ -70,15 +70,6 @@ function renderAlertBox($type, $message)
 
     <p class="mb-3">
         <?= Html::a('Kembali', ['index'], ['class' => 'btn btn-info btn-sm']) ?>
-
-        <?= Html::a(
-            'Tambah Level Anchor',
-            ['create', 'id_kriteria' => $kriteria->id_kriteria],
-            [
-                'class' => 'btn btn-success btn-sm',
-                'title' => 'Tambah skala baru untuk kriteria ini'
-            ]
-        ) ?>
     </p>
 
     <div class="card" style="border:1px solid #ddd; border-radius:4px;">
