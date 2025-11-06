@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 20, 2025 at 05:03 PM
+-- Generation Time: Nov 06, 2025 at 05:59 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,7 +31,7 @@ CREATE TABLE `banding_penilaian` (
   `id_banding` int(11) NOT NULL,
   `id_penilaian` int(11) DEFAULT NULL,
   `id_users` int(11) DEFAULT NULL,
-  `status` enum('Review','Diterima','Ditolak','') DEFAULT 'Review',
+  `status` enum('Review','Diterima','Ditolak') NOT NULL DEFAULT 'Review',
   `tanggal_banding` datetime DEFAULT NULL,
   `alasan` text DEFAULT NULL,
   `review` text DEFAULT NULL,
@@ -39,12 +39,30 @@ CREATE TABLE `banding_penilaian` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `banding_penilaian`
+-- Triggers `banding_penilaian`
 --
+DELIMITER $$
+CREATE TRIGGER `trg_banding_lock_status` BEFORE UPDATE ON `banding_penilaian` FOR EACH ROW BEGIN
+                IF NEW.status <> OLD.status THEN
+                    IF NOT (OLD.status = 'Review' AND (NEW.status IN ('Diterima','Ditolak'))) THEN
+                        SIGNAL SQLSTATE '45000'
+                          SET MESSAGE_TEXT = 'Keputusan banding sudah final dan tidak dapat diubah.';
+                    END IF;
+                    IF NEW.tanggal_review IS NULL THEN
+                        SET NEW.tanggal_review = NOW();
+                    END IF;
+                END IF;
 
-INSERT INTO `banding_penilaian` (`id_banding`, `id_penilaian`, `id_users`, `status`, `tanggal_banding`, `alasan`, `review`, `tanggal_review`) VALUES
-(8, 19, 1, 'Diterima', '2025-08-20 09:40:58', 'Test', 'Test', '2025-08-20 10:47:06'),
-(9, 20, 1, 'Review', '2025-08-20 09:42:46', 'Test', NULL, NULL);
+                -- Opsional: kunci teks setelah final
+                IF OLD.status <> 'Review' THEN
+                    IF NEW.review <> OLD.review OR NEW.alasan <> OLD.alasan THEN
+                        SIGNAL SQLSTATE '45000'
+                          SET MESSAGE_TEXT = 'Data banding sudah final dan tidak dapat diubah.';
+                    END IF;
+                END IF;
+            END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -64,108 +82,48 @@ CREATE TABLE `detail_penilaian` (
 --
 
 INSERT INTO `detail_penilaian` (`id_detailpenilaian`, `id_penilaian`, `id_kriteria`, `id_anchor`) VALUES
-(1, 2, 3, 7),
-(2, 2, 2, 5),
-(3, 3, 1, 1),
-(4, 3, 2, 6),
-(5, 3, 3, 8),
-(6, 2, 1, 3),
-(7, 4, 1, 3),
-(8, 4, 2, 6),
-(9, 4, 3, 9),
-(10, 5, 1, 2),
-(11, 5, 2, 4),
-(12, 5, 3, 7),
-(13, 6, 1, 2),
-(14, 6, 3, 7),
-(15, 6, 2, 4),
-(16, 7, 1, 2),
-(17, 7, 2, 4),
-(18, 7, 3, 7),
-(19, 8, 1, 1),
-(20, 8, 2, 4),
-(21, 8, 3, 7),
-(22, 9, 1, 1),
-(23, 9, 2, 4),
-(24, 9, 3, 7),
-(25, 10, 1, 1),
-(26, 10, 2, 4),
-(27, 10, 3, 7),
-(28, 11, 1, 1),
-(29, 11, 2, 4),
-(30, 11, 3, 7),
-(32, 12, 2, 6),
-(33, 12, 2, 5),
-(34, 12, 3, 9),
-(35, 13, 1, 3),
-(36, 13, 2, 6),
-(37, 13, 3, 9),
-(38, 14, 1, 3),
-(39, 14, 2, 4),
-(40, 14, 3, 8),
-(41, 15, 1, 3),
-(42, 15, 2, 5),
-(43, 15, 3, 9),
-(44, 16, 1, 1),
-(45, 16, 2, 6),
-(46, 16, 3, 9),
-(47, 17, 1, 1),
-(48, 17, 2, 4),
-(49, 17, 3, 7),
-(50, 18, 1, 1),
-(51, 18, 3, 9),
-(52, 18, 2, 6),
-(53, 19, 1, 2),
-(54, 19, 3, 9),
-(55, 19, 2, 6),
-(56, 20, 2, 5),
-(57, 20, 1, 3),
-(58, 20, 3, 8),
-(59, 21, 1, 2),
-(60, 21, 2, 6),
-(61, 21, 3, 9),
-(62, 22, 1, 1),
-(63, 22, 2, 5),
-(64, 22, 3, 7),
-(65, 23, 1, 2),
-(66, 23, 2, 6),
-(67, 23, 3, 9),
-(68, 24, 2, 5),
-(69, 24, 1, 1),
-(70, 24, 3, 7),
-(71, 25, 1, 2),
-(72, 25, 3, 9),
-(73, 25, 2, 6),
-(74, 26, 1, 1),
-(75, 26, 2, 6),
-(76, 26, 3, 7),
-(77, 27, 2, 4),
-(78, 27, 1, 3),
-(79, 27, 3, 7),
-(80, 28, 2, 4),
-(81, 28, 1, 3),
-(82, 28, 3, 8),
-(83, 29, 2, 5),
-(84, 29, 1, 2),
-(85, 29, 3, 8),
-(86, 30, 2, 4),
-(87, 30, 1, 2),
-(88, 30, 3, 9),
-(89, 31, 1, 2),
-(90, 31, 3, 9),
-(91, 32, 2, 4),
-(92, 32, 1, 2),
-(93, 32, 3, 9),
-(97, 34, 1, 2),
-(98, 34, 2, 4),
-(99, 34, 3, 7),
-(100, 35, 1, 1),
-(101, 35, 2, 5),
-(102, 35, 3, 9),
-(103, 36, 1, 1),
-(104, 36, 2, 6),
-(105, 36, 3, 8),
-(106, 36, 4, 11);
+(161, 72, 17, 68),
+(162, 72, 14, 53),
+(163, 73, 14, 54),
+(164, 73, 15, 70),
+(165, 73, 16, 64),
+(166, 73, 17, 68),
+(167, 72, 15, 70),
+(172, 74, 17, 68),
+(173, 74, 14, 53),
+(174, 74, 16, 64),
+(176, 75, 15, 70),
+(177, 75, 16, 64),
+(179, 75, 17, 68),
+(180, 76, 14, 51),
+(181, 76, 15, 56),
+(182, 76, 16, 62),
+(184, 76, 17, 69);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `komentar`
+--
+
+CREATE TABLE `komentar` (
+  `id_komentar` int(11) NOT NULL,
+  `id_users` int(11) NOT NULL,
+  `id_event` int(11) NOT NULL,
+  `deskripsi` longtext NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `komentar`
+--
+
+INSERT INTO `komentar` (`id_komentar`, `id_users`, `id_event`, `deskripsi`, `created_at`, `updated_at`) VALUES
+(1, 1, 14, 'Test', '2025-11-03 21:48:01', NULL),
+(2, 1, 14, 'Sepertinya Enak Coba Saya Ambil yang bener AH YANG BENER', '2025-11-03 22:23:43', NULL),
+(3, 19, 14, 'Wah Enak Saya Juga Mau Yang Bener', '2025-11-03 22:25:05', NULL),
+(4, 1, 14, 'Enak Banget Makanannya\r\n', '2025-11-04 22:34:05', NULL);
 
 -- --------------------------------------------------------
 
@@ -178,7 +136,7 @@ CREATE TABLE `master_anchor` (
   `id_kriteria` int(11) DEFAULT NULL,
   `level_anchor` int(11) DEFAULT NULL,
   `deskripsi` text DEFAULT NULL,
-  `nilai_anchor` int(11) DEFAULT NULL
+  `nilai_anchor` decimal(5,3) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -186,16 +144,26 @@ CREATE TABLE `master_anchor` (
 --
 
 INSERT INTO `master_anchor` (`id_anchor`, `id_kriteria`, `level_anchor`, `deskripsi`, `nilai_anchor`) VALUES
-(1, 1, 1, 'Dapat Berkomunikasi Dengan Baik', 1),
-(2, 1, 2, 'Mampu Melakukan Komunikasi dengan sangat Baik', 2),
-(3, 1, 3, 'Mampu Dengan Sangat Baik dan Perfect Dalam Berkomunikasi', 3),
-(4, 2, 1, 'Bisa Bekerja Sama Dengan Baik', 1),
-(5, 2, 2, 'Bisa Bekerja Sama Dengan Sangat Baik', 2),
-(6, 2, 3, 'Bisa Bekerja Sama Dengan Sangat Baik', 3),
-(7, 3, 1, 'Disiplin Normal dan baik', 1),
-(8, 3, 2, 'Memiliki Disiplin Extra', 2),
-(9, 3, 3, 'Rajin Dan Disiplin dan taat pada aturan', 3),
-(11, 4, 1, 'Test', 3);
+(50, 14, 1, 'Lebih dari 20% produk cacat (jahitan longgar, bordir salah desain), perlu perbaikan ulang.', 1.000),
+(51, 14, 2, 'Lebih dari 15% produk cacat (jahitan longgar, bordir salah desain), perlu perbaikan ulang.', 2.000),
+(52, 14, 3, '5-10% produk memiliki cacat kecil, memerlukan pengawasan minimal.', 3.000),
+(53, 14, 4, 'hampir selalu rapi, hanya 2-3% cacat kecil', 4.000),
+(54, 14, 5, '0% cacat, jahitan rapi, sesuai desain tanpa pengawasan.', 5.000),
+(55, 15, 1, 'Menyelesaikan tugas >30% di bawah target (misalnya, 10 kaos kaki/jam dari target 30).', 1.000),
+(56, 15, 2, 'Menyelesaikan tugas >20% di bawah target (misalnya, 20 kaos kaki/jam dari target 30).', 2.000),
+(57, 15, 3, 'Menyelesaikan tugas sesuai target dengan sedikit keterlambatan.', 3.000),
+(60, 16, 1, 'Sering menimbulkan konflik atau tidak membantu rekan, menghambat produksi.', 1.000),
+(61, 16, 2, 'jarang konflik atau tidak membantu rekan, menghambat produksi.', 2.000),
+(62, 16, 3, 'Bekerja sama dengan baik, tetapi kadang perlu dorongan untuk membantu.', 3.000),
+(63, 16, 4, 'Terkadang butuh dorongan untuk membantu tapi biasanya aman', 4.000),
+(64, 16, 5, 'Selalu proaktif membantu rekan dan berkontribusi pada kelancaran tim.', 5.000),
+(65, 17, 1, 'Tidak pernah menunjukkan inisiatif, hanya bekerja tidak sesuai instruksi', 1.000),
+(66, 17, 2, 'Tidak pernah menunjukkan inisiatif, hanya bekerja sesuai instruksi.', 2.000),
+(67, 17, 3, 'Jarang menunjukkan inisiatif, seperti membantu rekan saat diminta.', 3.000),
+(68, 17, 4, 'Kadang menunjukkan inisiatif, seperti membantu rekan saat diminta.', 4.000),
+(69, 17, 5, 'Sering menyarankan ide perbaikan proses atau membantu tanpa diminta.', 5.000),
+(70, 15, 4, 'Menyelesaikan Tugas dengan ada nya sangat sedikit keterlambatan', 3.623),
+(71, 15, 5, 'Menyelesaikan Tugas Melebihi Target dan Tepat Waktu', 5.000);
 
 -- --------------------------------------------------------
 
@@ -214,7 +182,8 @@ CREATE TABLE `master_departement` (
 --
 
 INSERT INTO `master_departement` (`id_departement`, `nama_departement`, `deskripsi`) VALUES
-(1, 'Produksi', 'Test');
+(2, 'Owner', 'Hak Owner Di Sistem\r\n'),
+(3, 'Produksi', 'test');
 
 -- --------------------------------------------------------
 
@@ -243,10 +212,7 @@ CREATE TABLE `master_event` (
 --
 
 INSERT INTO `master_event` (`id_event`, `id_users`, `judul`, `deskripsi`, `gambar`, `tanggal`, `jenis_event`, `severity`, `lokasi`, `id_departement`, `created_by`, `status`, `updated_at`) VALUES
-(5, 1, 'test', 'test', '68a27e269f538.jpeg', '2025-08-18 00:00:00', '6', 'medium', 'Pabrik', 1, 1, 'open', '2025-08-18 01:13:10'),
-(6, 7, 'test', 'test', '68a28841f210e.jpeg', '2025-08-30 00:00:00', 'test', 'critical', 'Pabrik', 1, 1, 'open', '2025-08-18 01:56:17'),
-(7, 1, 'Kerusakan Mesin', 'Mesin Rusak', '68a28acae2eee.jpeg', '2025-08-19 00:00:00', 'Kerusakan', 'critical', 'Pabrik', 1, 1, 'open', '2025-08-18 02:07:06'),
-(8, 11, 'Kerusakan Mesin', 'Test', '68a2a750e6dc3.jpeg', '2025-08-18 00:00:00', 'Kecelakaan', 'medium', 'Pabrik', 1, 1, 'open', '2025-08-18 04:08:48');
+(14, 1, 'Ada Makanan Gratis', 'Ada Pisang Goreng di meja ambil aja', '6908b2832f420.jpeg', '2025-11-03 00:00:00', 'Makan Gratis', 'low', 'Pabrik', 2, 1, 'open', '2025-11-03 13:47:47');
 
 -- --------------------------------------------------------
 
@@ -266,9 +232,8 @@ CREATE TABLE `master_jabatan` (
 --
 
 INSERT INTO `master_jabatan` (`id_jabatan`, `nama_jabatan`, `level_jabatan`, `deskripsi`) VALUES
-(1, 'Karyawan', 1, 'Test'),
 (2, 'Super_Admin', 6, 'Test'),
-(3, 'Supervisor', 2, 'Test');
+(6, 'Operator Produksi', 3, 'Test');
 
 -- --------------------------------------------------------
 
@@ -288,9 +253,10 @@ CREATE TABLE `master_kategori` (
 --
 
 INSERT INTO `master_kategori` (`id_kategori`, `nama_kategori`, `nilai_min`, `nilai_max`) VALUES
-(1, 'Cukup', 0.100, 0.500),
-(2, 'Bagus', 1.200, 2.000),
-(3, 'Sangat Bagus', 2.000, 3.000);
+(9, 'Perlu Perbaikan', 1.000, 2.400),
+(10, 'Memenuhi Harapan', 2.500, 3.400),
+(11, 'Melebihi Harapan', 3.500, 4.400),
+(12, 'Sangat Memuaskan', 4.500, 5.000);
 
 -- --------------------------------------------------------
 
@@ -311,10 +277,10 @@ CREATE TABLE `master_kriteria` (
 --
 
 INSERT INTO `master_kriteria` (`id_kriteria`, `id_departement`, `nama_kriteria`, `deskripsi`, `bobot`) VALUES
-(1, 1, 'Komunikasi', 'Bagian Produksi Bisa Menjelaskan Produk yang dibuat pada atasan dan mengkomunikasikan Hasil Produksi Haria', 3),
-(2, 1, 'Kerja Sama', 'Mengatur Kerja Sama dalam kegiatan produksi', 5),
-(3, 1, 'Disiplin', 'Menunjukan Kedisiplinan User', 7),
-(4, 1, 'Tanggung Jawab', 'test', 9);
+(14, 3, 'Ketelitian Dalam Produksi', 'Kualitas jahitan kaos kaki atau bordir, penting untuk memenuhi standar pelanggan', 3),
+(15, 3, 'Efisiensi Waktu', 'Kecepatan menyelesaikan tugas tanpa mengorbankan kualitas, krusial untuk tenggat waktu.', 3),
+(16, 3, 'Kerjasama Tim', 'Kemampuan bekerja sama dalam tim kecil untuk mendukung kelancaran produksi.', 2),
+(17, 3, 'Inisiatif Kerja', 'Kemampuan karyawan untuk mengambil inisiatif, seperti menyarankan perbaikan proses atau membantu tanpa diminta', 2);
 
 -- --------------------------------------------------------
 
@@ -326,8 +292,8 @@ CREATE TABLE `master_penilaian` (
   `id_penilaian` int(11) NOT NULL,
   `id_users` int(11) DEFAULT NULL,
   `nilai_akhir` decimal(5,3) DEFAULT NULL,
-  `periode_awal` datetime DEFAULT NULL,
-  `periode_akhir` datetime DEFAULT NULL,
+  `periode_awal` date DEFAULT NULL,
+  `periode_akhir` date DEFAULT NULL,
   `id_kategori` int(11) DEFAULT NULL,
   `presentase_absensi` varchar(50) DEFAULT NULL,
   `catatan` varchar(255) NOT NULL
@@ -338,18 +304,116 @@ CREATE TABLE `master_penilaian` (
 --
 
 INSERT INTO `master_penilaian` (`id_penilaian`, `id_users`, `nilai_akhir`, `periode_awal`, `periode_akhir`, `id_kategori`, `presentase_absensi`, `catatan`) VALUES
-(18, 7, 2.600, '2025-08-01 00:00:00', '2025-09-01 00:00:00', 3, '70', 'Tidak Ada'),
-(19, 1, 2.800, '2025-08-01 00:00:00', '2025-09-01 00:00:00', 3, '100%', 'Tidak Ada'),
-(20, 1, 2.200, '2025-09-01 00:00:00', '2025-10-01 00:00:00', 3, '70%', 'Tidak Ada'),
-(21, 1, 2.800, '2025-11-01 00:00:00', '2025-12-01 00:00:00', 3, '100%', 'Tidak Ada'),
-(22, 1, 1.333, '2025-12-01 00:00:00', '2026-01-01 00:00:00', 2, '100%', 'Tidak Ada'),
-(23, 1, 2.800, '2026-01-01 00:00:00', '2026-02-01 00:00:00', 3, '100', 'Tidak Ada'),
-(24, 1, 1.333, '2026-02-01 00:00:00', '2026-03-01 00:00:00', 2, '100', 'Tidak Ada'),
-(29, 7, 2.000, '2025-08-06 00:00:00', '2025-08-09 00:00:00', 2, '100', 'Tidak Ada'),
-(30, 7, 2.133, '2025-08-06 00:00:00', '2026-04-01 00:00:00', 3, '100', 'Tidak Ada'),
-(32, 7, 2.133, '2025-08-01 00:00:00', '2025-09-01 00:00:00', 3, '100', 'Tidak Ada'),
-(34, 1, 1.200, '2026-03-01 00:00:00', '2026-04-01 00:00:00', 2, '100', 'Tidak Ada'),
-(36, 1, 2.460, '2025-08-01 00:00:00', '2025-09-01 00:00:00', 3, '100', 'Tidak Ada');
+(76, 19, 2.800, '2025-11-01', '2025-11-02', 10, '100', 'Cukup Bagus');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `migration`
+--
+
+CREATE TABLE `migration` (
+  `version` varchar(180) NOT NULL,
+  `apply_time` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `migration`
+--
+
+INSERT INTO `migration` (`version`, `apply_time`) VALUES
+('m000000_000000_base', 1759698464),
+('m251005_210700_lock_banding_status', 1759698539);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notification`
+--
+
+CREATE TABLE `notification` (
+  `id` int(255) NOT NULL,
+  `target_id_user` int(255) NOT NULL,
+  `judul` varchar(255) NOT NULL,
+  `deskripsi` varchar(255) NOT NULL,
+  `model_class` varchar(255) DEFAULT NULL,
+  `model_pk` varchar(255) DEFAULT NULL,
+  `aksi` varchar(255) NOT NULL,
+  `dibaca` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notification`
+--
+
+INSERT INTO `notification` (`id`, `target_id_user`, `judul`, `deskripsi`, `model_class`, `model_pk`, `aksi`, `dibaca`, `created_at`) VALUES
+(6, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 49 telah dibuat.', 'app\\models\\MasterPenilaian', '49', 'create', 1, '2025-10-08 18:49:50'),
+(7, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 18:49:56'),
+(8, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 18:50:03'),
+(9, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 18:50:14'),
+(10, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 18:50:40'),
+(11, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 18:53:39'),
+(12, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 19:12:10'),
+(13, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 19:13:30'),
+(14, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 19:13:58'),
+(15, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 19:27:40'),
+(16, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 50 telah dibuat.', 'app\\models\\MasterPenilaian', '50', 'create', 0, '2025-10-12 14:11:59'),
+(17, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 51 telah dibuat.', 'app\\models\\MasterPenilaian', '51', 'create', 0, '2025-10-12 14:14:00'),
+(18, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 52 telah dibuat.', 'app\\models\\MasterPenilaian', '52', 'create', 0, '2025-10-12 14:15:32'),
+(19, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 53 telah dibuat.', 'app\\models\\MasterPenilaian', '53', 'create', 0, '2025-10-12 14:16:11'),
+(20, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 54 telah dibuat.', 'app\\models\\MasterPenilaian', '54', 'create', 0, '2025-10-12 14:25:12'),
+(21, 16, 'Laporan penilaian dibuat', 'Laporan penilaian 55 telah dibuat.', 'app\\models\\MasterPenilaian', '55', 'create', 0, '2025-10-12 14:28:35'),
+(22, 17, 'Laporan penilaian dihapus', 'Laporan penilaian 43 telah dihapus.', 'app\\models\\MasterPenilaian', '43', 'delete', 0, '2025-10-12 14:35:57'),
+(23, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 56 telah dibuat.', 'app\\models\\MasterPenilaian', '56', 'create', 0, '2025-10-12 14:36:16'),
+(24, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 56 telah diperbarui.', 'app\\models\\MasterPenilaian', '56', 'update', 0, '2025-10-12 14:38:04'),
+(25, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 56 telah diperbarui.', 'app\\models\\MasterPenilaian', '56', 'update', 0, '2025-10-12 14:43:14'),
+(26, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 57 telah dibuat.', 'app\\models\\MasterPenilaian', '57', 'create', 0, '2025-10-12 15:08:21'),
+(27, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 58 telah dibuat.', 'app\\models\\MasterPenilaian', '58', 'create', 0, '2025-10-12 15:09:21'),
+(28, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 59 telah dibuat.', 'app\\models\\MasterPenilaian', '59', 'create', 0, '2025-10-12 15:11:23'),
+(29, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 60 telah dibuat.', 'app\\models\\MasterPenilaian', '60', 'create', 0, '2025-10-12 15:13:00'),
+(30, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 61 telah dibuat.', 'app\\models\\MasterPenilaian', '61', 'create', 0, '2025-10-14 11:09:55'),
+(31, 17, 'Laporan penilaian dihapus', 'Laporan penilaian 61 telah dihapus.', 'app\\models\\MasterPenilaian', '61', 'delete', 0, '2025-10-14 12:17:28'),
+(32, 17, 'Laporan penilaian dihapus', 'Laporan penilaian 45 telah dihapus.', 'app\\models\\MasterPenilaian', '45', 'delete', 0, '2025-10-14 12:17:32'),
+(33, 16, 'Laporan penilaian dihapus', 'Laporan penilaian 47 telah dihapus.', 'app\\models\\MasterPenilaian', '47', 'delete', 0, '2025-10-14 12:17:38'),
+(34, 14, 'Laporan penilaian dibuat', 'Laporan penilaian 62 telah dibuat.', 'app\\models\\MasterPenilaian', '62', 'create', 0, '2025-10-14 12:21:51'),
+(35, 16, 'Laporan penilaian dibuat', 'Laporan penilaian 63 telah dibuat.', 'app\\models\\MasterPenilaian', '63', 'create', 0, '2025-10-14 12:22:42'),
+(36, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 64 telah dibuat.', 'app\\models\\MasterPenilaian', '64', 'create', 0, '2025-10-14 12:23:05'),
+(37, 16, 'Laporan penilaian dibuat', 'Laporan penilaian 65 telah dibuat.', 'app\\models\\MasterPenilaian', '65', 'create', 0, '2025-10-14 12:27:05'),
+(38, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 66 telah dibuat.', 'app\\models\\MasterPenilaian', '66', 'create', 0, '2025-10-14 12:27:33'),
+(39, 14, 'Laporan penilaian dibuat', 'Laporan penilaian 67 telah dibuat.', 'app\\models\\MasterPenilaian', '67', 'create', 0, '2025-10-23 01:38:58'),
+(40, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 68 telah dibuat.', 'app\\models\\MasterPenilaian', '68', 'create', 0, '2025-10-23 01:39:29'),
+(41, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 68 telah diperbarui.', 'app\\models\\MasterPenilaian', '68', 'update', 0, '2025-10-23 01:40:05'),
+(42, 16, 'Laporan penilaian dibuat', 'Laporan penilaian 69 telah dibuat.', 'app\\models\\MasterPenilaian', '69', 'create', 0, '2025-10-23 01:42:40'),
+(43, 14, 'Laporan penilaian dibuat', 'Laporan penilaian 70 telah dibuat.', 'app\\models\\MasterPenilaian', '70', 'create', 0, '2025-10-23 01:44:31'),
+(44, 14, 'Laporan penilaian dibuat', 'Laporan penilaian 71 telah dibuat.', 'app\\models\\MasterPenilaian', '71', 'create', 0, '2025-10-30 00:05:37'),
+(45, 14, 'Laporan penilaian dihapus', 'Laporan penilaian 71 telah dihapus.', 'app\\models\\MasterPenilaian', '71', 'delete', 0, '2025-10-30 00:05:55'),
+(46, 19, 'Laporan penilaian dibuat', 'Laporan penilaian 72 telah dibuat.', 'app\\models\\MasterPenilaian', '72', 'create', 0, '2025-11-04 22:44:47'),
+(47, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 72 telah diperbarui.', 'app\\models\\MasterPenilaian', '72', 'update', 0, '2025-11-06 11:38:57'),
+(48, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 72 telah diperbarui.', 'app\\models\\MasterPenilaian', '72', 'update', 0, '2025-11-06 11:40:23'),
+(49, 19, 'Laporan penilaian dibuat', 'Laporan penilaian 73 telah dibuat.', 'app\\models\\MasterPenilaian', '73', 'create', 0, '2025-11-06 11:42:20'),
+(50, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 72 telah diperbarui.', 'app\\models\\MasterPenilaian', '72', 'update', 0, '2025-11-06 11:42:43'),
+(51, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 72 telah dihapus.', 'app\\models\\MasterPenilaian', '72', 'delete', 0, '2025-11-06 11:42:51'),
+(52, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 73 telah diperbarui.', 'app\\models\\MasterPenilaian', '73', 'update', 0, '2025-11-06 11:42:57'),
+(53, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 73 telah diperbarui.', 'app\\models\\MasterPenilaian', '73', 'update', 0, '2025-11-06 11:43:08'),
+(54, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 73 telah dihapus.', 'app\\models\\MasterPenilaian', '73', 'delete', 0, '2025-11-06 11:43:21'),
+(55, 19, 'Laporan penilaian dibuat', 'Laporan penilaian 74 telah dibuat.', 'app\\models\\MasterPenilaian', '74', 'create', 0, '2025-11-06 11:44:33'),
+(56, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 74 telah diperbarui.', 'app\\models\\MasterPenilaian', '74', 'update', 0, '2025-11-06 11:45:05'),
+(57, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 74 telah diperbarui.', 'app\\models\\MasterPenilaian', '74', 'update', 0, '2025-11-06 11:45:19'),
+(58, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 74 telah diperbarui.', 'app\\models\\MasterPenilaian', '74', 'update', 0, '2025-11-06 11:45:31'),
+(59, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 74 telah diperbarui.', 'app\\models\\MasterPenilaian', '74', 'update', 0, '2025-11-06 11:45:46'),
+(60, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 74 telah diperbarui.', 'app\\models\\MasterPenilaian', '74', 'update', 0, '2025-11-06 11:46:02'),
+(61, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 74 telah diperbarui.', 'app\\models\\MasterPenilaian', '74', 'update', 0, '2025-11-06 11:46:17'),
+(62, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 74 telah dihapus.', 'app\\models\\MasterPenilaian', '74', 'delete', 0, '2025-11-06 11:47:44'),
+(63, 19, 'Laporan penilaian dibuat', 'Laporan penilaian 75 telah dibuat.', 'app\\models\\MasterPenilaian', '75', 'create', 0, '2025-11-06 11:48:03'),
+(64, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 75 telah diperbarui.', 'app\\models\\MasterPenilaian', '75', 'update', 0, '2025-11-06 11:52:02'),
+(65, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 75 telah diperbarui.', 'app\\models\\MasterPenilaian', '75', 'update', 0, '2025-11-06 11:52:12'),
+(66, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 75 telah dihapus.', 'app\\models\\MasterPenilaian', '75', 'delete', 0, '2025-11-06 11:54:53'),
+(67, 19, 'Laporan penilaian dibuat', 'Laporan penilaian 76 telah dibuat.', 'app\\models\\MasterPenilaian', '76', 'create', 0, '2025-11-06 11:55:10'),
+(68, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 76 telah diperbarui.', 'app\\models\\MasterPenilaian', '76', 'update', 0, '2025-11-06 11:55:22'),
+(69, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 76 telah diperbarui.', 'app\\models\\MasterPenilaian', '76', 'update', 0, '2025-11-06 11:55:30'),
+(70, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 76 telah diperbarui.', 'app\\models\\MasterPenilaian', '76', 'update', 0, '2025-11-06 11:55:54'),
+(71, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 76 telah diperbarui.', 'app\\models\\MasterPenilaian', '76', 'update', 0, '2025-11-06 11:56:07');
 
 -- --------------------------------------------------------
 
@@ -368,21 +432,24 @@ CREATE TABLE `permissions` (
 --
 
 INSERT INTO `permissions` (`id_permission`, `nama_permission`, `deskripsi`) VALUES
-(1, 'site/index', 'Auto generated'),
-(2, 'akses_dashboard', 'Auto generated'),
-(3, 'akses_user', 'Auto generated'),
-(4, 'akses_jabatan', 'Auto generated'),
-(5, 'akses_departement', 'Auto generated'),
-(6, 'akses_kriteria', 'Auto generated'),
-(7, 'akses_anchor', 'Auto generated'),
-(8, 'akses_kategori', 'Auto generated'),
-(9, 'akses_penilaian', 'Auto generated'),
-(10, 'akses_laporan', 'Auto generated'),
-(11, 'akses_event', 'Auto generated'),
-(12, 'akses_banding', 'Auto generated'),
-(13, 'site/logout', 'Auto generated'),
-(18, 'akses_manajemen', 'Auto generated'),
-(19, 'akses_admin', 'Auto generated');
+(366, 'akses_master-anchor', 'Auto generated'),
+(367, 'akses_dashboard', 'Auto generated'),
+(368, 'akses_master-jabatan', 'Auto generated'),
+(369, 'akses_master-departement', 'Auto generated'),
+(370, 'akses_user', 'Auto generated'),
+(371, 'akses_master-kriteria', 'Auto generated'),
+(372, 'akses_master-kategori', 'Auto generated'),
+(373, 'akses_role-permission', 'Auto generated'),
+(374, 'akses_master-penilaian', 'Auto generated'),
+(375, 'akses_laporan', 'Auto generated'),
+(376, 'akses_master-event', 'Auto generated'),
+(377, 'akses_banding-penilaian', 'Auto generated'),
+(378, 'akses_pengajuan-banding', 'Auto generated'),
+(379, 'akses_statistik', 'Auto generated'),
+(380, 'akses_manajemen', 'Auto generated'),
+(381, 'akses_site', 'Auto generated'),
+(382, 'akses_penilaian', 'Auto generated'),
+(383, 'akses_report', 'Auto generated');
 
 -- --------------------------------------------------------
 
@@ -400,21 +467,28 @@ CREATE TABLE `role_permissions` (
 --
 
 INSERT INTO `role_permissions` (`id_jabatan`, `id_permission`) VALUES
-(2, 1),
-(2, 2),
-(2, 3),
-(2, 4),
-(2, 5),
-(2, 6),
-(2, 7),
-(2, 8),
-(2, 9),
-(2, 10),
-(2, 11),
-(2, 12),
-(2, 13),
-(2, 18),
-(2, 19);
+(2, 366),
+(2, 367),
+(2, 368),
+(2, 369),
+(2, 370),
+(2, 371),
+(2, 372),
+(2, 373),
+(2, 374),
+(2, 375),
+(2, 376),
+(2, 377),
+(2, 378),
+(2, 379),
+(2, 380),
+(2, 381),
+(2, 382),
+(6, 375),
+(6, 376),
+(6, 378),
+(6, 381),
+(6, 382);
 
 -- --------------------------------------------------------
 
@@ -441,18 +515,17 @@ CREATE TABLE `users` (
   `jenis_kelamin` enum('pria','wanita') DEFAULT NULL,
   `golongan` int(11) DEFAULT NULL,
   `penilaian_terakhir` datetime DEFAULT NULL,
-  `catatan_khusus` varchar(255) DEFAULT NULL
+  `catatan_khusus` varchar(255) DEFAULT NULL,
+  `foto` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id_users`, `username`, `password_hash`, `id_jabatan`, `id_departement`, `level_jabatan`, `nama`, `tanggal_masuk`, `pendidikan_terakhir`, `status_karyawan`, `lokasi_kerja`, `atasan_langsung`, `nomor_hp`, `email`, `tanggal_lahir`, `jenis_kelamin`, `golongan`, `penilaian_terakhir`, `catatan_khusus`) VALUES
-(1, 'Andi', '$2y$10$rYAFY2dsZEQmLfdi70k51OY43eEF6ULYR1F/St.sdeg4JUU36OFbq', 1, 1, 1, 'Andi', '2025-08-11 16:50:29', 'S1 Teknik Elektro Institut Teknologi Surabaya', 'Tetap', 'Pabrik 1', 'Owner', '081252804462', 'andi@gmail.com', '2025-08-11', 'pria', 3, '2025-08-11 16:50:29', 'Tidak Ada'),
-(7, 'Robby', '$2y$13$OModWHjGEPW040tqYUvFqOGPqzM3Rv/YHoElqJFWjjvKMiyCK8oLi', 1, 1, 1, 'Doni D', '2025-08-12 00:00:00', 'S2 Universitas Andalas', 'Aktif', 'Office 1', 'Owner', '082144424425', 'Donny@gmail.com', '2025-08-12', 'pria', 1, '2025-08-12 00:00:00', 'Tidak Ada'),
-(11, 'Didik', '$2y$10$3JYuM2p4hzhLrr7VGnImXOZ/X6vZW5Z1OgDEC6Ql7XxoYwrHw0iMu', 3, 1, 1, 'Didik', '2025-08-20 00:00:00', 'S3 Universitas Indonesia', 'Aktif', 'Office 1', 'Owner', '082144424425', 'Robby@gmail.com', '2025-08-19', 'pria', 1, '2025-08-18 00:00:00', 'Tidak ada'),
-(12, 'Dina', '$2y$10$Qthd4O5wCJJGpciu9gKBYOxOFDKTwS3aKOR6VpGgNtMgZUsjKCgtm', 2, 1, 6, 'Dina .S', '2025-08-20 21:08:42', 'S3 Institut Teknologi Bandung', 'Owner', 'Office Utama', 'Owner', '081252804432', 'Dina@gmail.com', '2025-08-20', 'wanita', 2, '2025-08-21 21:08:42', 'Test');
+INSERT INTO `users` (`id_users`, `username`, `password_hash`, `id_jabatan`, `id_departement`, `level_jabatan`, `nama`, `tanggal_masuk`, `pendidikan_terakhir`, `status_karyawan`, `lokasi_kerja`, `atasan_langsung`, `nomor_hp`, `email`, `tanggal_lahir`, `jenis_kelamin`, `golongan`, `penilaian_terakhir`, `catatan_khusus`, `foto`) VALUES
+(1, 'Dina', '$2y$10$.sS9XvlA14F7Ama5rhhPeukyZnZ9XApFqMwFVXTUlTK0zy2bM0T96', 2, 2, 6, 'Dina', '2025-10-01 00:07:57', 'S3 ITB', 'Owner', 'Kantor', 'Owner', '082144424425', 'test@gmail.com', '2025-10-01', 'pria', 1, '2025-10-01 00:07:57', 'tidak ada', NULL),
+(19, 'Ani', '$2y$13$7KtdBY6qjY90oXjETwdLNeq/9IeRtGFXnCDbUauPYjN54Pjxf6KBm', 6, 3, 3, 'Ani', '2025-10-01 00:00:00', 'S2 Universitas Andalas', 'Aktif', 'Pabrik ', 'Pemilik', '081252804432', 'jr0807200412345@gmail.com', '2025-10-01', 'wanita', 1, NULL, 'Tidak ada', 'Ex6rIr9PdD-PGATY.jpeg');
 
 --
 -- Indexes for dumped tables
@@ -477,11 +550,19 @@ ALTER TABLE `detail_penilaian`
   ADD KEY `detail_penilaian_ibfk_3` (`id_anchor`);
 
 --
+-- Indexes for table `komentar`
+--
+ALTER TABLE `komentar`
+  ADD PRIMARY KEY (`id_komentar`),
+  ADD KEY `idx_komen_event_created` (`id_event`,`created_at`),
+  ADD KEY `idx_komen_user` (`id_users`);
+
+--
 -- Indexes for table `master_anchor`
 --
 ALTER TABLE `master_anchor`
   ADD PRIMARY KEY (`id_anchor`),
-  ADD KEY `id_kriteria` (`id_kriteria`);
+  ADD UNIQUE KEY `uniq_kriteria_level` (`id_kriteria`,`level_anchor`);
 
 --
 -- Indexes for table `master_departement`
@@ -526,6 +607,18 @@ ALTER TABLE `master_penilaian`
   ADD KEY `master_penilaian_ibfk_1` (`id_users`);
 
 --
+-- Indexes for table `migration`
+--
+ALTER TABLE `migration`
+  ADD PRIMARY KEY (`version`);
+
+--
+-- Indexes for table `notification`
+--
+ALTER TABLE `notification`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `permissions`
 --
 ALTER TABLE `permissions`
@@ -557,67 +650,79 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `banding_penilaian`
 --
 ALTER TABLE `banding_penilaian`
-  MODIFY `id_banding` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_banding` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `detail_penilaian`
 --
 ALTER TABLE `detail_penilaian`
-  MODIFY `id_detailpenilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
+  MODIFY `id_detailpenilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=186;
+
+--
+-- AUTO_INCREMENT for table `komentar`
+--
+ALTER TABLE `komentar`
+  MODIFY `id_komentar` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `master_anchor`
 --
 ALTER TABLE `master_anchor`
-  MODIFY `id_anchor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_anchor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
 
 --
 -- AUTO_INCREMENT for table `master_departement`
 --
 ALTER TABLE `master_departement`
-  MODIFY `id_departement` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_departement` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `master_event`
 --
 ALTER TABLE `master_event`
-  MODIFY `id_event` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_event` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `master_jabatan`
 --
 ALTER TABLE `master_jabatan`
-  MODIFY `id_jabatan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_jabatan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `master_kategori`
 --
 ALTER TABLE `master_kategori`
-  MODIFY `id_kategori` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_kategori` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `master_kriteria`
 --
 ALTER TABLE `master_kriteria`
-  MODIFY `id_kriteria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_kriteria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `master_penilaian`
 --
 ALTER TABLE `master_penilaian`
-  MODIFY `id_penilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id_penilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
+
+--
+-- AUTO_INCREMENT for table `notification`
+--
+ALTER TABLE `notification`
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
 
 --
 -- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `id_permission` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id_permission` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=384;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_users` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_users` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- Constraints for dumped tables
@@ -627,8 +732,8 @@ ALTER TABLE `users`
 -- Constraints for table `banding_penilaian`
 --
 ALTER TABLE `banding_penilaian`
-  ADD CONSTRAINT `banding_penilaian_ibfk_1` FOREIGN KEY (`id_penilaian`) REFERENCES `master_penilaian` (`id_penilaian`),
-  ADD CONSTRAINT `banding_penilaian_ibfk_2` FOREIGN KEY (`id_users`) REFERENCES `users` (`id_users`);
+  ADD CONSTRAINT `banding_penilaian_ibfk_1` FOREIGN KEY (`id_penilaian`) REFERENCES `master_penilaian` (`id_penilaian`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `banding_penilaian_ibfk_2` FOREIGN KEY (`id_users`) REFERENCES `users` (`id_users`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `detail_penilaian`
@@ -636,6 +741,13 @@ ALTER TABLE `banding_penilaian`
 ALTER TABLE `detail_penilaian`
   ADD CONSTRAINT `detail_penilaian_ibfk_2` FOREIGN KEY (`id_kriteria`) REFERENCES `master_kriteria` (`id_kriteria`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `detail_penilaian_ibfk_3` FOREIGN KEY (`id_anchor`) REFERENCES `master_anchor` (`id_anchor`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `komentar`
+--
+ALTER TABLE `komentar`
+  ADD CONSTRAINT `fk_komen_event` FOREIGN KEY (`id_event`) REFERENCES `master_event` (`id_event`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_komen_user` FOREIGN KEY (`id_users`) REFERENCES `users` (`id_users`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `master_anchor`

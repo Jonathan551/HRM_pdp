@@ -20,7 +20,7 @@ $this->registerJs('initDashboardCharts('
 
     <!-- ROW KPIs -->
     <div class="row">
-      <div class="col-lg-3 col-md-6 col-sm-6">
+      <div class="col-lg-3 col-md-6 col-sm-6 ">
         <div class="card card-stats">
           <div class="card-header card-header-primary card-header-icon">
             <div class="card-icon"><i class="material-icons">grade</i></div>
@@ -36,7 +36,7 @@ $this->registerJs('initDashboardCharts('
 
     <!-- ROW CHARTS -->
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-12">
         <div class="card">
           <div class="card-header card-header-info">
             <h4 class="card-title">Riwayat Nilai Saya (12 Bulan)</h4>
@@ -50,24 +50,9 @@ $this->registerJs('initDashboardCharts('
         </div>
       </div>
 
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header card-header-warning">
-            <h4 class="card-title">Distribusi Kategori Penilaian Saya</h4>
-            <p class="card-category">Berdasarkan master_kategori</p>
-          </div>
-          <div class="card-body">
-            <div style="position:relative;height:280px;">
-              <canvas id="kategoriChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- ROW LIST -->
     <div class="row">
-      <div class="col-md-8">
+      <div class="col-md-16">
         <div class="card">
           <div class="card-header card-header-rose">
             <h4 class="card-title">Penilaian Saya Terbaru</h4>

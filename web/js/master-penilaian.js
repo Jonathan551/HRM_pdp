@@ -24,7 +24,6 @@ function initDatepicker() {
   });
 }
 
-
 var currentDepartemen = null;
 
 function initDepartemenFromExisting() {
@@ -36,6 +35,27 @@ function initDepartemenFromExisting() {
   });
 }
 
+function reindexRows() {
+  var index = 0;
+  $("#detail-table tbody tr").each(function() {
+    $(this).find('input[type="hidden"]').each(function() {
+      var name = $(this).attr('name');
+      if (name && name.indexOf('DetailPenilaian') !== -1) {
+        var field = name.match(/\[([^\]]+)\]$/);
+        if (field) {
+          $(this).attr('name', 'DetailPenilaian[' + index + '][' + field[1] + ']');
+        }
+      }
+    });
+    
+    $(this).find('select.id-kriteria').attr('name', 'DetailPenilaian[' + index + '][id_kriteria]');
+    $(this).find('select.id-anchor').attr('name', 'DetailPenilaian[' + index + '][id_anchor]');
+    
+    index++;
+  });
+  rowIndex = index;
+}
+
 var rowIndex = 0;
 
 var urlListAnchor, urlGetDepartemen, urlListKriteria;
@@ -43,6 +63,8 @@ var urlListAnchor, urlGetDepartemen, urlListKriteria;
 $(document).ready(function () {
   initDatepicker();
   initDepartemenFromExisting();
+  
+  rowIndex = $("#detail-table tbody tr").length;
 
   $(document).on("change", "#masterpenilaian-id_users", function () {
     var idUser = $(this).val();
@@ -111,6 +133,7 @@ $(document).ready(function () {
       alert("Pilih karyawan dulu!");
       return;
     }
+    
     $.getJSON(
       urlListKriteria,
       { id_departement: currentDepartemen },
@@ -138,11 +161,19 @@ $(document).ready(function () {
       </tr>`;
         $("#detail-table tbody").append(newRow);
         rowIndex++;
+        reindexRows();
       }
     );
   });
 
   $(document).on("click", ".remove-row", function () {
     $(this).closest("tr").remove();
+
+    reindexRows();
+  });
+  
+  $("#master-penilaian-form").on("beforeSubmit", function() {
+    reindexRows();
+    return true;
   });
 });

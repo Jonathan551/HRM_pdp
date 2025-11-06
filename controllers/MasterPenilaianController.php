@@ -164,7 +164,6 @@ class MasterPenilaianController extends BaseController
         return $this->saveWithTransaction($model, $details, $deletedIDs);
     }
 
-
     private function buildDetailsFromPost(array $existingDetails): array
     {
         $details = Model::createMultiple(DetailPenilaian::class, $existingDetails);
@@ -173,12 +172,11 @@ class MasterPenilaianController extends BaseController
         $details = array_values(array_filter(
             $details,
             static function (DetailPenilaian $d): bool {
-                return !(
-                    ($d->id_kriteria === null ) &&
-                    ($d->id_anchor   === null )
-                );
+                return !empty($d->id_kriteria) && !empty($d->id_anchor);
             }
         ));
+
+        $details = array_values($details);
 
         return $details;
     }
