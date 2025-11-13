@@ -18,9 +18,8 @@ $this->registerJs('initDashboardCharts('
 <div class="content">
   <div class="container-fluid">
 
-    <!-- ROW KPIs -->
     <div class="row">
-      <div class="col-lg-3 col-md-6 col-sm-6 ">
+      <div class="col-lg-3 col-md-6 col-sm-6">
         <div class="card card-stats">
           <div class="card-header card-header-primary card-header-icon">
             <div class="card-icon"><i class="material-icons">grade</i></div>
@@ -34,7 +33,6 @@ $this->registerJs('initDashboardCharts('
       </div>
     </div>
 
-    <!-- ROW CHARTS -->
     <div class="row">
       <div class="col-md-12">
         <div class="card">
@@ -49,10 +47,10 @@ $this->registerJs('initDashboardCharts('
           </div>
         </div>
       </div>
+    </div>
 
-    <!-- ROW LIST -->
     <div class="row">
-      <div class="col-md-16">
+      <div class="col-md-12">
         <div class="card">
           <div class="card-header card-header-rose">
             <h4 class="card-title">Penilaian Saya Terbaru</h4>
@@ -71,16 +69,20 @@ $this->registerJs('initDashboardCharts('
               <?php if (!empty($myLatestPenilaian)): ?>
                 <?php foreach ($myLatestPenilaian as $p): ?>
                   <tr>
+                    <td><?= (int)$p['id_penilaian'] ?></td>
                     <td>
-                      <?= $p['id_penilaian'] ?></a>
-                    </td>
-                    <td>
-                      <?= Yii::$app->formatter->asDate($p['periode_awal'], 'php:d M Y') ?>
-                      &nbsp;–&nbsp;
-                      <?= Yii::$app->formatter->asDate($p['periode_akhir'], 'php:d M Y') ?>
+                      <?php
+                        $mulai   = $p['periode_mulai']   ?? null;
+                        $selesai = $p['periode_selesai'] ?? null;
+                        $nama    = $p['periode_nama']    ?? 'Periode';
+                        echo htmlspecialchars($nama).' — '
+                           . Yii::$app->formatter->asDate($mulai, 'php:d M Y')
+                           . ' – '
+                           . Yii::$app->formatter->asDate($selesai, 'php:d M Y');
+                      ?>
                     </td>
                     <td class="text-right">
-                      <?= Yii::$app->formatter->asDecimal($p['nilai_akhir'] ?? 0, 2) ?>
+                      <?= Yii::$app->formatter->asDecimal((float)($p['nilai_akhir'] ?? 0), 2) ?>
                     </td>
                   </tr>
                 <?php endforeach; ?>

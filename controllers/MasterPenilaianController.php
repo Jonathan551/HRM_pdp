@@ -12,84 +12,97 @@ use app\models\MasterPenilaiansearch;
 use app\models\DetailPenilaian;
 use app\models\MasterKriteria;
 use app\models\MasterAnchor;
+use app\models\MasterPeriode;
 use app\models\User;
 use app\components\NotificationService;
 use app\components\Model;
 
 class MasterPenilaianController extends BaseController
 {
+    /** @inheritDoc */
     public function behaviors()
     {
         return array_merge(
             parent::behaviors(),
             [
                 'verbs' => [
-                    'class' => VerbFilter::className(),
-                    'actions' => [
-                        'delete' => ['POST'],
-                    ],
+                    'class' => VerbFilter::class,
+                    'actions' => ['delete' => ['POST']],
                 ],
             ]
         );
     }
 
+    protected function readOnly(MasterPenilaian $m): bool
+    {
+        $p = $m->periode;
+        if (!$p) return false;
+        $today = new \DateTimeImmutable('today');
+        $end   = \DateTimeImmutable::createFromFormat('Y-m-d', (string)$p->tanggal_selesai) ?: new \DateTimeImmutable($p->tanggal_selesai);
+        return ($end < $today) || (strtolower((string)$p->status) === 'locked');
+    }
+    /**
+     * List penilaian (filter via MasterPenilaiansearch).
+     */
     public function actionIndex()
     {
-        $searchModel = new MasterPenilaiansearch();
+        $searchModel  = new MasterPenilaiansearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
 
+        $periodes = MasterPeriode::find()->orderBy(['tanggal_mulai' => SORT_DESC])->all();
+
         return $this->render('index', [
-            'searchModel'   => $searchModel,
-            'dataProvider'  => $dataProvider,
+            'searchModel'  => $searchModel,
+            'dataProvider' => $dataProvider,
+            'periodes'     => $periodes,
         ]);
     }
 
+    /**
+     * @param int $id_penilaian
+     */
     public function actionView($id_penilaian)
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id_penilaian),
-        ]);
+        $model = $this->findModel($id_penilaian);
+        return $this->render('view', ['model' => $model]);
     }
 
+    /**
+     * Modal view.
+     * @param int $id_penilaian
+     */
     public function actionViewModal($id_penilaian)
     {
         $this->layout = false;
-        return $this->render('view-modal', [
-            'model' => $this->findModel($id_penilaian),
-        ]);
+        $model = $this->findModel($id_penilaian);
+        return $this->render('view-modal', ['model' => $model]);
     }
 
+    /** Penilaian dibuat otomatis oleh Periode. */
     public function actionCreate()
     {
-        $model   = new MasterPenilaian();
-        $details = [];
-
-        if ($this->processForm($model, $details)) {
-            NotificationService::fireCreate($model, $model->id_users);
-            $result = $this->kirimEmailPenilaian($model);
-            if ($result['ok']) {
-                    Yii::$app->session->setFlash('success', 'Penilaian tersimpan & email terkirim.');
-                } else {
-                    Yii::$app->session->setFlash('warning', 'Penilaian tersimpan, email gagal: ' . $result['message']);
-                }
-            Yii::$app->session->setFlash('success', 'Data berhasil dibuat.');
-            return $this->redirect(['view', 'id_penilaian' => $model->id_penilaian]);
-        }
-
-        return $this->render('create', [
-            'model'        => $model,
-            'detailModels' => $details,
-        ]);
+        throw new \yii\web\ForbiddenHttpException('Penilaian dibuat otomatis dari Periode. Gunakan menu Periode.');
     }
 
+    /**
+     * Pengisian/ubah penilaian (STATE A/C).
+     * @param int $id_penilaian
+     */
     public function actionUpdate($id_penilaian)
     {
+        /** @var MasterPenilaian $model */
         $model   = $this->findModel($id_penilaian);
+        
+        if ($this->readOnly($model)) {
+            Yii::$app->session->setFlash('warning', 'Periode penilaian sudah berakhir. Data hanya bisa dilihat.');
+            return $this->redirect(['view','id_penilaian'=>$model->id_penilaian]);
+        }
+
+        /** @var DetailPenilaian[] $details */
         $details = $model->detailPenilaian ?: [new DetailPenilaian()];
 
         if ($this->processForm($model, $details)) {
             NotificationService::fireUpdate($model, $model->id_users);
-
             Yii::$app->session->setFlash('success', 'Data berhasil diperbarui.');
             return $this->redirect(['view', 'id_penilaian' => $model->id_penilaian]);
         }
@@ -100,13 +113,59 @@ class MasterPenilaianController extends BaseController
         ]);
     }
 
+    /**
+     * Form khusus catatan & rekomendasi (STATE B).
+     * @param int $id_penilaian
+     */
+    public function actionNotes($id_penilaian)
+    {
+        $model = $this->findModel($id_penilaian);
+
+        if ($this->readOnly($model)) {
+            Yii::$app->session->setFlash('warning', 'Periode penilaian sudah berakhir. Data hanya bisa dilihat.');
+            return $this->redirect(['view','id_penilaian'=>$model->id_penilaian]);
+        }
+
+        if (!$this->hasAnyDetailOrScore($model)) {
+            Yii::$app->session->setFlash('warning', 'Isi penilaian terlebih dahulu.');
+            return $this->redirect(['update', 'id_penilaian' => $model->id_penilaian]);
+        }
+        if ($model->load(Yii::$app->request->post())) {
+            $sendEmail = (bool)Yii::$app->request->post('send_email', 1);
+
+            if ($model->save(false, ['catatan', 'rekomendasi', 'updated_at'])) {
+                if ($sendEmail) {
+                    $mail = $this->kirimEmailPenilaian($model); 
+                    if ($mail['ok']) {
+                        Yii::$app->session->addFlash('success', 'Catatan & Rekomendasi tersimpan. Email terkirim.');
+                    } else {
+                        Yii::$app->session->addFlash('warning', 'Catatan & Rekomendasi tersimpan. Email gagal: '.$mail['message']);
+                    }
+                } else {
+                    Yii::$app->session->addFlash('success', 'Catatan & Rekomendasi tersimpan.');
+                }
+                return $this->redirect(['view', 'id_penilaian' => $model->id_penilaian]);
+            }
+            Yii::$app->session->setFlash('error', 'Gagal menyimpan Catatan & Rekomendasi.');
+        }
+        return $this->render('_note_form', ['model' => $model]);
+    }
+
+    /**
+     * @param int $id_penilaian
+     */
     public function actionDelete($id_penilaian)
     {
-        $model  = $this->findModel($id_penilaian);
+        $model = $this->findModel($id_penilaian);
 
-        $targetUserId = $model->id_users;                       
-        $pk           = (string)$model->getPrimaryKey();
-        $kode         = $model->kode ?? $pk;                    
+        if ($this->readOnly($model)) {
+            Yii::$app->session->setFlash('warning', 'Periode penilaian sudah berakhir. Data hanya bisa dilihat.');
+            return $this->redirect(['view','id_penilaian'=>$model->id_penilaian]);
+        }
+
+        $targetUserId = $model->id_users;
+        $pk           = (string) $model->getPrimaryKey();
+        $kode         = $model->kode ?? $pk;
 
         $model->delete();
 
@@ -122,15 +181,43 @@ class MasterPenilaianController extends BaseController
         return $this->redirect(['index']);
     }
 
+    /**
+     * @param int $id_penilaian
+     * @return MasterPenilaian
+     * @throws NotFoundHttpException
+     */
     protected function findModel($id_penilaian)
     {
-        if (($model = MasterPenilaian::findOne(['id_penilaian' => $id_penilaian])) !== null) {
+        $model = MasterPenilaian::findOne(['id_penilaian' => $id_penilaian]);
+        if ($model !== null) {
             return $model;
         }
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
+    protected function isFirstFill(MasterPenilaian $m): bool
+    {
+        return !$m->getDetailPenilaian()->exists() && $m->nilai_akhir === null;
+    }
 
+    /** Ada detail atau nilai akhir */
+    protected function hasAnyDetailOrScore(MasterPenilaian $m): bool
+    {
+        return $m->getDetailPenilaian()->exists() || $m->nilai_akhir !== null;
+    }
+
+    /** Boleh tulis notes jika sudah ada detail/score tapi catatan & rekomendasi kosong (STATE B) */
+    protected function canWriteNotes(MasterPenilaian $m): bool
+    {
+        return $this->hasAnyDetailOrScore($m) && empty($m->catatan) && empty($m->rekomendasi);
+    }
+
+    /** ==== Pipeline form (tetap) ==== */
+
+    /**
+     * @param MasterPenilaian $model
+     * @param DetailPenilaian[] $details
+     */
     private function processForm(MasterPenilaian $model, array &$details): bool
     {
         if (!$model->load(Yii::$app->request->post())) {
@@ -164,6 +251,10 @@ class MasterPenilaianController extends BaseController
         return $this->saveWithTransaction($model, $details, $deletedIDs);
     }
 
+    /**
+     * @param DetailPenilaian[] $existingDetails
+     * @return DetailPenilaian[]
+     */
     private function buildDetailsFromPost(array $existingDetails): array
     {
         $details = Model::createMultiple(DetailPenilaian::class, $existingDetails);
@@ -175,13 +266,12 @@ class MasterPenilaianController extends BaseController
                 return !empty($d->id_kriteria) && !empty($d->id_anchor);
             }
         ));
-
-        $details = array_values($details);
-
-        return $details;
+        return array_values($details);
     }
 
-
+    /**
+     * @return int[]
+     */
     private function computeDeletedIds(MasterPenilaian $model, array $oldIDs, array $details): array
     {
         if ($model->isNewRecord) {
@@ -190,7 +280,6 @@ class MasterPenilaianController extends BaseController
         $currentIDs = array_filter(ArrayHelper::map($details, 'id_detailpenilaian', 'id_detailpenilaian'));
         return array_diff($oldIDs, $currentIDs);
     }
-
 
     private function validateRequiredDetails(MasterPenilaian $model, array $details): bool
     {
@@ -216,8 +305,8 @@ class MasterPenilaianController extends BaseController
             if ($detail->id_kriteria && $detail->id_anchor) {
                 $belongs = MasterAnchor::find()
                     ->where([
-                        'id_anchor'   => (int)$detail->id_anchor,
-                        'id_kriteria' => (int)$detail->id_kriteria,
+                        'id_anchor'   => (int) $detail->id_anchor,
+                        'id_kriteria' => (int) $detail->id_kriteria,
                     ])->exists();
                 if (!$belongs) {
                     $detail->addError('id_anchor', 'Anchor tidak sesuai dengan kriteria pada baris #' . ($i + 1) . '.');
@@ -263,6 +352,12 @@ class MasterPenilaianController extends BaseController
         }
     }
 
+    /** JSON endpoints */
+
+    /**
+     * @param int $id_kriteria
+     * @return array<int,string>
+     */
     public function actionListAnchor($id_kriteria)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -279,6 +374,10 @@ class MasterPenilaianController extends BaseController
         });
     }
 
+    /**
+     * @param int|string|null $id_departement
+     * @return array<int,string>
+     */
     public function actionListKriteria($id_departement)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -292,9 +391,8 @@ class MasterPenilaianController extends BaseController
         if ($id_departement === null) {
             $query->where(['id_departement' => null]);
         } else {
-            $query->where([
-                'or',
-                ['id_departement' => (int)$id_departement],
+            $query->where(['or',
+                ['id_departement' => (int) $id_departement],
                 ['id_departement' => null],
             ]);
         }
@@ -310,6 +408,10 @@ class MasterPenilaianController extends BaseController
         });
     }
 
+    /**
+     * @param int $id_user
+     * @return array{id_departement:int|null}
+     */
     public function actionGetUserDepartement($id_user)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -320,33 +422,34 @@ class MasterPenilaianController extends BaseController
         return ['id_departement' => null];
     }
 
-     /**
-     * 
-     *
-     * @param MasterPenilaian   $model
-     * @param string|null 
+    /**
+     * Kirim email hasil penilaian (tetap).
      * @return array{ok:bool,message:string}
      */
-     protected function kirimEmailPenilaian(MasterPenilaian $model): array
+    protected function kirimEmailPenilaian(MasterPenilaian $model): array
     {
         $toEmail = $model->user->email ?? null;
-        if (!filter_var((string)$toEmail, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var((string) $toEmail, FILTER_VALIDATE_EMAIL)) {
             return ['ok' => false, 'message' => 'Email tujuan tidak valid/tersedia pada users'];
         }
 
         try {
-            $pdf = Yii::$app->reportService->buildPenilaianPdf((int)$model->id_penilaian);
+            $pdf = Yii::$app->reportService->buildPenilaianPdf((int) $model->id_penilaian);
         } catch (\Throwable $e) {
             return ['ok' => false, 'message' => 'Gagal membangun PDF: ' . $e->getMessage()];
         }
 
-        $subject = sprintf('Hasil Penilaian #%d', (int)$model->id_penilaian);
+        $periode = $model->periode;
+        $periodeNama  = $periode->nama ?? 'Periode';
+        $periodeRange = ($periode->tanggal_mulai ?? '') . ' - ' . ($periode->tanggal_selesai ?? '');
+
+        $subject = sprintf('Hasil Penilaian #%d', (int) $model->id_penilaian);
         $body = sprintf(
-            '<p>Halo %s,</p><p>Terlampir hasil penilaian periode <strong>%s - %s</strong> dengan skor akhir <strong>%s</strong>.</p><p>Terima kasih,<br>%s</p>',
+            '<p>Halo %s,</p><p>Terlampir hasil penilaian periode <strong>%s</strong> (%s) dengan skor akhir <strong>%s</strong>.</p><p>Terima kasih,<br>%s</p>',
             htmlspecialchars($model->user->nama ?? 'Karyawan', ENT_QUOTES),
-            htmlspecialchars((string)$model->periode_awal, ENT_QUOTES),
-            htmlspecialchars((string)$model->periode_akhir, ENT_QUOTES),
-            htmlspecialchars((string)$model->nilai_akhir, ENT_QUOTES),
+            htmlspecialchars($periodeNama, ENT_QUOTES),
+            htmlspecialchars($periodeRange, ENT_QUOTES),
+            htmlspecialchars((string) $model->nilai_akhir, ENT_QUOTES),
             htmlspecialchars(Yii::$app->name, ENT_QUOTES)
         );
 
@@ -360,7 +463,7 @@ class MasterPenilaianController extends BaseController
             );
             @unlink($pdf['path']);
 
-            return ['ok' => (bool)$ok, 'message' => $ok ? 'Terkirim' : 'Mailer gagal'];
+            return ['ok' => (bool) $ok, 'message' => $ok ? 'Terkirim' : 'Mailer gagal'];
         } catch (\Throwable $e) {
             @unlink($pdf['path']);
             return ['ok' => false, 'message' => 'Gagal kirim email: ' . $e->getMessage()];

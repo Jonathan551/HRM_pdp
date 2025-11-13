@@ -6,7 +6,7 @@ use yii\helpers\Html;
 /** @var app\models\MasterPenilaian $model */
 /** @var app\models\DetailPenilaian[] $detailModels */
 
-$this->title = 'Update Penilaian: ' . $model->id_penilaian;
+$this->title = 'Menu Penilaian ' . $model->id_penilaian;
 $this->params['breadcrumbs'][] = ['label' => 'Master Penilaian', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->id_penilaian, 'url' => ['view', 'id_penilaian' => $model->id_penilaian]];
 $this->params['breadcrumbs'][] = 'Update';

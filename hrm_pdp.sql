@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 06, 2025 at 05:59 AM
+-- Generation Time: Nov 13, 2025 at 04:12 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -98,7 +98,23 @@ INSERT INTO `detail_penilaian` (`id_detailpenilaian`, `id_penilaian`, `id_kriter
 (180, 76, 14, 51),
 (181, 76, 15, 56),
 (182, 76, 16, 62),
-(184, 76, 17, 69);
+(184, 76, 17, 69),
+(186, 78, 14, 50),
+(187, 78, 15, 71),
+(188, 80, 14, 54),
+(189, 81, 14, 52),
+(190, 81, 15, 71),
+(191, 82, 14, 50),
+(192, 82, 16, 62),
+(193, 82, 17, 69),
+(194, 82, 15, 70),
+(195, 83, 15, 70),
+(196, 84, 15, 56),
+(197, 84, 16, 62),
+(198, 85, 14, 53),
+(199, 85, 16, 64),
+(200, 86, 14, 54),
+(201, 86, 16, 62);
 
 -- --------------------------------------------------------
 
@@ -291,20 +307,68 @@ INSERT INTO `master_kriteria` (`id_kriteria`, `id_departement`, `nama_kriteria`,
 CREATE TABLE `master_penilaian` (
   `id_penilaian` int(11) NOT NULL,
   `id_users` int(11) DEFAULT NULL,
+  `id_periode` int(11) NOT NULL,
   `nilai_akhir` decimal(5,3) DEFAULT NULL,
-  `periode_awal` date DEFAULT NULL,
-  `periode_akhir` date DEFAULT NULL,
   `id_kategori` int(11) DEFAULT NULL,
   `presentase_absensi` varchar(50) DEFAULT NULL,
-  `catatan` varchar(255) NOT NULL
+  `catatan` varchar(255) NOT NULL,
+  `rekomendasi` text DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `master_penilaian`
 --
 
-INSERT INTO `master_penilaian` (`id_penilaian`, `id_users`, `nilai_akhir`, `periode_awal`, `periode_akhir`, `id_kategori`, `presentase_absensi`, `catatan`) VALUES
-(76, 19, 2.800, '2025-11-01', '2025-11-02', 10, '100', 'Cukup Bagus');
+INSERT INTO `master_penilaian` (`id_penilaian`, `id_users`, `id_periode`, `nilai_akhir`, `id_kategori`, `presentase_absensi`, `catatan`, `rekomendasi`, `created_at`, `updated_at`) VALUES
+(86, 19, 13, 4.200, 11, '100', 'Cukup Bagus', '-Tidak Ada', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `master_periode`
+--
+
+CREATE TABLE `master_periode` (
+  `id_periode` int(11) NOT NULL,
+  `nama` varchar(100) NOT NULL,
+  `tanggal_mulai` date NOT NULL,
+  `tanggal_selesai` date NOT NULL,
+  `id_user` int(11) NOT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'draft',
+  `created_at` int(11) NOT NULL,
+  `updated_at` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `master_periode`
+--
+
+INSERT INTO `master_periode` (`id_periode`, `nama`, `tanggal_mulai`, `tanggal_selesai`, `id_user`, `status`, `created_at`, `updated_at`) VALUES
+(13, 'Periode 1', '2025-10-30', '2026-01-01', 1, 'Terbuka', 1762950943, 1762952062);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `master_profile`
+--
+
+CREATE TABLE `master_profile` (
+  `id_profile` int(11) NOT NULL,
+  `nama` varchar(255) DEFAULT NULL,
+  `notelfon` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `alamat` varchar(255) DEFAULT NULL,
+  `logo` longtext DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `master_profile`
+--
+
+INSERT INTO `master_profile` (`id_profile`, `nama`, `notelfon`, `email`, `alamat`, `logo`) VALUES
+(1, 'CV Mandiri Persada', '082122325575', 'Mandiripersada.co.id', 'Jalan Siak no 15 , Kecamatan Mawar , Kota Semarang, Jawa Tengah', 'logo_1762611911.jpeg');
 
 -- --------------------------------------------------------
 
@@ -323,7 +387,9 @@ CREATE TABLE `migration` (
 
 INSERT INTO `migration` (`version`, `apply_time`) VALUES
 ('m000000_000000_base', 1759698464),
-('m251005_210700_lock_banding_status', 1759698539);
+('m251005_210700_lock_banding_status', 1759698539),
+('m251110_140212_create_master_periode', 1762783479),
+('m251110_140218_alter_master_penilaian_add_periode_rekomendasi', 1762783623);
 
 -- --------------------------------------------------------
 
@@ -413,7 +479,20 @@ INSERT INTO `notification` (`id`, `target_id_user`, `judul`, `deskripsi`, `model
 (68, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 76 telah diperbarui.', 'app\\models\\MasterPenilaian', '76', 'update', 0, '2025-11-06 11:55:22'),
 (69, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 76 telah diperbarui.', 'app\\models\\MasterPenilaian', '76', 'update', 0, '2025-11-06 11:55:30'),
 (70, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 76 telah diperbarui.', 'app\\models\\MasterPenilaian', '76', 'update', 0, '2025-11-06 11:55:54'),
-(71, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 76 telah diperbarui.', 'app\\models\\MasterPenilaian', '76', 'update', 0, '2025-11-06 11:56:07');
+(71, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 76 telah diperbarui.', 'app\\models\\MasterPenilaian', '76', 'update', 0, '2025-11-06 11:56:07'),
+(72, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 78 telah diperbarui.', 'app\\models\\MasterPenilaian', '78', 'update', 0, '2025-11-10 22:30:55'),
+(73, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 80 telah diperbarui.', 'app\\models\\MasterPenilaian', '80', 'update', 0, '2025-11-11 00:56:11'),
+(74, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 80 telah dihapus.', 'app\\models\\MasterPenilaian', '80', 'delete', 0, '2025-11-11 00:56:15'),
+(75, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 81 telah diperbarui.', 'app\\models\\MasterPenilaian', '81', 'update', 0, '2025-11-12 18:38:13'),
+(76, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 81 telah dihapus.', 'app\\models\\MasterPenilaian', '81', 'delete', 0, '2025-11-12 18:38:19'),
+(77, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 82 telah diperbarui.', 'app\\models\\MasterPenilaian', '82', 'update', 0, '2025-11-12 18:59:10'),
+(78, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 82 telah diperbarui.', 'app\\models\\MasterPenilaian', '82', 'update', 0, '2025-11-12 19:01:56'),
+(79, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 83 telah diperbarui.', 'app\\models\\MasterPenilaian', '83', 'update', 0, '2025-11-12 19:23:12'),
+(80, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 83 telah dihapus.', 'app\\models\\MasterPenilaian', '83', 'delete', 0, '2025-11-12 19:26:03'),
+(81, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 84 telah diperbarui.', 'app\\models\\MasterPenilaian', '84', 'update', 0, '2025-11-12 19:26:51'),
+(82, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 85 telah diperbarui.', 'app\\models\\MasterPenilaian', '85', 'update', 0, '2025-11-12 19:31:19'),
+(83, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 86 telah diperbarui.', 'app\\models\\MasterPenilaian', '86', 'update', 0, '2025-11-12 19:35:50'),
+(84, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 86 telah diperbarui.', 'app\\models\\MasterPenilaian', '86', 'update', 0, '2025-11-12 19:54:37');
 
 -- --------------------------------------------------------
 
@@ -449,7 +528,8 @@ INSERT INTO `permissions` (`id_permission`, `nama_permission`, `deskripsi`) VALU
 (380, 'akses_manajemen', 'Auto generated'),
 (381, 'akses_site', 'Auto generated'),
 (382, 'akses_penilaian', 'Auto generated'),
-(383, 'akses_report', 'Auto generated');
+(383, 'akses_report', 'Auto generated'),
+(384, 'akses_master-periode', 'Auto generated');
 
 -- --------------------------------------------------------
 
@@ -484,6 +564,8 @@ INSERT INTO `role_permissions` (`id_jabatan`, `id_permission`) VALUES
 (2, 380),
 (2, 381),
 (2, 382),
+(2, 383),
+(2, 384),
 (6, 375),
 (6, 376),
 (6, 378),
@@ -603,8 +685,23 @@ ALTER TABLE `master_kriteria`
 --
 ALTER TABLE `master_penilaian`
   ADD PRIMARY KEY (`id_penilaian`),
+  ADD UNIQUE KEY `ux_penilaian_periode_user` (`id_periode`,`id_users`),
   ADD KEY `kategori_nilai` (`id_kategori`),
   ADD KEY `master_penilaian_ibfk_1` (`id_users`);
+
+--
+-- Indexes for table `master_periode`
+--
+ALTER TABLE `master_periode`
+  ADD PRIMARY KEY (`id_periode`),
+  ADD KEY `idx_master_periode_date` (`tanggal_mulai`,`tanggal_selesai`),
+  ADD KEY `fk_master_periode_owner` (`id_user`);
+
+--
+-- Indexes for table `master_profile`
+--
+ALTER TABLE `master_profile`
+  ADD PRIMARY KEY (`id_profile`);
 
 --
 -- Indexes for table `migration`
@@ -656,7 +753,7 @@ ALTER TABLE `banding_penilaian`
 -- AUTO_INCREMENT for table `detail_penilaian`
 --
 ALTER TABLE `detail_penilaian`
-  MODIFY `id_detailpenilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=186;
+  MODIFY `id_detailpenilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=202;
 
 --
 -- AUTO_INCREMENT for table `komentar`
@@ -704,19 +801,31 @@ ALTER TABLE `master_kriteria`
 -- AUTO_INCREMENT for table `master_penilaian`
 --
 ALTER TABLE `master_penilaian`
-  MODIFY `id_penilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
+  MODIFY `id_penilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87;
+
+--
+-- AUTO_INCREMENT for table `master_periode`
+--
+ALTER TABLE `master_periode`
+  MODIFY `id_periode` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `master_profile`
+--
+ALTER TABLE `master_profile`
+  MODIFY `id_profile` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `notification`
 --
 ALTER TABLE `notification`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=85;
 
 --
 -- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `id_permission` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=384;
+  MODIFY `id_permission` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=385;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -772,8 +881,15 @@ ALTER TABLE `master_kriteria`
 -- Constraints for table `master_penilaian`
 --
 ALTER TABLE `master_penilaian`
+  ADD CONSTRAINT `fk_penilaian_periode` FOREIGN KEY (`id_periode`) REFERENCES `master_periode` (`id_periode`) ON DELETE CASCADE,
   ADD CONSTRAINT `master_penilaian_ibfk_1` FOREIGN KEY (`id_users`) REFERENCES `users` (`id_users`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `master_penilaian_ibfk_2` FOREIGN KEY (`id_kategori`) REFERENCES `master_kategori` (`id_kategori`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `master_periode`
+--
+ALTER TABLE `master_periode`
+  ADD CONSTRAINT `fk_master_periode_owner` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_users`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `role_permissions`

@@ -1,20 +1,23 @@
 <?php
-// FILE: models/MasterPenilaian.php
 namespace app\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
 
 class MasterPenilaian extends \yii\db\ActiveRecord
 {
     public array $detailModels = [];
-
-    /** Set true jika kolom di DB adalah DATETIME/TIMESTAMP */
-    private bool $storePeriodeAsDateTime;
-
-    private const APP_TZ = 'Asia/Jakarta';
+    public bool $storePeriodeAsDateTime = false;
 
     public static function tableName() { return 'master_penilaian'; }
 
+     public function behaviors(): array
+    {
+        return [
+            TimestampBehavior::class, 
+        ];
+    }
+    
     public function init(): void
     {
         parent::init();
@@ -28,15 +31,15 @@ class MasterPenilaian extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['id_users','presentase_absensi','periode_awal','periode_akhir','catatan'], 'required','message'=>'{attribute} wajib diisi.'],
-            [['catatan','nilai_akhir'], 'default', 'value'=>null],
-            [['id_users','id_kategori'], 'integer'],
+            [['id_users','presentase_absensi','id_periode'], 'required','message'=>'{attribute} wajib diisi.'],
+            [['catatan','nilai_akhir',"rekomendasi"], 'default', 'value'=>null],
+            [['id_users','id_kategori','id_periode'], 'integer'],
             [['nilai_akhir','presentase_absensi'], 'number'],
-            [['periode_awal','periode_akhir'], 'validatePeriodeFormat'],
-            ['periode_akhir', 'validatePeriodeOrder'],
             [['id_kategori'], 'safe'],
             [['id_users'], 'exist', 'skipOnError'=>true,'targetClass'=>User::class,'targetAttribute'=>['id_users'=>'id_users']],
             [['detailModels'], 'validateDetails'],
+            [['storePeriodeAsDateTime'], 'boolean'],
+            [['storePeriodeAsDateTime'], 'safe'],
         ];
     }
 
@@ -45,38 +48,23 @@ class MasterPenilaian extends \yii\db\ActiveRecord
         return [
             'id_penilaian' => 'Id Penilaian',
             'id_users' => 'Nama Karyawan',
-            'nilai_akhir' => 'Nilai Akhir',
-            'periode_awal' => 'Periode Awal',
-            'periode_akhir' => 'Periode Akhir',
+            'id_periode'  => 'Periode',
             'id_kategori' => 'Status Nilai',
+            'nilai_akhir' => 'Nilai Akhir',
             'presentas_absensi' => 'Presentas Absensi',
+            'rekomendasi' => 'Rekomendasi',
             'catatan' => "Catatan",
             'detailModels' => Yii::t('app', 'Detail Penilaian'),
         ];
     }
 
+    public function getPeriode() { return $this->hasOne(MasterPeriode::class, ['id_periode' => 'id_periode']); }
     public function getDetailPenilaian(){ return $this->hasMany(DetailPenilaian::class, ['id_penilaian'=>'id_penilaian']); }
     public function getKategori(){ return $this->hasOne(MasterKategori::class, ['id_kategori'=>'id_kategori']); }
     public function getUser(){ return $this->hasOne(User::class, ['id_users'=>'id_users']); }
     public function getBanding(){ return $this->hasOne(BandingPenilaian::class, ['id_penilaian' => 'id_penilaian'])
             ->inverseOf('penilaian'); }
-
-    public function beforeSave($insert): bool
-    {
-        if (!parent::beforeSave($insert)) return false;
-
-        $this->id_kategori = $this->id_kategori !== null && $this->id_kategori !== '' ? (int)$this->id_kategori : null;
-        $this->nilai_akhir = ($this->nilai_akhir === '' || $this->nilai_akhir === null) ? null : (float)$this->nilai_akhir;
-
-        foreach (['periode_awal','periode_akhir'] as $attr) {
-            if (!empty($this->$attr)) {
-                $dt = $this->parseDate($this->$attr);
-                if ($dt) $this->$attr = $this->formatForDb($dt); 
-            }
-        }
-        return true;
-    }
-
+    
     public function afterSave($insert, $changedAttributes)
     {
         parent::afterSave($insert, $changedAttributes);
@@ -84,83 +72,7 @@ class MasterPenilaian extends \yii\db\ActiveRecord
             $this->NilaiAkhir();
         }
     }
-
-    public function afterFind()
-    {
-        parent::afterFind();
-        foreach (['periode_awal','periode_akhir'] as $attr) {
-            $v = $this->$attr;
-            if (!$v) continue;
-            if (preg_match('/^\d{4}-\d{2}-\d{2}(?:\s+\d{2}:\d{2}:\d{2})?$/', $v)) {
-                $fmt = strlen($v) > 10 ? '!Y-m-d H:i:s' : '!Y-m-d';
-                $dt  = \DateTimeImmutable::createFromFormat($fmt, $v, new \DateTimeZone(self::APP_TZ));
-                if ($dt) { $this->$attr = $dt->format('d-m-Y'); }
-            }
-        }
-    }
-
-
-    public function validatePeriodeFormat($attribute): void
-    {
-        if ($this->$attribute === null || $this->$attribute === '') return;
-        if (!$this->parseDate($this->$attribute)) {
-            $this->addError($attribute, $this->getAttributeLabel($attribute).' tidak valid (format dd-mm-YYYY / dd/mm/YYYY).');
-        }
-    }
-
-    public function validatePeriodeOrder($attribute): void
-    {
-        $start = $this->parseDate($this->periode_awal);
-        $end   = $this->parseDate($this->periode_akhir);
-        if (!$start || !$end) return;
-
-        if ($end < $start) {
-            $this->addError('periode_akhir', 'Periode Akhir harus sama atau setelah Periode Awal.');
-            return;
-        }
-
-        $this->periode_awal  = $this->formatForDb($start);
-        $this->periode_akhir = $this->formatForDb($end);
-    }
-
-    private function normalizeDateString(?string $val): ?string
-    {
-        if ($val === null) return null;
-        $v = trim($val);
-        if ($v === '') return null;
-        $v = preg_replace('/\s+/u', '', $v);
-        $v = str_replace(['–','—','.'], ['-','-','-'], $v);
-        return $v;
-    }
-
-    private function parseDate($val): ?\DateTimeImmutable
-    {
-        $v = $this->normalizeDateString(is_string($val) ? $val : null);
-        if ($v === null) return null;
-        $tz = new \DateTimeZone(self::APP_TZ);
-
-        $formats = ['!Y-m-d','!d-m-Y','!j-n-Y','!d/m/Y','!j/n/Y'];
-        foreach ($formats as $fmt) {
-            $dt = \DateTimeImmutable::createFromFormat($fmt, $v, $tz);
-            if ($dt) {
-                $err = \DateTimeImmutable::getLastErrors();
-                if (empty($err['warning_count']) && empty($err['error_count'])) {
-                    return $dt;
-                }
-            }
-        }
-        return null;
-    }
-
-    private function formatForDb(\DateTimeImmutable $dt): string
-    {
-        if ($this->storePeriodeAsDateTime) {
-            $dtNoon = $dt->setTime(12, 0, 0); 
-            return $dtNoon->format('Y-m-d H:i:s');
-        }
-        return $dt->format('Y-m-d'); // kolom DATE
-    }
-
+    
     public function NilaiAkhir()
     {
         try {

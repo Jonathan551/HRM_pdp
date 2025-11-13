@@ -4,71 +4,48 @@ namespace app\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\MasterPenilaian;
 
-/**
- * MasterPenilaiansearch represents the model behind the search form of `app\models\MasterPenilaian`.
- */
 class MasterPenilaiansearch extends MasterPenilaian
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['id_penilaian', 'id_users'], 'integer'],
-            [['nilai_akhir'], 'number'],
-            [['periode_awal', 'periode_akhir', 'id_kategori', 'presentase_absensi','catatan'], 'safe'],
+            [['id_penilaian','id_users','id_periode','created_at','updated_at'], 'integer'],
+            [['catatan','rekomendasi'], 'safe'],
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function scenarios()
+    public function scenarios(): array
     {
-        // bypass scenarios() implementation in the parent class
         return Model::scenarios();
     }
 
-    /**
-     * Creates data provider instance with search query applied
-     *
-     * @param array $params
-     * @param string|null $formName Form name to be used into `->load()` method.
-     *
-     * @return ActiveDataProvider
-     */
-    public function search($params, $formName = null)
+    public function search($params)
     {
-        $query = MasterPenilaian::find();
-
-        // add conditions that should always apply here
+        $query = MasterPenilaian::find()->with(['user','periode']);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => ['defaultOrder' => ['id_penilaian' => SORT_DESC]],
+            'pagination' => ['pageSize' => 20],
         ]);
 
-        $this->load($params, $formName);
+        $this->load($params);
 
         if (!$this->validate()) {
-            // uncomment the following line if you do not want to return any records when validation fails
-            // $query->where('0=1');
             return $dataProvider;
         }
 
         $query->andFilterWhere([
             'id_penilaian' => $this->id_penilaian,
-            'id_users' => $this->id_users,
-            'nilai_akhir' => $this->nilai_akhir,
-            'periode_awal' => $this->periode_awal,
-            'periode_akhir' => $this->periode_akhir,
-            'catatan'=> $this->catatan,
+            'id_users'     => $this->id_users,
+            'id_periode'   => $this->id_periode,
+            'created_at'   => $this->created_at,
+            'updated_at'   => $this->updated_at,
         ]);
 
-        $query->andFilterWhere(['like', 'id_kategori', $this->id_kategori])
-            ->andFilterWhere(['like', 'presentase_absensi', $this->presentase_absensi]);
+        $query->andFilterWhere(['like','catatan',$this->catatan])
+              ->andFilterWhere(['like','rekomendasi',$this->rekomendasi]);
 
         return $dataProvider;
     }

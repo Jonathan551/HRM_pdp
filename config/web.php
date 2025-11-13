@@ -38,6 +38,14 @@ $config = [
             'class' => 'yii\i18n\Formatter',
             'nullDisplay' => 'Tidak ada',
             'defaultTimeZone' => 'Asia/Jakarta',
+            ],
+            'urlManager' => [
+            'enablePrettyUrl' => true,
+            'showScriptName' => false,
+            'rules' => [
+                'master-penilaian' => 'master-penilaian/index',
+                'master-penilaian/<id_periode:\d+>' => 'master-penilaian/index',
+            ],
         ],
         'request' => [
             'cookieValidationKey' => 'Iw4cYD9Z7e8DQZfIQgEUtyrJY3WkjbjD',
@@ -61,7 +69,7 @@ $config = [
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
-            'targets' => [[ 'class' => 'yii\log\FileTarget', 'levels' => ['error','warning','info'] ]],
+            'targets' => [[ 'class' => 'yii\log\FileTarget', 'levels' => ['error','warning'] ]],
         ],
         'db' => $db,
     ],

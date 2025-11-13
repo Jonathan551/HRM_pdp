@@ -64,6 +64,12 @@ $this->registerJsFile('@web/js/sidebar.js', [
                         'visible' => UserAccess::hasPermission('akses_master-anchor')
                     ],
                     [
+                        'label' => 'Master Data Periode Penilaian',
+                        'icon' => 'calendar_month',
+                        'url' => ['/master-periode/index'],
+                        'visible' => UserAccess::hasPermission('akses_master-periode')
+                    ],
+                    [
                         'label' => 'Master Data Kategori',
                         'icon' => 'category',
                         'url' => ['/master-kategori/index'],
@@ -82,6 +88,7 @@ $this->registerJsFile('@web/js/sidebar.js', [
                     UserAccess::hasPermission('akses_master-departement') ||
                     UserAccess::hasPermission('akses_master-kriteria') ||
                     UserAccess::hasPermission('akses_master-anchor') ||
+                    UserAccess::hasPermission('akses_master-periode') ||
                     UserAccess::hasPermission('akses_master-kategori') ||
                     UserAccess::hasPermission('akses_role-permission') 
                 )

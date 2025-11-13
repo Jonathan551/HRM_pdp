@@ -87,7 +87,6 @@ class StatistikController extends BaseController
             ]);
         }
 
-        // ---- olah data per departemen ----
         $byDept = [];
         foreach ($rows as $r) {
             $byDept[$r['id_departement']]['dept_name'] = $r['nama_departement'];

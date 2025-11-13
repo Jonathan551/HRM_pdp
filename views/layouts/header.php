@@ -51,10 +51,18 @@ $readAllUrl = Url::to(['/notification/read-all']);
           <a class="nav-link" href="#" id="navbarDropdownProfile" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="material-icons">person</i>
           </a>
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownProfile">
-            <?= Yii::$app->user->isGuest
-              ? Html::a('Log in', ['/site/login'], ['class'=>'dropdown-item'])
-              : Html::a('Log out ('.Yii::$app->user->identity->username.')', ['/site/logout'], ['class'=>'dropdown-item','data-method'=>'post']) ?>
+         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownProfile">
+            <?php if (Yii::$app->user->isGuest): ?>
+                <?= Html::a('Log in', ['/site/login'], ['class'=>'dropdown-item']) ?>
+            <?php else: ?>
+                <?= Html::a('Profile', ['/master-profile/index'], ['class'=>'dropdown-item']) ?>
+                <div class="dropdown-divider"></div>
+                <?= Html::a(
+                      'Log out (' . Yii::$app->user->identity->username . ')',
+                      ['/site/logout'],
+                      ['class'=>'dropdown-item', 'data-method'=>'post']
+                    ) ?>
+            <?php endif; ?>
           </div>
         </li>
       </ul>
