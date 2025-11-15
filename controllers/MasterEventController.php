@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\MasterEvent;
 use app\models\MasterEventsearch;
+use yii\web\ForbiddenHttpException;
 use yii\web\Controller;
 use app\models\Komentar;
 use yii\web\NotFoundHttpException;
@@ -108,6 +109,10 @@ class MasterEventController extends BaseController
     {
         $model = $this->findModel($id_event);
         $oldFile = $model->gambar;
+
+         if ((int)($model->created_by ?? 0) !== (int)(Yii::$app->user->id ?? 0)) {
+            throw new ForbiddenHttpException('Anda tidak berwenang mengubah event ini.');
+        }
 
         if ($model->load(Yii::$app->request->post())) {
             $this->handleUpload($model);

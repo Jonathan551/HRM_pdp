@@ -5,6 +5,7 @@ namespace app\models;
 use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 
 /**
  * @property int $id_periode
@@ -23,8 +24,17 @@ class MasterPeriode extends ActiveRecord
 {
     public static function tableName(): string { return '{{%master_periode}}'; }
 
-    public function behaviors(): array { return [TimestampBehavior::class]; }
-
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => new Expression('NOW()'), 
+            ],
+        ];
+    }
     public function rules(): array
     {
         return [

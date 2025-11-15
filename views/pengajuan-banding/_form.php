@@ -6,7 +6,7 @@ use yii\widgets\ActiveForm;
 
 $form = ActiveForm::begin([
     'id' => 'form-banding',
-    'action' => ['banding-penilaian/create', 'id_penilaian' => $model->id_penilaian],
+    'action' => ['pengajuan-banding/create', 'id_penilaian' => $model->id_penilaian],
     'method' => 'post',
     'options' => ['data-pjax' => 0],
     'enableClientValidation' => true,

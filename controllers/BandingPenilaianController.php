@@ -127,28 +127,6 @@ class BandingPenilaianController extends BaseController
     {
         return $this->render('banding', ['model' => $this->findModel($id_banding)]);
     }
-
-   public function actionCreate($id_penilaian = null)
-    {
-        $model = new BandingPenilaian();
-        if ($id_penilaian !== null) {
-            $model->id_penilaian = $id_penilaian;
-        }
-        
-        $model->id_users = Yii::$app->user->id;
-
-        if (Yii::$app->request->isPost && $model->load(Yii::$app->request->post())) {
-            if ($model->save()) {
-                Yii::$app->session->setFlash('success', 'Banding diajukan.');
-                return $this->redirect(['view', 'id_banding' => $model->id_banding]);
-            }
-            Yii::$app->session->setFlash('error', reset($model->firstErrors) ?: 'Gagal menyimpan.');
-        }
-
-        return $this->render('create', compact('model'));
-    }
-
-
     public function actionUpdate($id_banding)
     {
         $model = $this->findModel($id_banding);

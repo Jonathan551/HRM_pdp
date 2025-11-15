@@ -12,6 +12,13 @@ use yii\grid\GridView;
 
 $this->title = 'Penilaian';
 $this->params['breadcrumbs'][] = $this->title;
+
+$fmt = static function (?string $d): string {
+    if (!$d) return '-';
+    $ts = strtotime($d);
+    return $ts ? date('d-m-Y', $ts) : $d;
+};
+
 ?>
 <div class="penilaian-index">
 
@@ -22,39 +29,46 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel'  => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
+
             [
                 'attribute' => 'id_users',
                 'label' => 'Karyawan',
                 'value' => function ($model) {
-                    return $model->user ? $model->user->nama : '-';
+                    return $model->user->nama ?? '-';
                 },
             ],
-            'nilai_akhir',
+
             [
-                'attribute' => 'periode_awal',
-                'label' => 'Periode Awal Penilaian',
-                'format' => ['date', 'php:d-m-Y'],
+                'label' => 'Periode',
+                'value' => function ($model) use ($fmt) {
+                    $p = $model->periode ?? null;
+                    if (!$p) return '-';
+                    $mulai   = $fmt($p->tanggal_mulai ?? null);
+                    $selesai = $fmt($p->tanggal_selesai ?? null);
+                    return ($p->nama ?? 'Periode') . " — {$mulai} – {$selesai}";
+                },
             ],
+
             [
-                'attribute' => 'periode_akhir',
-                'label' => 'Periode Akhir Penilaian',
-                'format' => ['date', 'php:d-m-Y'],
+                'attribute' => 'nilai_akhir',
+                'label' => 'Nilai Akhir',
             ],
+
             [
                 'attribute' => 'id_kategori',
-                'value' => function($model) {
-                    return $model->kategori ? $model->kategori->nama_kategori : 'Belum Ada';
-                },
                 'label' => 'Status Nilai',
+                'value' => function($model) {
+                    return $model->kategori->nama_kategori ?? 'Belum Ada';
+                },
             ],
             [
                 'attribute' => 'presentase_absensi',
                 'label' => 'Presentase Absensi',
             ],
             [
-                'class' => ActionColumn::className(),
+                'class' => ActionColumn::class,
                 'template' => '{view}',
-                'urlCreator' => function ($action, MasterPenilaian $model, $key, $index, $column) {
+                'urlCreator' => function ($action, MasterPenilaian $model) {
                     return Url::toRoute([$action, 'id_penilaian' => $model->id_penilaian]);
                 }
             ],
@@ -73,11 +87,18 @@ $this->params['breadcrumbs'][] = $this->title;
     $data   = [];
 
     foreach ($dataProvider->models as $model) {
-        $labels[] = date('d-m-Y', strtotime($model->periode_awal));
-        $data[]   = (float)$model->nilai_akhir;
+        /** @var MasterPenilaian $model */
+        $p = $model->periode ?? null;
+        if ($p) {
+            $label = ($p->nama ?? 'Periode') . ' (' . $fmt($p->tanggal_mulai ?? null) . ' – ' . $fmt($p->tanggal_selesai ?? null) . ')';
+        } else {
+            $label = 'Periode -';
+        }
+        $labels[] = $label;
+        $data[]   = (float)($model->nilai_akhir ?? 0);
     }
 
-    $labelsJson = json_encode($labels);
+    $labelsJson = json_encode($labels, JSON_UNESCAPED_UNICODE);
     $dataJson   = json_encode($data);
 
     $this->registerJsFile('https://cdn.jsdelivr.net/npm/chart.js', ['depends' => [\yii\web\JqueryAsset::class]]);
@@ -100,10 +121,7 @@ $this->params['breadcrumbs'][] = $this->title;
         options: {
             responsive: true,
             scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 5
-                }
+                y: { beginAtZero: true, max: 5 }
             }
         }
     });

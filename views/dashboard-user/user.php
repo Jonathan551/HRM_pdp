@@ -92,9 +92,6 @@ $this->registerJs('initDashboardCharts('
               </tbody>
             </table>
           </div>
-          <div class="card-footer">
-            <a href="<?= Url::to(['/laporan/penilaian-saya']) ?>" class="btn btn-default">Unduh Laporan</a>
-          </div>
         </div>
       </div>
     </div>

@@ -69,7 +69,9 @@ $this->registerCssFile('@web/css/timeline.css', ['depends' => [\yii\web\JqueryAs
                     </div>
                     <div class="timeline-actions">
                         <?= Html::a(' View', ['view','id_event'=>$event->id_event], ['class'=>'btn btn-sm btn-primary']) ?>
-                        <?= Html::a(' Update', ['update','id_event'=>$event->id_event], ['class'=>'btn btn-sm btn-success']) ?>
+                         <?php if ((int)($event->created_by ?? 0) === (int)(Yii::$app->user->id ?? 0)): ?>
+                            <?= Html::a(' Update', ['update','id_event'=>$event->id_event], ['class'=>'btn btn-sm btn-success']) ?>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

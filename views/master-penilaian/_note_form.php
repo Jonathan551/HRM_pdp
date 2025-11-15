@@ -1,5 +1,4 @@
 <?php
-// views/master-penilaian/_note_form.php — form minimal
 use yii\widgets\ActiveForm;
 use yii\helpers\Html;
 

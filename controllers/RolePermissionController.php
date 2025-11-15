@@ -2,10 +2,7 @@
 namespace app\controllers;
 
 use Yii;
-use yii\web\Controller;
-use yii\web\ForbiddenHttpException;
 use yii\db\Query;
-use app\components\UserAccess;
 use app\models\MasterJabatan;
 use app\models\Permissions;
 use app\controllers\BaseController;

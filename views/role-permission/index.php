@@ -19,7 +19,7 @@ use yii\helpers\ArrayHelper;
         [
             'class' => 'form-control',
             'prompt' => 'Pilih Jabatan',
-            'onchange' => 'location.href="' . Url::to(['role-permission/index']) . '&id_jabatan=" + this.value;'
+            'onchange' => 'location.href="' . Url::to(['role-permission/index', 'id_jabatan' => '']) . '" + this.value;'
         ]
     ); ?>
 

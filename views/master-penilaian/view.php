@@ -30,10 +30,12 @@ if ($periode) {
 ?>
 <div class="master-penilaian-view">
 
-    <!-- Flash area -->
     <?php foreach (Yii::$app->session->getAllFlashes() as $type => $message): ?>
         <div class="alert alert-<?= in_array($type, ['success','info','warning','danger','error']) ? ($type === 'error' ? 'danger' : $type) : 'info' ?>" role="alert" style="margin-top:10px;">
-            <?= is_array($message) ? implode('<br>', array_map('Html::encode', $message)) : Html::encode($message) ?>
+         <?= is_array($message)
+                ? implode('<br>', array_map(function ($msg) { return Html::encode($msg); }, $message))
+                : Html::encode($message)
+            ?>
         </div>
     <?php endforeach; ?>
 

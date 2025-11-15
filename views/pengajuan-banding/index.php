@@ -67,7 +67,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             ]);
                         } else {
                             return Html::a('Ajukan Banding', 
-                                ['banding-penilaian/create', 'id_penilaian' => $model->id_penilaian], 
+                                ['pengajuan-banding/create', 'id_penilaian' => $model->id_penilaian], 
                                 [
                                     'title' => 'Ajukan Banding',
                                     'class' => 'btn btn-sm btn-outline-primary'

@@ -1,0 +1,20 @@
+<?php
+use yii\helpers\Html;
+
+/** @var yii\web\View $this */
+/** @var app\models\BandingPenilaian $model */
+
+$this->title = 'Form Banding Penilaian';
+
+$bcUrl = ['/pengajuan-banding/index'];
+if (!empty($model->id_penilaian)) {
+    $bcUrl['id_penilaian'] = $model->id_penilaian;
+}
+
+$this->params['breadcrumbs'][] = ['label' => 'Pengajuan Banding', 'url' => $bcUrl];
+$this->params['breadcrumbs'][] = $this->title;
+?>
+<div class="banding-penilaian-create">
+  <h1><?= Html::encode($this->title) ?></h1>
+  <?= $this->render('_form', ['model' => $model]) ?>
+</div>

@@ -16,7 +16,7 @@ class UserAccess
 
         $legacyPermission   = str_replace('-', '', $permission);
         $candidatesToCheck  = [$permission, $legacyPermission];
-
+        
         if (self::AUTO_REGISTER) {
             $exists = (new Query())
                 ->from('permissions')
@@ -37,7 +37,7 @@ class UserAccess
                 }
             }
         }
-
+        
         if (!isset(self::$permCache[$userId])) {
             self::$permCache[$userId] = (new Query())
                 ->select('p.nama_permission')
@@ -54,6 +54,7 @@ class UserAccess
             }
         }
 
+        
         return false;
     }
 }

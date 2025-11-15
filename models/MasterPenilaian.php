@@ -3,6 +3,7 @@ namespace app\models;
 
 use Yii;
 use yii\behaviors\TimestampBehavior;
+use yii\db\Expression;
 
 class MasterPenilaian extends \yii\db\ActiveRecord
 {
@@ -11,10 +12,15 @@ class MasterPenilaian extends \yii\db\ActiveRecord
 
     public static function tableName() { return 'master_penilaian'; }
 
-     public function behaviors(): array
+    public function behaviors()
     {
         return [
-            TimestampBehavior::class, 
+            [
+                'class' => TimestampBehavior::class,
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => new Expression('NOW()'), 
+            ],
         ];
     }
     

@@ -94,6 +94,14 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'presentase_absensi',
                 'label' => 'Presentase Absensi',
             ],
+            [
+                'attribute' => 'catatan',
+                'label' => 'Catatan',
+            ],
+            [
+                'attribute' => 'rekomendasi',
+                'label' => 'Rekomendasi',
+            ],
         ],
     ]) ?>
 
