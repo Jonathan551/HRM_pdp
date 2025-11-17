@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 13, 2025 at 04:12 AM
+-- Generation Time: Nov 17, 2025 at 07:27 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -37,6 +37,14 @@ CREATE TABLE `banding_penilaian` (
   `review` text DEFAULT NULL,
   `tanggal_review` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `banding_penilaian`
+--
+
+INSERT INTO `banding_penilaian` (`id_banding`, `id_penilaian`, `id_users`, `status`, `tanggal_banding`, `alasan`, `review`, `tanggal_review`) VALUES
+(17, 95, 20, 'Ditolak', '2025-11-15 18:19:44', 'tidak ada', 'Ditolak', '2025-11-15 18:33:24'),
+(18, 94, 19, 'Ditolak', '2025-11-15 18:23:41', 'Tidak ada', 'Tidak ada', '2025-11-15 18:33:12');
 
 --
 -- Triggers `banding_penilaian`
@@ -114,7 +122,26 @@ INSERT INTO `detail_penilaian` (`id_detailpenilaian`, `id_penilaian`, `id_kriter
 (198, 85, 14, 53),
 (199, 85, 16, 64),
 (200, 86, 14, 54),
-(201, 86, 16, 62);
+(201, 86, 16, 62),
+(202, 87, 14, 52),
+(203, 87, 15, 70),
+(204, 87, 16, 64),
+(205, 91, 14, 52),
+(206, 91, 15, 71),
+(207, 92, 15, 56),
+(208, 92, 17, 69),
+(209, 93, 14, 53),
+(210, 95, 14, 51),
+(211, 95, 15, 57),
+(212, 95, 16, 62),
+(213, 95, 17, 66),
+(214, 94, 14, 53),
+(215, 94, 15, 57),
+(216, 94, 16, 64),
+(217, 94, 17, 68),
+(218, 96, 20, 90),
+(219, 96, 19, 85),
+(220, 96, 21, 81);
 
 -- --------------------------------------------------------
 
@@ -136,8 +163,8 @@ CREATE TABLE `komentar` (
 --
 
 INSERT INTO `komentar` (`id_komentar`, `id_users`, `id_event`, `deskripsi`, `created_at`, `updated_at`) VALUES
-(1, 1, 14, 'Test', '2025-11-03 21:48:01', NULL),
-(2, 1, 14, 'Sepertinya Enak Coba Saya Ambil yang bener AH YANG BENER', '2025-11-03 22:23:43', NULL),
+(1, 1, 14, 'Enak Banget', '2025-11-03 21:48:01', NULL),
+(2, 1, 14, 'Terima Kasih Pak', '2025-11-03 22:23:43', NULL),
 (3, 19, 14, 'Wah Enak Saya Juga Mau Yang Bener', '2025-11-03 22:25:05', NULL),
 (4, 1, 14, 'Enak Banget Makanannya\r\n', '2025-11-04 22:34:05', NULL);
 
@@ -179,7 +206,22 @@ INSERT INTO `master_anchor` (`id_anchor`, `id_kriteria`, `level_anchor`, `deskri
 (68, 17, 4, 'Kadang menunjukkan inisiatif, seperti membantu rekan saat diminta.', 4.000),
 (69, 17, 5, 'Sering menyarankan ide perbaikan proses atau membantu tanpa diminta.', 5.000),
 (70, 15, 4, 'Menyelesaikan Tugas dengan ada nya sangat sedikit keterlambatan', 3.623),
-(71, 15, 5, 'Menyelesaikan Tugas Melebihi Target dan Tepat Waktu', 5.000);
+(71, 15, 5, 'Menyelesaikan Tugas Melebihi Target dan Tepat Waktu', 5.000),
+(77, 21, 1, 'Tidak bisa bekerja sama dengan tim dan merusak ritme kerja tim', 0.500),
+(78, 21, 2, 'Kurang bisa bekerja sama dengan tim dan merusak ritme kerja tim', 1.000),
+(79, 21, 3, 'Cukup bisa bekerja sama dengan tim dan merusak ritme kerja tim', 1.750),
+(80, 21, 4, 'Bisa bekerja sama dengan tim dan merusak ritme kerja tim', 3.000),
+(81, 21, 5, 'Sangat Bisa dan membuat kerja tim jadi lebih baik', 4.950),
+(82, 19, 1, 'Tidak bisa berkomunikasi dengan customer dan owner', 1.000),
+(83, 19, 2, 'Kurang bisa berkomunikasi dengan customer dan owner', 1.950),
+(84, 19, 3, 'Cukup bisa berkomunikasi dengan customer dan owner', 2.250),
+(85, 19, 4, 'Bisa berkomunikasi dengan customer dan owner', 3.950),
+(86, 19, 5, 'Sangat berkomunikasi dengan customer dan owner ', 4.850),
+(87, 20, 1, 'Tidak bisa bertanggung jawab dalam pekerjaan', 1.000),
+(88, 20, 2, 'Kurang bisa bertanggung jawab dalam pekerjaan', 2.000),
+(89, 20, 3, 'Cukup bisa bertanggung jawab dalam pekerjaan', 3.000),
+(90, 20, 4, 'Bisa bertanggung jawab dalam pekerjaan', 4.550),
+(91, 20, 5, 'Sangat bertanggung jawab dalam pekerjaan', 5.000);
 
 -- --------------------------------------------------------
 
@@ -199,7 +241,8 @@ CREATE TABLE `master_departement` (
 
 INSERT INTO `master_departement` (`id_departement`, `nama_departement`, `deskripsi`) VALUES
 (2, 'Owner', 'Hak Owner Di Sistem\r\n'),
-(3, 'Produksi', 'test');
+(3, 'Produksi', 'test'),
+(4, 'Marketing', 'Departemen ini bertujuan untuk memasarkan produk\r\n');
 
 -- --------------------------------------------------------
 
@@ -249,7 +292,9 @@ CREATE TABLE `master_jabatan` (
 
 INSERT INTO `master_jabatan` (`id_jabatan`, `nama_jabatan`, `level_jabatan`, `deskripsi`) VALUES
 (2, 'Super_Admin', 6, 'Test'),
-(6, 'Operator Produksi', 3, 'Test');
+(6, 'Operator Produksi', 3, '	Operator yang sudah memasuki masa bakti kerja 0-5 tahun'),
+(7, 'Operator Produksi Senior', 5, 'Operator yang sudah memasuki masa bakti kerja 5-10 tahun\r\n'),
+(8, 'Marketing Staff', 2, 'Staff Divisi Marketing');
 
 -- --------------------------------------------------------
 
@@ -296,7 +341,10 @@ INSERT INTO `master_kriteria` (`id_kriteria`, `id_departement`, `nama_kriteria`,
 (14, 3, 'Ketelitian Dalam Produksi', 'Kualitas jahitan kaos kaki atau bordir, penting untuk memenuhi standar pelanggan', 3),
 (15, 3, 'Efisiensi Waktu', 'Kecepatan menyelesaikan tugas tanpa mengorbankan kualitas, krusial untuk tenggat waktu.', 3),
 (16, 3, 'Kerjasama Tim', 'Kemampuan bekerja sama dalam tim kecil untuk mendukung kelancaran produksi.', 2),
-(17, 3, 'Inisiatif Kerja', 'Kemampuan karyawan untuk mengambil inisiatif, seperti menyarankan perbaikan proses atau membantu tanpa diminta', 2);
+(17, 3, 'Inisiatif Kerja', 'Kemampuan karyawan untuk mengambil inisiatif, seperti menyarankan perbaikan proses atau membantu tanpa diminta', 2),
+(19, 4, 'Komunikasi', 'Bisa Berkomunikasi dengan owner maupun customer', 7),
+(20, 4, 'Tanggung Jawab', 'Bertanggung jawab terhadap pemasaran produk pada owner', 3),
+(21, 4, 'Kerja Sama', 'Dapat bekerja sama dengan tim untuk memasarkan produk', 3);
 
 -- --------------------------------------------------------
 
@@ -322,7 +370,9 @@ CREATE TABLE `master_penilaian` (
 --
 
 INSERT INTO `master_penilaian` (`id_penilaian`, `id_users`, `id_periode`, `nilai_akhir`, `id_kategori`, `presentase_absensi`, `catatan`, `rekomendasi`, `created_at`, `updated_at`) VALUES
-(86, 19, 13, 4.200, 11, '100', 'Cukup Bagus', '-Tidak Ada', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+(94, 19, 21, 3.900, 11, '100', 'Sangat baik dalam kerjasama tim, menjadi teladan bagi rekan kerja,Kualitas bordir dan jahitan hampir selalu memenuhi standar pelanggan,Menunjukkan inisiatif yang baik dalam meningkatkan efisiensi proses.', '•	Efisiensi waktu perlu ditingkatkan, terutama dalam menangani keterlambatan akibat penyesuaian mesin.\r\n•	Konsistensi pada desain bordir kompleks dapat diperbaiki dengan latihan tambahan.\r\n•	Mengikuti pelatihan internal selama 1 minggu untuk optimalisasi penggunaan mesin bordir.\r\n•	Menetapkan target waktu penyelesaian harian yang lebih ketat, dengan pemantauan mingguan.\r\n•	Mendorong Ani untuk mengambil lebih banyak inisiatif dalam perawatan mesin untuk mencegah keterlambatan.\r\n', '2025-11-15 17:38:45', '2025-11-15 17:41:24'),
+(95, 20, 21, 2.500, 10, '100', 'Mampu mencapai target produksi harian secara konsisten, Bekerja sama dengan baik dalam tim saat diminta.', '•	Ketelitian dalam produksi perlu ditingkatkan untuk mengurangi tingkat cacat produk (target <5%).\r\n•	Kurangnya inisiatif dalam mengidentifikasi perbaikan proses atau membantu rekan tanpa instruksi.\r\n•	Perlu mengurangi waktu yang dihabiskan untuk penyesuaian mesin.\r\n', '2025-11-15 17:38:45', '2025-11-15 17:40:04'),
+(96, 21, 21, 4.320, 11, '100', 'Cukup Bagus', '- Promosi menuju SPV \r\n- Membuat Tim marketing untuk menambah sales', '2025-11-17 13:15:29', '2025-11-17 13:16:37');
 
 -- --------------------------------------------------------
 
@@ -337,8 +387,8 @@ CREATE TABLE `master_periode` (
   `tanggal_selesai` date NOT NULL,
   `id_user` int(11) NOT NULL,
   `status` varchar(20) NOT NULL DEFAULT 'draft',
-  `created_at` int(11) NOT NULL,
-  `updated_at` int(11) NOT NULL
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -346,7 +396,7 @@ CREATE TABLE `master_periode` (
 --
 
 INSERT INTO `master_periode` (`id_periode`, `nama`, `tanggal_mulai`, `tanggal_selesai`, `id_user`, `status`, `created_at`, `updated_at`) VALUES
-(13, 'Periode 1', '2025-10-30', '2026-01-01', 1, 'Terbuka', 1762950943, 1762952062);
+(21, 'Periode 1', '2025-10-01', '2025-12-31', 1, 'Terbuka', '2025-11-15 17:38:45', '2025-11-15 17:38:45');
 
 -- --------------------------------------------------------
 
@@ -492,7 +542,15 @@ INSERT INTO `notification` (`id`, `target_id_user`, `judul`, `deskripsi`, `model
 (81, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 84 telah diperbarui.', 'app\\models\\MasterPenilaian', '84', 'update', 0, '2025-11-12 19:26:51'),
 (82, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 85 telah diperbarui.', 'app\\models\\MasterPenilaian', '85', 'update', 0, '2025-11-12 19:31:19'),
 (83, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 86 telah diperbarui.', 'app\\models\\MasterPenilaian', '86', 'update', 0, '2025-11-12 19:35:50'),
-(84, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 86 telah diperbarui.', 'app\\models\\MasterPenilaian', '86', 'update', 0, '2025-11-12 19:54:37');
+(84, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 86 telah diperbarui.', 'app\\models\\MasterPenilaian', '86', 'update', 0, '2025-11-12 19:54:37'),
+(85, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 87 telah diperbarui.', 'app\\models\\MasterPenilaian', '87', 'update', 0, '2025-11-15 16:55:22'),
+(86, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 91 telah diperbarui.', 'app\\models\\MasterPenilaian', '91', 'update', 0, '2025-11-15 17:11:52'),
+(87, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 92 telah diperbarui.', 'app\\models\\MasterPenilaian', '92', 'update', 0, '2025-11-15 17:13:00'),
+(88, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 93 telah diperbarui.', 'app\\models\\MasterPenilaian', '93', 'update', 0, '2025-11-15 17:16:11'),
+(89, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 93 telah dihapus.', 'app\\models\\MasterPenilaian', '93', 'delete', 0, '2025-11-15 17:16:51'),
+(90, 20, 'Laporan penilaian diperbarui', 'Laporan penilaian 95 telah diperbarui.', 'app\\models\\MasterPenilaian', '95', 'update', 0, '2025-11-15 17:39:11'),
+(91, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 94 telah diperbarui.', 'app\\models\\MasterPenilaian', '94', 'update', 0, '2025-11-15 17:40:47'),
+(92, 21, 'Laporan penilaian diperbarui', 'Laporan penilaian 96 telah diperbarui.', 'app\\models\\MasterPenilaian', '96', 'update', 0, '2025-11-17 13:15:56');
 
 -- --------------------------------------------------------
 
@@ -570,7 +628,12 @@ INSERT INTO `role_permissions` (`id_jabatan`, `id_permission`) VALUES
 (6, 376),
 (6, 378),
 (6, 381),
-(6, 382);
+(6, 382),
+(7, 375),
+(7, 376),
+(7, 378),
+(7, 381),
+(7, 382);
 
 -- --------------------------------------------------------
 
@@ -607,7 +670,9 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id_users`, `username`, `password_hash`, `id_jabatan`, `id_departement`, `level_jabatan`, `nama`, `tanggal_masuk`, `pendidikan_terakhir`, `status_karyawan`, `lokasi_kerja`, `atasan_langsung`, `nomor_hp`, `email`, `tanggal_lahir`, `jenis_kelamin`, `golongan`, `penilaian_terakhir`, `catatan_khusus`, `foto`) VALUES
 (1, 'Dina', '$2y$10$.sS9XvlA14F7Ama5rhhPeukyZnZ9XApFqMwFVXTUlTK0zy2bM0T96', 2, 2, 6, 'Dina', '2025-10-01 00:07:57', 'S3 ITB', 'Owner', 'Kantor', 'Owner', '082144424425', 'test@gmail.com', '2025-10-01', 'pria', 1, '2025-10-01 00:07:57', 'tidak ada', NULL),
-(19, 'Ani', '$2y$13$7KtdBY6qjY90oXjETwdLNeq/9IeRtGFXnCDbUauPYjN54Pjxf6KBm', 6, 3, 3, 'Ani', '2025-10-01 00:00:00', 'S2 Universitas Andalas', 'Aktif', 'Pabrik ', 'Pemilik', '081252804432', 'jr0807200412345@gmail.com', '2025-10-01', 'wanita', 1, NULL, 'Tidak ada', 'Ex6rIr9PdD-PGATY.jpeg');
+(19, 'Ani', '$2y$13$7KtdBY6qjY90oXjETwdLNeq/9IeRtGFXnCDbUauPYjN54Pjxf6KBm', 6, 3, 3, 'Ani', '2025-10-01 00:00:00', 'S2 Universitas Andalas', 'Aktif', 'Pabrik ', 'Pemilik', '081252804432', 'jr0807200412345@gmail.com', '2025-10-01', 'wanita', 1, NULL, 'Tidak ada', 'Ex6rIr9PdD-PGATY.jpeg'),
+(20, 'Budi', '$2y$13$gVgOha9pVx6YpxxejIeZrOS32jGvu69zNYrB.0SWzS4MB8CYGWhtC', 7, 3, 5, 'Budi', '2025-11-01 00:00:00', 'S2 Universitas Indonesia', 'Aktif', 'Office 1', 'Owner', '082144424421', 'jr0807200412345@gmail.com', '1995-11-01', 'pria', 1, NULL, 'Tidak ada', 'J629TcCYnV2x9lgV.jpeg'),
+(21, 'Andika', '$2y$13$DJ1JieEP4e8N7KP6bZb2YO31wK0.no5lh6h7i7PAMY.JUC5Qs0Ifi', 8, 4, 2, 'Andika', '2025-11-01 00:00:00', 'S3 Institut Teknologi Bandung', 'Aktif', 'Office 1', 'Owner', '082144424475', 'jr0807200412345@gmail.com', '1992-11-01', 'pria', 1, NULL, 'Tidak ada', NULL);
 
 --
 -- Indexes for dumped tables
@@ -747,13 +812,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `banding_penilaian`
 --
 ALTER TABLE `banding_penilaian`
-  MODIFY `id_banding` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id_banding` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `detail_penilaian`
 --
 ALTER TABLE `detail_penilaian`
-  MODIFY `id_detailpenilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=202;
+  MODIFY `id_detailpenilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=221;
 
 --
 -- AUTO_INCREMENT for table `komentar`
@@ -765,13 +830,13 @@ ALTER TABLE `komentar`
 -- AUTO_INCREMENT for table `master_anchor`
 --
 ALTER TABLE `master_anchor`
-  MODIFY `id_anchor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=77;
+  MODIFY `id_anchor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
 
 --
 -- AUTO_INCREMENT for table `master_departement`
 --
 ALTER TABLE `master_departement`
-  MODIFY `id_departement` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_departement` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `master_event`
@@ -783,7 +848,7 @@ ALTER TABLE `master_event`
 -- AUTO_INCREMENT for table `master_jabatan`
 --
 ALTER TABLE `master_jabatan`
-  MODIFY `id_jabatan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id_jabatan` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `master_kategori`
@@ -795,19 +860,19 @@ ALTER TABLE `master_kategori`
 -- AUTO_INCREMENT for table `master_kriteria`
 --
 ALTER TABLE `master_kriteria`
-  MODIFY `id_kriteria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id_kriteria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `master_penilaian`
 --
 ALTER TABLE `master_penilaian`
-  MODIFY `id_penilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87;
+  MODIFY `id_penilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
 
 --
 -- AUTO_INCREMENT for table `master_periode`
 --
 ALTER TABLE `master_periode`
-  MODIFY `id_periode` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id_periode` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `master_profile`
@@ -819,7 +884,7 @@ ALTER TABLE `master_profile`
 -- AUTO_INCREMENT for table `notification`
 --
 ALTER TABLE `notification`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=85;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
 
 --
 -- AUTO_INCREMENT for table `permissions`
@@ -831,7 +896,7 @@ ALTER TABLE `permissions`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id_users` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id_users` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- Constraints for dumped tables
