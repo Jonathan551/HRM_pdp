@@ -24,3 +24,5 @@ Cara install :
 5.Copy Vendor.rar ke direktori aplikasi
 
 6.jika sudah run aplikasi nya dengan CLI dengan command "php yii serve"
+
+LInk Vendor : https://drive.google.com/drive/folders/1LJzOJdAkQ8wFK5RBFqqG7fyC9yq5XMqn?usp=sharing
