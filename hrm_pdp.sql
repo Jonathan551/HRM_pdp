@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 17, 2025 at 07:27 AM
+-- Generation Time: Dec 08, 2025 at 12:10 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -37,14 +37,6 @@ CREATE TABLE `banding_penilaian` (
   `review` text DEFAULT NULL,
   `tanggal_review` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `banding_penilaian`
---
-
-INSERT INTO `banding_penilaian` (`id_banding`, `id_penilaian`, `id_users`, `status`, `tanggal_banding`, `alasan`, `review`, `tanggal_review`) VALUES
-(17, 95, 20, 'Ditolak', '2025-11-15 18:19:44', 'tidak ada', 'Ditolak', '2025-11-15 18:33:24'),
-(18, 94, 19, 'Ditolak', '2025-11-15 18:23:41', 'Tidak ada', 'Tidak ada', '2025-11-15 18:33:12');
 
 --
 -- Triggers `banding_penilaian`
@@ -85,64 +77,6 @@ CREATE TABLE `detail_penilaian` (
   `id_anchor` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `detail_penilaian`
---
-
-INSERT INTO `detail_penilaian` (`id_detailpenilaian`, `id_penilaian`, `id_kriteria`, `id_anchor`) VALUES
-(161, 72, 17, 68),
-(162, 72, 14, 53),
-(163, 73, 14, 54),
-(164, 73, 15, 70),
-(165, 73, 16, 64),
-(166, 73, 17, 68),
-(167, 72, 15, 70),
-(172, 74, 17, 68),
-(173, 74, 14, 53),
-(174, 74, 16, 64),
-(176, 75, 15, 70),
-(177, 75, 16, 64),
-(179, 75, 17, 68),
-(180, 76, 14, 51),
-(181, 76, 15, 56),
-(182, 76, 16, 62),
-(184, 76, 17, 69),
-(186, 78, 14, 50),
-(187, 78, 15, 71),
-(188, 80, 14, 54),
-(189, 81, 14, 52),
-(190, 81, 15, 71),
-(191, 82, 14, 50),
-(192, 82, 16, 62),
-(193, 82, 17, 69),
-(194, 82, 15, 70),
-(195, 83, 15, 70),
-(196, 84, 15, 56),
-(197, 84, 16, 62),
-(198, 85, 14, 53),
-(199, 85, 16, 64),
-(200, 86, 14, 54),
-(201, 86, 16, 62),
-(202, 87, 14, 52),
-(203, 87, 15, 70),
-(204, 87, 16, 64),
-(205, 91, 14, 52),
-(206, 91, 15, 71),
-(207, 92, 15, 56),
-(208, 92, 17, 69),
-(209, 93, 14, 53),
-(210, 95, 14, 51),
-(211, 95, 15, 57),
-(212, 95, 16, 62),
-(213, 95, 17, 66),
-(214, 94, 14, 53),
-(215, 94, 15, 57),
-(216, 94, 16, 64),
-(217, 94, 17, 68),
-(218, 96, 20, 90),
-(219, 96, 19, 85),
-(220, 96, 21, 81);
-
 -- --------------------------------------------------------
 
 --
@@ -157,16 +91,6 @@ CREATE TABLE `komentar` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `komentar`
---
-
-INSERT INTO `komentar` (`id_komentar`, `id_users`, `id_event`, `deskripsi`, `created_at`, `updated_at`) VALUES
-(1, 1, 14, 'Enak Banget', '2025-11-03 21:48:01', NULL),
-(2, 1, 14, 'Terima Kasih Pak', '2025-11-03 22:23:43', NULL),
-(3, 19, 14, 'Wah Enak Saya Juga Mau Yang Bener', '2025-11-03 22:25:05', NULL),
-(4, 1, 14, 'Enak Banget Makanannya\r\n', '2025-11-04 22:34:05', NULL);
 
 -- --------------------------------------------------------
 
@@ -365,15 +289,6 @@ CREATE TABLE `master_penilaian` (
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `master_penilaian`
---
-
-INSERT INTO `master_penilaian` (`id_penilaian`, `id_users`, `id_periode`, `nilai_akhir`, `id_kategori`, `presentase_absensi`, `catatan`, `rekomendasi`, `created_at`, `updated_at`) VALUES
-(94, 19, 21, 3.900, 11, '100', 'Sangat baik dalam kerjasama tim, menjadi teladan bagi rekan kerja,Kualitas bordir dan jahitan hampir selalu memenuhi standar pelanggan,Menunjukkan inisiatif yang baik dalam meningkatkan efisiensi proses.', '•	Efisiensi waktu perlu ditingkatkan, terutama dalam menangani keterlambatan akibat penyesuaian mesin.\r\n•	Konsistensi pada desain bordir kompleks dapat diperbaiki dengan latihan tambahan.\r\n•	Mengikuti pelatihan internal selama 1 minggu untuk optimalisasi penggunaan mesin bordir.\r\n•	Menetapkan target waktu penyelesaian harian yang lebih ketat, dengan pemantauan mingguan.\r\n•	Mendorong Ani untuk mengambil lebih banyak inisiatif dalam perawatan mesin untuk mencegah keterlambatan.\r\n', '2025-11-15 17:38:45', '2025-11-15 17:41:24'),
-(95, 20, 21, 2.500, 10, '100', 'Mampu mencapai target produksi harian secara konsisten, Bekerja sama dengan baik dalam tim saat diminta.', '•	Ketelitian dalam produksi perlu ditingkatkan untuk mengurangi tingkat cacat produk (target <5%).\r\n•	Kurangnya inisiatif dalam mengidentifikasi perbaikan proses atau membantu rekan tanpa instruksi.\r\n•	Perlu mengurangi waktu yang dihabiskan untuk penyesuaian mesin.\r\n', '2025-11-15 17:38:45', '2025-11-15 17:40:04'),
-(96, 21, 21, 4.320, 11, '100', 'Cukup Bagus', '- Promosi menuju SPV \r\n- Membuat Tim marketing untuk menambah sales', '2025-11-17 13:15:29', '2025-11-17 13:16:37');
-
 -- --------------------------------------------------------
 
 --
@@ -390,13 +305,6 @@ CREATE TABLE `master_periode` (
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `master_periode`
---
-
-INSERT INTO `master_periode` (`id_periode`, `nama`, `tanggal_mulai`, `tanggal_selesai`, `id_user`, `status`, `created_at`, `updated_at`) VALUES
-(21, 'Periode 1', '2025-10-01', '2025-12-31', 1, 'Terbuka', '2025-11-15 17:38:45', '2025-11-15 17:38:45');
 
 -- --------------------------------------------------------
 
@@ -458,99 +366,6 @@ CREATE TABLE `notification` (
   `dibaca` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `notification`
---
-
-INSERT INTO `notification` (`id`, `target_id_user`, `judul`, `deskripsi`, `model_class`, `model_pk`, `aksi`, `dibaca`, `created_at`) VALUES
-(6, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 49 telah dibuat.', 'app\\models\\MasterPenilaian', '49', 'create', 1, '2025-10-08 18:49:50'),
-(7, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 18:49:56'),
-(8, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 18:50:03'),
-(9, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 18:50:14'),
-(10, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 18:50:40'),
-(11, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 18:53:39'),
-(12, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 19:12:10'),
-(13, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 19:13:30'),
-(14, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 19:13:58'),
-(15, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 49 telah diperbarui.', 'app\\models\\MasterPenilaian', '49', 'update', 1, '2025-10-08 19:27:40'),
-(16, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 50 telah dibuat.', 'app\\models\\MasterPenilaian', '50', 'create', 0, '2025-10-12 14:11:59'),
-(17, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 51 telah dibuat.', 'app\\models\\MasterPenilaian', '51', 'create', 0, '2025-10-12 14:14:00'),
-(18, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 52 telah dibuat.', 'app\\models\\MasterPenilaian', '52', 'create', 0, '2025-10-12 14:15:32'),
-(19, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 53 telah dibuat.', 'app\\models\\MasterPenilaian', '53', 'create', 0, '2025-10-12 14:16:11'),
-(20, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 54 telah dibuat.', 'app\\models\\MasterPenilaian', '54', 'create', 0, '2025-10-12 14:25:12'),
-(21, 16, 'Laporan penilaian dibuat', 'Laporan penilaian 55 telah dibuat.', 'app\\models\\MasterPenilaian', '55', 'create', 0, '2025-10-12 14:28:35'),
-(22, 17, 'Laporan penilaian dihapus', 'Laporan penilaian 43 telah dihapus.', 'app\\models\\MasterPenilaian', '43', 'delete', 0, '2025-10-12 14:35:57'),
-(23, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 56 telah dibuat.', 'app\\models\\MasterPenilaian', '56', 'create', 0, '2025-10-12 14:36:16'),
-(24, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 56 telah diperbarui.', 'app\\models\\MasterPenilaian', '56', 'update', 0, '2025-10-12 14:38:04'),
-(25, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 56 telah diperbarui.', 'app\\models\\MasterPenilaian', '56', 'update', 0, '2025-10-12 14:43:14'),
-(26, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 57 telah dibuat.', 'app\\models\\MasterPenilaian', '57', 'create', 0, '2025-10-12 15:08:21'),
-(27, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 58 telah dibuat.', 'app\\models\\MasterPenilaian', '58', 'create', 0, '2025-10-12 15:09:21'),
-(28, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 59 telah dibuat.', 'app\\models\\MasterPenilaian', '59', 'create', 0, '2025-10-12 15:11:23'),
-(29, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 60 telah dibuat.', 'app\\models\\MasterPenilaian', '60', 'create', 0, '2025-10-12 15:13:00'),
-(30, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 61 telah dibuat.', 'app\\models\\MasterPenilaian', '61', 'create', 0, '2025-10-14 11:09:55'),
-(31, 17, 'Laporan penilaian dihapus', 'Laporan penilaian 61 telah dihapus.', 'app\\models\\MasterPenilaian', '61', 'delete', 0, '2025-10-14 12:17:28'),
-(32, 17, 'Laporan penilaian dihapus', 'Laporan penilaian 45 telah dihapus.', 'app\\models\\MasterPenilaian', '45', 'delete', 0, '2025-10-14 12:17:32'),
-(33, 16, 'Laporan penilaian dihapus', 'Laporan penilaian 47 telah dihapus.', 'app\\models\\MasterPenilaian', '47', 'delete', 0, '2025-10-14 12:17:38'),
-(34, 14, 'Laporan penilaian dibuat', 'Laporan penilaian 62 telah dibuat.', 'app\\models\\MasterPenilaian', '62', 'create', 0, '2025-10-14 12:21:51'),
-(35, 16, 'Laporan penilaian dibuat', 'Laporan penilaian 63 telah dibuat.', 'app\\models\\MasterPenilaian', '63', 'create', 0, '2025-10-14 12:22:42'),
-(36, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 64 telah dibuat.', 'app\\models\\MasterPenilaian', '64', 'create', 0, '2025-10-14 12:23:05'),
-(37, 16, 'Laporan penilaian dibuat', 'Laporan penilaian 65 telah dibuat.', 'app\\models\\MasterPenilaian', '65', 'create', 0, '2025-10-14 12:27:05'),
-(38, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 66 telah dibuat.', 'app\\models\\MasterPenilaian', '66', 'create', 0, '2025-10-14 12:27:33'),
-(39, 14, 'Laporan penilaian dibuat', 'Laporan penilaian 67 telah dibuat.', 'app\\models\\MasterPenilaian', '67', 'create', 0, '2025-10-23 01:38:58'),
-(40, 17, 'Laporan penilaian dibuat', 'Laporan penilaian 68 telah dibuat.', 'app\\models\\MasterPenilaian', '68', 'create', 0, '2025-10-23 01:39:29'),
-(41, 17, 'Laporan penilaian diperbarui', 'Laporan penilaian 68 telah diperbarui.', 'app\\models\\MasterPenilaian', '68', 'update', 0, '2025-10-23 01:40:05'),
-(42, 16, 'Laporan penilaian dibuat', 'Laporan penilaian 69 telah dibuat.', 'app\\models\\MasterPenilaian', '69', 'create', 0, '2025-10-23 01:42:40'),
-(43, 14, 'Laporan penilaian dibuat', 'Laporan penilaian 70 telah dibuat.', 'app\\models\\MasterPenilaian', '70', 'create', 0, '2025-10-23 01:44:31'),
-(44, 14, 'Laporan penilaian dibuat', 'Laporan penilaian 71 telah dibuat.', 'app\\models\\MasterPenilaian', '71', 'create', 0, '2025-10-30 00:05:37'),
-(45, 14, 'Laporan penilaian dihapus', 'Laporan penilaian 71 telah dihapus.', 'app\\models\\MasterPenilaian', '71', 'delete', 0, '2025-10-30 00:05:55'),
-(46, 19, 'Laporan penilaian dibuat', 'Laporan penilaian 72 telah dibuat.', 'app\\models\\MasterPenilaian', '72', 'create', 0, '2025-11-04 22:44:47'),
-(47, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 72 telah diperbarui.', 'app\\models\\MasterPenilaian', '72', 'update', 0, '2025-11-06 11:38:57'),
-(48, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 72 telah diperbarui.', 'app\\models\\MasterPenilaian', '72', 'update', 0, '2025-11-06 11:40:23'),
-(49, 19, 'Laporan penilaian dibuat', 'Laporan penilaian 73 telah dibuat.', 'app\\models\\MasterPenilaian', '73', 'create', 0, '2025-11-06 11:42:20'),
-(50, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 72 telah diperbarui.', 'app\\models\\MasterPenilaian', '72', 'update', 0, '2025-11-06 11:42:43'),
-(51, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 72 telah dihapus.', 'app\\models\\MasterPenilaian', '72', 'delete', 0, '2025-11-06 11:42:51'),
-(52, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 73 telah diperbarui.', 'app\\models\\MasterPenilaian', '73', 'update', 0, '2025-11-06 11:42:57'),
-(53, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 73 telah diperbarui.', 'app\\models\\MasterPenilaian', '73', 'update', 0, '2025-11-06 11:43:08'),
-(54, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 73 telah dihapus.', 'app\\models\\MasterPenilaian', '73', 'delete', 0, '2025-11-06 11:43:21'),
-(55, 19, 'Laporan penilaian dibuat', 'Laporan penilaian 74 telah dibuat.', 'app\\models\\MasterPenilaian', '74', 'create', 0, '2025-11-06 11:44:33'),
-(56, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 74 telah diperbarui.', 'app\\models\\MasterPenilaian', '74', 'update', 0, '2025-11-06 11:45:05'),
-(57, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 74 telah diperbarui.', 'app\\models\\MasterPenilaian', '74', 'update', 0, '2025-11-06 11:45:19'),
-(58, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 74 telah diperbarui.', 'app\\models\\MasterPenilaian', '74', 'update', 0, '2025-11-06 11:45:31'),
-(59, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 74 telah diperbarui.', 'app\\models\\MasterPenilaian', '74', 'update', 0, '2025-11-06 11:45:46'),
-(60, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 74 telah diperbarui.', 'app\\models\\MasterPenilaian', '74', 'update', 0, '2025-11-06 11:46:02'),
-(61, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 74 telah diperbarui.', 'app\\models\\MasterPenilaian', '74', 'update', 0, '2025-11-06 11:46:17'),
-(62, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 74 telah dihapus.', 'app\\models\\MasterPenilaian', '74', 'delete', 0, '2025-11-06 11:47:44'),
-(63, 19, 'Laporan penilaian dibuat', 'Laporan penilaian 75 telah dibuat.', 'app\\models\\MasterPenilaian', '75', 'create', 0, '2025-11-06 11:48:03'),
-(64, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 75 telah diperbarui.', 'app\\models\\MasterPenilaian', '75', 'update', 0, '2025-11-06 11:52:02'),
-(65, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 75 telah diperbarui.', 'app\\models\\MasterPenilaian', '75', 'update', 0, '2025-11-06 11:52:12'),
-(66, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 75 telah dihapus.', 'app\\models\\MasterPenilaian', '75', 'delete', 0, '2025-11-06 11:54:53'),
-(67, 19, 'Laporan penilaian dibuat', 'Laporan penilaian 76 telah dibuat.', 'app\\models\\MasterPenilaian', '76', 'create', 0, '2025-11-06 11:55:10'),
-(68, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 76 telah diperbarui.', 'app\\models\\MasterPenilaian', '76', 'update', 0, '2025-11-06 11:55:22'),
-(69, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 76 telah diperbarui.', 'app\\models\\MasterPenilaian', '76', 'update', 0, '2025-11-06 11:55:30'),
-(70, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 76 telah diperbarui.', 'app\\models\\MasterPenilaian', '76', 'update', 0, '2025-11-06 11:55:54'),
-(71, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 76 telah diperbarui.', 'app\\models\\MasterPenilaian', '76', 'update', 0, '2025-11-06 11:56:07'),
-(72, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 78 telah diperbarui.', 'app\\models\\MasterPenilaian', '78', 'update', 0, '2025-11-10 22:30:55'),
-(73, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 80 telah diperbarui.', 'app\\models\\MasterPenilaian', '80', 'update', 0, '2025-11-11 00:56:11'),
-(74, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 80 telah dihapus.', 'app\\models\\MasterPenilaian', '80', 'delete', 0, '2025-11-11 00:56:15'),
-(75, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 81 telah diperbarui.', 'app\\models\\MasterPenilaian', '81', 'update', 0, '2025-11-12 18:38:13'),
-(76, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 81 telah dihapus.', 'app\\models\\MasterPenilaian', '81', 'delete', 0, '2025-11-12 18:38:19'),
-(77, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 82 telah diperbarui.', 'app\\models\\MasterPenilaian', '82', 'update', 0, '2025-11-12 18:59:10'),
-(78, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 82 telah diperbarui.', 'app\\models\\MasterPenilaian', '82', 'update', 0, '2025-11-12 19:01:56'),
-(79, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 83 telah diperbarui.', 'app\\models\\MasterPenilaian', '83', 'update', 0, '2025-11-12 19:23:12'),
-(80, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 83 telah dihapus.', 'app\\models\\MasterPenilaian', '83', 'delete', 0, '2025-11-12 19:26:03'),
-(81, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 84 telah diperbarui.', 'app\\models\\MasterPenilaian', '84', 'update', 0, '2025-11-12 19:26:51'),
-(82, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 85 telah diperbarui.', 'app\\models\\MasterPenilaian', '85', 'update', 0, '2025-11-12 19:31:19'),
-(83, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 86 telah diperbarui.', 'app\\models\\MasterPenilaian', '86', 'update', 0, '2025-11-12 19:35:50'),
-(84, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 86 telah diperbarui.', 'app\\models\\MasterPenilaian', '86', 'update', 0, '2025-11-12 19:54:37'),
-(85, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 87 telah diperbarui.', 'app\\models\\MasterPenilaian', '87', 'update', 0, '2025-11-15 16:55:22'),
-(86, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 91 telah diperbarui.', 'app\\models\\MasterPenilaian', '91', 'update', 0, '2025-11-15 17:11:52'),
-(87, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 92 telah diperbarui.', 'app\\models\\MasterPenilaian', '92', 'update', 0, '2025-11-15 17:13:00'),
-(88, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 93 telah diperbarui.', 'app\\models\\MasterPenilaian', '93', 'update', 0, '2025-11-15 17:16:11'),
-(89, 19, 'Laporan penilaian dihapus', 'Laporan penilaian 93 telah dihapus.', 'app\\models\\MasterPenilaian', '93', 'delete', 0, '2025-11-15 17:16:51'),
-(90, 20, 'Laporan penilaian diperbarui', 'Laporan penilaian 95 telah diperbarui.', 'app\\models\\MasterPenilaian', '95', 'update', 0, '2025-11-15 17:39:11'),
-(91, 19, 'Laporan penilaian diperbarui', 'Laporan penilaian 94 telah diperbarui.', 'app\\models\\MasterPenilaian', '94', 'update', 0, '2025-11-15 17:40:47'),
-(92, 21, 'Laporan penilaian diperbarui', 'Laporan penilaian 96 telah diperbarui.', 'app\\models\\MasterPenilaian', '96', 'update', 0, '2025-11-17 13:15:56');
 
 -- --------------------------------------------------------
 
@@ -818,7 +633,7 @@ ALTER TABLE `banding_penilaian`
 -- AUTO_INCREMENT for table `detail_penilaian`
 --
 ALTER TABLE `detail_penilaian`
-  MODIFY `id_detailpenilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=221;
+  MODIFY `id_detailpenilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=229;
 
 --
 -- AUTO_INCREMENT for table `komentar`
@@ -866,13 +681,13 @@ ALTER TABLE `master_kriteria`
 -- AUTO_INCREMENT for table `master_penilaian`
 --
 ALTER TABLE `master_penilaian`
-  MODIFY `id_penilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
+  MODIFY `id_penilaian` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=103;
 
 --
 -- AUTO_INCREMENT for table `master_periode`
 --
 ALTER TABLE `master_periode`
-  MODIFY `id_periode` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id_periode` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `master_profile`
@@ -884,7 +699,7 @@ ALTER TABLE `master_profile`
 -- AUTO_INCREMENT for table `notification`
 --
 ALTER TABLE `notification`
-  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=93;
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=96;
 
 --
 -- AUTO_INCREMENT for table `permissions`
