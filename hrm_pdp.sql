@@ -474,7 +474,7 @@ CREATE TABLE `users` (
   `tanggal_lahir` date DEFAULT NULL,
   `jenis_kelamin` enum('pria','wanita') DEFAULT NULL,
   `golongan` int(11) DEFAULT NULL,
-  `penilaian_terakhir` datetime DEFAULT NULL,
+  `penilaian_terakhir` date DEFAULT NULL,
   `catatan_khusus` varchar(255) DEFAULT NULL,
   `foto` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
