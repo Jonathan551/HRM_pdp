@@ -18,7 +18,19 @@ use yii\web\View;
 
     <?= $form->field($model, 'username')->textInput(['maxlength' => true])->label('Username *')  ?>
 
-    <?= $form->field($model, 'password')->passwordInput([
+    <?= $form->field($model, 'password', [
+        'template' => '
+            {label}
+            <div class="input-group">
+                {input}
+                <button type="button" class="btn btn-outline-secondary" id="toggle-password">
+                    Lihat
+                </button>
+            </div>
+            {error}
+        '
+    ])->passwordInput([
+        'id' => 'password-input',
         'value' => '',
         'placeholder' => 'Jika update tidak ingin mengganti password bisa dikosongi saja',
     ]) ?>
@@ -123,5 +135,17 @@ use yii\web\View;
         'depends'  => [\yii\web\JqueryAsset::class],
         'position' => View::POS_END,
     ]);
+
+    $this->registerJs("
+        const toggleBtn = document.getElementById('toggle-password');
+        const passwordInput = document.getElementById('password-input');
+
+        toggleBtn.addEventListener('click', function () {
+            const isPassword = passwordInput.type === 'password';
+
+            passwordInput.type = isPassword ? 'text' : 'password';
+            toggleBtn.textContent = isPassword ? 'Sembunyi' : 'Lihat';
+        });
+    ");
     ?>
 </div>

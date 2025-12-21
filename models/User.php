@@ -162,6 +162,11 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
         return $this->hasOne(MasterJabatan::class, ['id_jabatan' => 'id_jabatan']);
     }
 
+    public function getPeriode()
+    {
+        return $this->hasOne(MasterPeriode::class, ['id_periode' => 'id_periode']);
+    }
+
     /**
      * Gets query for [[MasterEvents]].
      *
@@ -328,18 +333,25 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
         return ['level_jabatan' => $jab ? $jab->level_jabatan : null];
     }
 
-    public function actionLatestPenilaian($id_users)
+   public function actionLatestPenilaian($id_users)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
+
         $latest = MasterPenilaian::find()
-            ->where(['id_users' => $id_users])
-            ->orderBy(['periode_akhir' => SORT_DESC])
+            ->joinWith('periode')
+            ->where(['master_penilaian.id_users' => $id_users])
+            ->orderBy(['master_periode.tanggal_selesai' => SORT_DESC])
             ->one();
 
-        if ($latest && $latest->periode_akhir) {
-            $tgl = Yii::$app->formatter->asDate($latest->periode_akhir, 'php:d-m-Y');
+        if ($latest && $latest->periode && $latest->periode->tanggal_selesai) {
+            $tgl = Yii::$app->formatter->asDate(
+                $latest->periode->tanggal_selesai,
+                'php:d-m-Y'
+            );
+
             return ['penilaian_terakhir' => $tgl];
         }
+
         return ['penilaian_terakhir' => null];
     }
 
@@ -347,15 +359,17 @@ class User extends \yii\db\ActiveRecord implements IdentityInterface
     {
         if ($this->id_users) {
             $latest = MasterPenilaian::find()
-                ->where(['id_users' => $this->id_users])
-                ->orderBy(['periode_akhir' => SORT_DESC])
+                ->joinWith('periode')
+                ->where(['master_penilaian.id_users' => $this->id_users])
+                ->orderBy(['master_periode.tanggal_selesai' => SORT_DESC])
                 ->one();
 
-            if ($latest && $latest->periode_akhir) {
+            if ($latest && $latest->periode && $latest->periode->tanggal_selesai) {
                 $this->penilaian_terakhir = Yii::$app->formatter
-                    ->asDate($latest->periode_akhir, 'php:d-m-Y');
+                    ->asDate($latest->periode->tanggal_selesai, 'php:d-m-Y');
             }
         }
+
         if ($this->id_jabatan) {
             $jab = MasterJabatan::findOne($this->id_jabatan);
             if ($jab) {
