@@ -42,16 +42,15 @@ class PhpMailer extends Component
                 $m->AuthType = $authType;
             }
 
-            // TLS/SSL setup
+
             if ($encryption) {
-                $m->SMTPSecure = $encryption;            // STARTTLS / SMTPS
+                $m->SMTPSecure = $encryption;            
                 if (is_bool($autotls)) { $m->SMTPAutoTLS = $autotls; }
             } else {
-                $m->SMTPSecure = false;                  // non-TLS
+                $m->SMTPSecure = false;                 
                 $m->SMTPAutoTLS = false;
             }
 
-            // Debug ke log Yii
             if ($debug) {
                 $m->SMTPDebug   = SMTP::DEBUG_SERVER;
                 $m->Debugoutput = static function (string $str, int $level): void {
@@ -59,25 +58,20 @@ class PhpMailer extends Component
                 };
             }
 
-            // ⚠️ Hindari CN mismatch:
-            // - Jika TLS aktif → JANGAN ganti host ke IP.
-            // - Jika harus paksa IPv4 saat TLS, set peer_name ke host asli.
+
             if ($ipv4 && $host && !filter_var($host, FILTER_VALIDATE_IP)) {
-                $forceIpv4 = empty($encryption); // true hanya jika non-TLS
+                $forceIpv4 = empty($encryption); 
                 if ($forceIpv4) {
-                    $resolved = @gethostbyname($host);   // IPv4
+                    $resolved = @gethostbyname($host);   
                     if ($resolved && $resolved !== $host) { $m->Host = $resolved; }
                 } else {
-                    // TLS + IPv4 paksa: tetap connect ke IP, tapi set peer_name agar sertifikat cocok
                     $resolved = @gethostbyname($host);
                     if ($resolved && $resolved !== $host) {
                         $m->Host = $resolved;
-                        $m->SMTPOptions['ssl']['peer_name'] = $host; // penting: elak CN mismatch
+                        $m->SMTPOptions['ssl']['peer_name'] = $host; 
                     }
                 }
             }
-
-            // (Opsional keamanan ketat; jangan disable verify_* di produksi)
             if (!empty($c['allowSelfSigned'])) {
                 $m->SMTPOptions['ssl'] = array_merge($m->SMTPOptions['ssl'] ?? [], [
                     'verify_peer'       => false,

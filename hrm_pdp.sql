@@ -283,7 +283,7 @@ CREATE TABLE `master_penilaian` (
   `nilai_akhir` decimal(5,3) DEFAULT NULL,
   `id_kategori` int(11) DEFAULT NULL,
   `presentase_absensi` varchar(50) DEFAULT NULL,
-  `catatan` varchar(255) NOT NULL,
+  `catatan` varchar(255) DEFAULT NULL,
   `rekomendasi` text DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL

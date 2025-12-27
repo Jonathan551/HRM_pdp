@@ -102,7 +102,17 @@ class ReportService extends Component
             $run = $cellLogo->addTextRun(['alignment'=>Jc::CENTER]);
             $run->addImage($logoPath, ['width'=>90, 'height'=>90]);
         }
-        $cellTitle->addText('Laporan Penilaian Kinerja Karyawan', ['bold'=>true,'size'=>14,'underline'=>'single'], ['alignment'=>Jc::CENTER]);
+        $namaUmkm   = $profile->nama ?? Yii::$app->name;
+        $telpUmkm   = $profile->notelfon ?? '-';
+        $emailUmkm  = $profile->email ?? '-';
+        $alamatUmkm = $profile->alamat ?? '-';
+
+        $cellTitle->addText($namaUmkm, ['bold'=>true,'size'=>14], ['alignment'=>Jc::CENTER]);
+        $cellTitle->addText("{$alamatUmkm}",['size'=>9],['alignment'=>Jc::CENTER]);
+        $cellTitle->addText("Telp: {$telpUmkm} | Email: {$emailUmkm}",['size'=>9],['alignment'=>Jc::CENTER]);
+        $cellTitle->addTextBreak(1);
+        $cellTitle->addText('LAPORAN PENILAIAN KINERJA KARYAWAN',['bold'=>true,'size'=>12,'underline'=>'single'],['alignment'=>Jc::CENTER]);
+
 
         $section->addTextBreak(1);
 
@@ -186,6 +196,20 @@ class ReportService extends Component
         $section->addTextBreak(1);
         $section->addText("Catatan Penilaian", ['bold'=>true]);
         $section->addText($penilaian->catatan ? (string)$penilaian->catatan : '-', [], ['alignment'=>'both']);
+
+        $section->addTextBreak(1);
+        $section->addText("Rekomendasi", ['bold'=>true]);
+        if (!empty($penilaian->rekomendasi)) {
+            $rows = preg_split('/\r\n|\r|\n/', $penilaian->rekomendasi);
+            foreach ($rows as $row) {
+                $text = trim(ltrim($row, "-• \t"));
+                if ($text !== '') {
+                    $section->addListItem($text, 0, null, 'multilevel', ['alignment'=>'both']);
+                }
+            }
+        } else {
+            $section->addText('-');
+        }
 
         $footer = $section->addFooter();
         $footer->addPreserveText(sprintf('%s — Halaman {PAGE} dari {NUMPAGES}', Yii::$app->name), [], ['alignment'=>Jc::CENTER]);
