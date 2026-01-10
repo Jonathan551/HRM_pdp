@@ -72,26 +72,40 @@ $this->params['breadcrumbs'][] = $this->title;
                     return $model->user ? $model->user->nama : '-';
                 },
             ],
-            'nilai_akhir',
             [
-                'attribute' => 'periode_awal',
-                'label' => 'Periode Awal Penilaian',
-                'format' => ['date', 'php:d-m-Y '],
-            ],
-            [
-                'attribute' => 'periode_akhir',
-                'label' => 'Periode Awal Akhir',
-                'format' => ['date', 'php:d-m-Y '],
+                'attribute' => 'id_periode',
+                'value' => function($model) {
+                    return $model->penilaian && $model->penilaian->periode 
+                        ? $model->penilaian->periode->nama
+                        : '-';
+                },
+                'label' => 'Periode Penilaian',
             ],
             [
                 'attribute' => 'id_kategori',
                 'value' => function($model) {
-                    return $model->kategori ? $model->kategori->nama_kategori : '-';
+                    return $model->penilaian && $model->penilaian->kategori 
+                        ? $model->penilaian->kategori->nama_kategori 
+                        : '-';
                 },
                 'label' => 'Status Nilai',
             ],
             [
+                'attribute' => 'nilai_akhir',
+                'value' => function($model) {
+                    return $model->penilaian && $model->penilaian->nilai_akhir 
+                        ? number_format($model->penilaian->nilai_akhir, 3) 
+                        : '-';
+                },
+                'label' => 'Nilai Akhir',
+            ],
+            [
                 'attribute' => 'presentase_absensi',
+                'value' => function($model) {
+                    return $model->penilaian && $model->penilaian->presentase_absensi 
+                        ? $model->penilaian->presentase_absensi . '%' 
+                        : '-';
+                },
                 'label' => 'Presentase Absensi',
             ],
         ],

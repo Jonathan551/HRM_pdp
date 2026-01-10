@@ -91,28 +91,18 @@ class BandingPenilaian extends ActiveRecord
         ];
     }
 
-    public function getPenilaian()
-    {
-        return $this->hasOne(MasterPenilaian::class, ['id_penilaian' => 'id_penilaian']);
-    }
-
-    public function getUser()
-    {
-        return $this->hasOne(User::class, ['id_users' => 'id_users']);
-    }
-
-    public function displayStatus(): string
-    {
-        return self::optsStatus()[$this->status] ?? $this->status;
-    }
-
-    public function isStatusReview(): bool   { return $this->status === self::STATUS_REVIEW; }
-    public function isStatusDiterima(): bool { return $this->status === self::STATUS_DITERIMA; }
-    public function isStatusDitolak(): bool  { return $this->status === self::STATUS_DITOLAK; }
-
-    public function setStatusToReview(): void   { $this->status = self::STATUS_REVIEW; }
-    public function setStatusToDiterima(): void { $this->status = self::STATUS_DITERIMA; }
-    public function setStatusToDitolak(): void  { $this->status = self::STATUS_DITOLAK; }
+   public function getPenilaian(){ return $this->hasOne(MasterPenilaian::class, ['id_penilaian' => 'id_penilaian']); }
+   public function getUser(){return $this->hasOne(User::class, ['id_users' => 'id_users']);}
+   public function displayStatus(): string{ return self::optsStatus()[$this->status] ?? $this->status; }
+   public function getDetailPenilaian(){ return $this->hasMany(DetailPenilaian::class, ['id_penilaian'=>'id_penilaian']); }
+   public function getKategori(){ return $this->hasOne(MasterKategori::class, ['id_kategori'=>'id_kategori']); }
+   public function isStatusReview(): bool   { return $this->status === self::STATUS_REVIEW; }
+   public function isStatusDiterima(): bool { return $this->status === self::STATUS_DITERIMA; }
+   public function isStatusDitolak(): bool  { return $this->status === self::STATUS_DITOLAK; }
+   public function setStatusToReview(): void   { $this->status = self::STATUS_REVIEW; }
+   public function setStatusToDiterima(): void { $this->status = self::STATUS_DITERIMA; }
+   public function setStatusToDitolak(): void  { $this->status = self::STATUS_DITOLAK; }
+   public function getPeriode(){return $this->hasOne(MasterPeriode::class, ['id_periode' => 'id_periode']);}
 
    public function getTanggalBandingDisplay(): string
     {

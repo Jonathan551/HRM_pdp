@@ -4,7 +4,7 @@ namespace app\controllers;
 
 use Yii;
 use app\models\BandingPenilaian;
-use app\models\BandingPenilaianSearch; // pastikan S besar
+use app\models\BandingPenilaianSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -125,8 +125,15 @@ class BandingPenilaianController extends BaseController
 
     public function actionBanding($id_banding)
     {
-        return $this->render('banding', ['model' => $this->findModel($id_banding)]);
+        $model = $this->findModel($id_banding);
+        if ($this->isFinal($model)) {
+            Yii::$app->session->setFlash('warning', 'Keputusan sudah final dan tidak dapat diubah.');
+            return $this->redirect(['view', 'id_banding' => $model->id_banding]);
+        }
+        
+        return $this->render('banding', ['model' => $model]);
     }
+
     public function actionUpdate($id_banding)
     {
         $model = $this->findModel($id_banding);
@@ -147,9 +154,13 @@ class BandingPenilaianController extends BaseController
 
     protected function findModel($id_banding)
     {
-        if (($model = BandingPenilaian::findOne(['id_banding' => $id_banding])) !== null) {
+        if (($model = BandingPenilaian::find()
+            ->with(['penilaian.user', 'penilaian.periode', 'penilaian.kategori'])
+            ->where(['id_banding' => $id_banding]) 
+            ->one()) !== null) {
             return $model;
         }
+
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

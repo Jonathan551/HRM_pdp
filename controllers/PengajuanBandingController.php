@@ -37,7 +37,7 @@ class PengajuanBandingController extends BaseController
     {
         if ($id_banding !== null) {
             $model = $this->findBanding($id_banding);
-            return $this->render('view-banding', ['model' => $model]);
+            return $this->render('view', ['model' => $model]);
         }
 
         if ($id_penilaian !== null) {
